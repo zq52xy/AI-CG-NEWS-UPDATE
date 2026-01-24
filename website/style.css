@@ -8,22 +8,22 @@
     --bg-secondary: #12121a;
     --bg-tertiary: #1a1a24;
     --bg-hover: #22222e;
-    
+
     --text-primary: #f0f0f5;
     --text-secondary: #a0a0b0;
     --text-muted: #606070;
-    
+
     --accent-primary: #6366f1;
     --accent-secondary: #818cf8;
     --accent-glow: rgba(99, 102, 241, 0.3);
-    
+
     --success: #10b981;
     --warning: #f59e0b;
     --error: #ef4444;
-    
+
     --border: rgba(255, 255, 255, 0.08);
     --border-hover: rgba(255, 255, 255, 0.15);
-    
+
     /* 间距 */
     --sidebar-width: 280px;
     --header-height: 64px;
@@ -353,7 +353,9 @@ body {
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* ============================================================================
@@ -429,48 +431,113 @@ body {
     .menu-btn {
         display: block;
     }
-    
+
     .sidebar {
         transform: translateX(-100%);
         transition: transform 0.3s ease;
     }
-    
+
     .sidebar.open {
         transform: translateX(0);
     }
-    
+
     .main {
         margin-left: 0;
     }
-    
+
     .header-content {
         padding: 0 16px;
     }
-    
+
     .page-title {
         font-size: 16px;
     }
-    
+
     .date {
         display: none;
     }
-    
+
     .content-wrapper {
-        padding: 16px;
+        padding: 12px;
     }
-    
+
+    /* 标题适配 */
     .content h1 {
-        font-size: 24px;
+        font-size: 20px;
+        line-height: 1.4;
+        margin-bottom: 12px;
     }
-    
+
     .content h2 {
-        font-size: 18px;
+        font-size: 16px;
+        margin: 20px 0 12px;
     }
-    
-    /* 表格横向滚动 */
+
+    .content h3 {
+        font-size: 14px;
+        margin: 16px 0 8px;
+    }
+
+    /* 段落和引用 */
+    .content p {
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .content blockquote {
+        padding: 10px 12px;
+        margin: 12px 0;
+        font-size: 13px;
+    }
+
+    /* 表格适配 - 允许文字换行 */
     .content table {
         display: block;
         overflow-x: auto;
+        font-size: 12px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .content th,
+    .content td {
+        padding: 8px 10px;
+        white-space: normal;
+        word-break: break-word;
+        min-width: 80px;
+    }
+
+    /* 第一列（项目名/标题）保持不换行 */
+    .content td:first-child {
         white-space: nowrap;
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* 链接列紧凑 */
+    .content td:last-child {
+        white-space: nowrap;
+    }
+
+    /* 空状态适配 */
+    .empty-state {
+        padding: 40px 16px;
+    }
+
+    .empty-icon {
+        font-size: 48px;
+    }
+
+    .empty-title {
+        font-size: 18px;
+    }
+
+    .empty-desc {
+        font-size: 13px;
+    }
+
+    /* 加载状态 */
+    .loading {
+        padding: 60px 16px;
     }
 }
