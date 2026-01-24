@@ -123,6 +123,45 @@ function renderMarkdown(markdown) {
     // 使用 marked.js 解析 Markdown
     const html = marked.parse(markdown);
     elements.content.innerHTML = html;
+
+    // 移动端隐藏次要列
+    if (window.innerWidth <= 768) {
+        hideMobileColumns();
+    }
+}
+
+/**
+ * 移动端隐藏次要表格列
+ * 隐藏: 语言、⭐ 今日、标记、热度、分数、评论
+ * 保留: 项目名/标题、描述/概述、来源、链接
+ */
+function hideMobileColumns() {
+    const hideKeywords = ['今日', '语言', '标记', '热度', '分数', '评论'];
+
+    document.querySelectorAll('.content table').forEach(table => {
+        const headers = table.querySelectorAll('th');
+        const columnsToHide = [];
+
+        // 找出需要隐藏的列索引
+        headers.forEach((th, index) => {
+            const text = th.textContent.trim();
+            if (hideKeywords.some(keyword => text.includes(keyword))) {
+                columnsToHide.push(index);
+            }
+        });
+
+        // 隐藏对应的列
+        if (columnsToHide.length > 0) {
+            table.querySelectorAll('tr').forEach(row => {
+                const cells = row.querySelectorAll('th, td');
+                columnsToHide.forEach(colIndex => {
+                    if (cells[colIndex]) {
+                        cells[colIndex].style.display = 'none';
+                    }
+                });
+            });
+        }
+    });
 }
 
 /**
