@@ -161,14 +161,17 @@ async function initHistoryList() {
     for (const dateStr of dates) {
         const url = `${CONFIG.newsDir}${dateStr}.md`;
         try {
-            const response = await fetch(url, { method: 'HEAD' });
-            // 确保是真正的 Markdown 文件（检查状态码和内容类型）
-            const contentType = response.headers.get('content-type') || '';
-            if (response.ok && !contentType.includes('text/html')) {
-                availableDates.push(dateStr);
+            // 使用 GET 请求并检查内容，因为 GitHub Pages 对不存在文件可能返回 HTML 404 页面
+            const response = await fetch(url);
+            if (response.ok) {
+                const text = await response.text();
+                // 确保是真正的 Markdown 文件（以 # 开头）
+                if (text.trim().startsWith('#')) {
+                    availableDates.push(dateStr);
+                }
             }
         } catch (e) {
-            // 文件不存在
+            // 文件不存在或网络错误
         }
     }
 
@@ -219,7 +222,7 @@ async function refresh() {
             <div class="empty-state">
                 <div class="empty-icon">📭</div>
                 <h3 class="empty-title">暂无新闻</h3>
-                <p class="empty-desc">等待每日 10:30 自动生成新闻报告</p>
+                <p class="empty-desc">等待每日北京时间 20:00 自动生成新闻报告</p>
             </div>
         `;
     }
