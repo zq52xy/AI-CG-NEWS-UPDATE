@@ -1062,11 +1062,13 @@ def generate_report(
                 link_text = "官方" if item.extra.get('is_official') else "帖子"
                 lines.append(f"| {summary} | {label} | {mark_str} | [{link_text}]({item.url}) |")
                 
-                # 添加预览图（如果有）
+                # 添加预览图（如果有）+ 分割线
                 preview_url = item.extra.get('preview', '')
                 if preview_url:
                     lines.append("")
                     lines.append(f"![preview]({preview_url})")
+                    lines.append("")
+                    lines.append("---")
                     lines.append("")
         else:
             lines.extend([
@@ -1079,11 +1081,13 @@ def generate_report(
                 is_ai = "🤖" if item.extra.get('is_ai_related') else ""
                 lines.append(f"| {title} | {label} | {is_ai} | 🔥 {item.score} | [帖子]({item.url}) |")
                 
-                # 添加预览图（如果有）
+                # 添加预览图（如果有）+ 分割线
                 preview_url = item.extra.get('preview', '')
                 if preview_url:
                     lines.append("")
                     lines.append(f"![preview]({preview_url})")
+                    lines.append("")
+                    lines.append("---")
                     lines.append("")
         lines.append("")
     
@@ -1126,11 +1130,13 @@ def generate_report(
                 summary = generate_chinese_summary(item.title, 60)
                 lines.append(f"| {summary} | {item.category} | 🔥 {item.score} | [帖子]({item.url}) |")
                 
-                # 添加预览图（如果有）
+                # 添加预览图（如果有）+ 分割线
                 preview_url = item.extra.get('preview', '')
                 if preview_url:
                     lines.append("")
                     lines.append(f"![preview]({preview_url})")
+                    lines.append("")
+                    lines.append("---")
                     lines.append("")
         else:
             lines.extend([
@@ -1141,11 +1147,13 @@ def generate_report(
                 title = item.title[:60] + '...' if len(item.title) > 60 else item.title
                 lines.append(f"| {title} | {item.category} | 🔥 {item.score} | [帖子]({item.url}) |")
                 
-                # 添加预览图（如果有）
+                # 添加预览图（如果有）+ 分割线
                 preview_url = item.extra.get('preview', '')
                 if preview_url:
                     lines.append("")
                     lines.append(f"![preview]({preview_url})")
+                    lines.append("")
+                    lines.append("---")
                     lines.append("")
         lines.append("")
     
