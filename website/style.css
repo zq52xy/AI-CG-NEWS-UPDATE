@@ -492,7 +492,7 @@ body {
         line-height: 1.6;
     }
 
-    /* ======== 表格 - 单行显示，横向滚动 ======== */
+    /* ======== 表格 - 完整显示内容 ======== */
     .content table {
         display: block;
         overflow-x: auto;
@@ -503,21 +503,19 @@ body {
 
     .content th,
     .content td {
-        padding: 10px 14px;
-        /* 保持单行，横向滚动查看 */
-        white-space: nowrap;
-        line-height: 1.5;
-        vertical-align: middle;
+        padding: 10px 12px;
+        /* 允许换行，完整显示 */
+        white-space: normal;
+        word-wrap: break-word;
+        word-break: break-word;
+        line-height: 1.6;
+        vertical-align: top;
     }
 
     /* 表头样式 */
     .content th {
         font-size: 12px;
         font-weight: 600;
-        position: sticky;
-        left: 0;
-        background: var(--bg-tertiary);
-        z-index: 1;
     }
 
     /* 链接样式 */
