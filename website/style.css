@@ -318,6 +318,13 @@ body {
     color: var(--text-secondary);
 }
 
+/* 链接列（最后一列）右对齐 */
+.content th:last-child,
+.content td:last-child {
+    text-align: right;
+    white-space: nowrap;
+}
+
 .content tr:hover td {
     background: var(--bg-hover);
 }
