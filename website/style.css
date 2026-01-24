@@ -518,18 +518,24 @@ body {
         font-weight: 600;
     }
 
-    /* 链接样式 */
+    /* 链接样式 - 强制单行 */
     .content td a {
         display: inline-block;
         padding: 4px 10px;
         background: var(--bg-tertiary);
         border-radius: var(--radius-sm);
         font-size: 12px;
+        white-space: nowrap;
         transition: background 0.2s ease;
     }
 
     .content td a:hover {
         background: var(--accent-glow);
+    }
+
+    /* 最后一列（链接列）强制单行 */
+    .content td:last-child {
+        white-space: nowrap;
     }
 
     /* ======== 空状态 ======== */
