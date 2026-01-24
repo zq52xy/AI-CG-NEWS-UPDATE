@@ -883,7 +883,7 @@ def fetch_twitter(*args, **kwargs):
 #                         中文概述生成模块
 # ============================================================================
 
-def generate_chinese_summary(text: str, max_length: int = 80, retries: int = 3) -> str:
+def generate_chinese_summary(text: str, max_length: int = 80, retries: int = 5) -> str:
     """
     为英文内容生成中文概述
     
@@ -908,6 +908,10 @@ def generate_chinese_summary(text: str, max_length: int = 80, retries: int = 3) 
     original_text = text[:500]  # 保留原文用于 fallback
     
     import time
+    import random
+    
+    # 每次调用前随机延迟，避免频率限制
+    time.sleep(random.uniform(0.3, 0.8))
     
     for attempt in range(retries):
         try:
@@ -923,7 +927,7 @@ def generate_chinese_summary(text: str, max_length: int = 80, retries: int = 3) 
                 'q': original_text
             }
             
-            response = httpx.get(url, params=params, timeout=15)
+            response = httpx.get(url, params=params, timeout=20)
             result = response.json()
             
             # 提取翻译结果
@@ -936,7 +940,8 @@ def generate_chinese_summary(text: str, max_length: int = 80, retries: int = 3) 
                 
         except Exception as e:
             if attempt < retries - 1:
-                time.sleep(0.5 * (attempt + 1))  # 递增等待
+                wait_time = 1.0 * (attempt + 1) + random.uniform(0.5, 1.5)
+                time.sleep(wait_time)  # 递增等待 + 随机抖动
             else:
                 print(f"[WARN] 翻译失败 (重试 {retries} 次后): {e}")
     
