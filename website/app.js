@@ -132,11 +132,11 @@ function renderMarkdown(markdown) {
 
 /**
  * 移动端隐藏次要表格列
- * 隐藏: 语言、⭐ 今日、标记、热度、分数、评论
- * 保留: 项目名/标题、描述/概述、来源、链接
+ * 隐藏: 语言、今日、标记、热度、分数、评论、社区、来源、作者
+ * 保留: 项目名/标题、描述/概述、链接
  */
 function hideMobileColumns() {
-    const hideKeywords = ['今日', '语言', '标记', '热度', '分数', '评论'];
+    const hideKeywords = ['今日', '语言', '标记', '热度', '分数', '评论', '社区', '来源', '作者'];
 
     document.querySelectorAll('.content table').forEach(table => {
         const headers = table.querySelectorAll('th');
@@ -161,6 +161,15 @@ function hideMobileColumns() {
                 });
             });
         }
+
+        // 链接列右对齐
+        table.querySelectorAll('tr').forEach(row => {
+            const cells = row.querySelectorAll('th, td');
+            const lastCell = cells[cells.length - 1];
+            if (lastCell) {
+                lastCell.style.textAlign = 'right';
+            }
+        });
     });
 }
 
