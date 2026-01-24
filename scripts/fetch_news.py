@@ -198,10 +198,6 @@ def fetch_github(topics: list[str], language: str = "", since: str = "daily") ->
             keywords = ['graphics', 'rendering', 'ai', 'ml', 'neural', '3d', 'gpu', 'cuda']
             score = sum(1 for kw in keywords if kw in description.lower() or kw in repo_name.lower())
             
-            # GitHub Open Graph 预览图（使用 GitHub 的 opengraph 服务）
-            # 格式: https://opengraph.githubassets.com/{random}/owner/repo
-            preview_url = f"https://opengraph.githubassets.com/1/{repo_name}"
-            
             items.append(NewsItem(
                 title=repo_name,
                 url=repo_url,
@@ -209,7 +205,7 @@ def fetch_github(topics: list[str], language: str = "", since: str = "daily") ->
                 category=lang,
                 summary=description[:150],
                 score=today_stars + score * 10,
-                extra={'today_stars': today_stars, 'language': lang, 'preview': preview_url}
+                extra={'today_stars': today_stars, 'language': lang}
             ))
             
     except Exception as e:
@@ -362,14 +358,6 @@ def fetch_reddit(
                 if score < min_upvotes:
                     continue
                 
-                # 获取缩略图/图片
-                thumbnail = post_data.get('thumbnail', '')
-                preview_url = ''
-                if post_data.get('preview'):
-                    images = post_data['preview'].get('images', [])
-                    if images:
-                        preview_url = images[0].get('source', {}).get('url', '').replace('&amp;', '&')
-                
                 items.append(NewsItem(
                     title=title,
                     url=f"https://www.reddit.com{permalink}",
@@ -378,9 +366,7 @@ def fetch_reddit(
                     score=score,
                     comments=comments,
                     extra={
-                        'subreddit': sub,
-                        'thumbnail': thumbnail if thumbnail.startswith('http') else '',
-                        'preview': preview_url
+                        'subreddit': sub
                     }
                 ))
                 
@@ -531,13 +517,6 @@ def fetch_cg_graphics(
                 text_lower = (title + ' ' + selftext).lower()
                 is_ai_related = any(kw in text_lower for kw in ai_keywords)
                 
-                # 获取预览图
-                preview_url = ''
-                if post_data.get('preview'):
-                    images = post_data['preview'].get('images', [])
-                    if images:
-                        preview_url = images[0].get('source', {}).get('url', '').replace('&amp;', '&')
-                
                 items.append(NewsItem(
                     title=title,
                     url=f"https://www.reddit.com{permalink}",
@@ -549,8 +528,7 @@ def fetch_cg_graphics(
                     extra={
                         'subreddit': sub,
                         'label': label,
-                        'is_ai_related': is_ai_related,
-                        'preview': preview_url
+                        'is_ai_related': is_ai_related
                     }
                 ))
                 
@@ -1027,14 +1005,7 @@ def generate_report(
                 lang = item.extra.get('language', 'Unknown')
                 lines.append(f"| {item.title} | {desc} | {lang} | +{today_stars} | [Repo]({item.url}) |")
                 
-                # 添加预览图（如果有）+ 分割线
-                preview_url = item.extra.get('preview', '')
-                if preview_url:
-                    lines.append("")
-                    lines.append(f"![preview]({preview_url})")
-                    lines.append("")
-                    lines.append("---")
-                    lines.append("")
+
         else:
             lines.extend([
                 "| 项目 | 描述 | 语言 | ⭐ 今日 | 链接 |",
@@ -1046,14 +1017,7 @@ def generate_report(
                 lang = item.extra.get('language', 'Unknown')
                 lines.append(f"| {item.title} | {desc} | {lang} | +{today_stars} | [Repo]({item.url}) |")
                 
-                # 添加预览图（如果有）+ 分割线
-                preview_url = item.extra.get('preview', '')
-                if preview_url:
-                    lines.append("")
-                    lines.append(f"![preview]({preview_url})")
-                    lines.append("")
-                    lines.append("---")
-                    lines.append("")
+
         lines.append("")
     
     # CG 图形学专属版块
@@ -1084,14 +1048,7 @@ def generate_report(
                 link_text = "官方" if item.extra.get('is_official') else "帖子"
                 lines.append(f"| {summary} | {label} | {mark_str} | [{link_text}]({item.url}) |")
                 
-                # 添加预览图（如果有）+ 分割线
-                preview_url = item.extra.get('preview', '')
-                if preview_url:
-                    lines.append("")
-                    lines.append(f"![preview]({preview_url})")
-                    lines.append("")
-                    lines.append("---")
-                    lines.append("")
+
         else:
             lines.extend([
                 "| 标题 | 领域 | AI | 热度 | 链接 |",
@@ -1103,14 +1060,7 @@ def generate_report(
                 is_ai = "🤖" if item.extra.get('is_ai_related') else ""
                 lines.append(f"| {title} | {label} | {is_ai} | 🔥 {item.score} | [帖子]({item.url}) |")
                 
-                # 添加预览图（如果有）+ 分割线
-                preview_url = item.extra.get('preview', '')
-                if preview_url:
-                    lines.append("")
-                    lines.append(f"![preview]({preview_url})")
-                    lines.append("")
-                    lines.append("---")
-                    lines.append("")
+
         lines.append("")
     
     # Bluesky 部分（原 Twitter/X）
@@ -1152,14 +1102,7 @@ def generate_report(
                 summary = generate_chinese_summary(item.title, 60)
                 lines.append(f"| {summary} | {item.category} | 🔥 {item.score} | [帖子]({item.url}) |")
                 
-                # 添加预览图（如果有）+ 分割线
-                preview_url = item.extra.get('preview', '')
-                if preview_url:
-                    lines.append("")
-                    lines.append(f"![preview]({preview_url})")
-                    lines.append("")
-                    lines.append("---")
-                    lines.append("")
+
         else:
             lines.extend([
                 "| 标题 | 社区 | 热度 | 链接 |",
@@ -1169,14 +1112,7 @@ def generate_report(
                 title = item.title[:60] + '...' if len(item.title) > 60 else item.title
                 lines.append(f"| {title} | {item.category} | 🔥 {item.score} | [帖子]({item.url}) |")
                 
-                # 添加预览图（如果有）+ 分割线
-                preview_url = item.extra.get('preview', '')
-                if preview_url:
-                    lines.append("")
-                    lines.append(f"![preview]({preview_url})")
-                    lines.append("")
-                    lines.append("---")
-                    lines.append("")
+
         lines.append("")
     
     # Hacker News 部分
