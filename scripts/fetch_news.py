@@ -198,6 +198,10 @@ def fetch_github(topics: list[str], language: str = "", since: str = "daily") ->
             keywords = ['graphics', 'rendering', 'ai', 'ml', 'neural', '3d', 'gpu', 'cuda']
             score = sum(1 for kw in keywords if kw in description.lower() or kw in repo_name.lower())
             
+            # GitHub Open Graph 预览图（使用 GitHub 的 opengraph 服务）
+            # 格式: https://opengraph.githubassets.com/{random}/owner/repo
+            preview_url = f"https://opengraph.githubassets.com/1/{repo_name}"
+            
             items.append(NewsItem(
                 title=repo_name,
                 url=repo_url,
@@ -205,7 +209,7 @@ def fetch_github(topics: list[str], language: str = "", since: str = "daily") ->
                 category=lang,
                 summary=description[:150],
                 score=today_stars + score * 10,
-                extra={'today_stars': today_stars, 'language': lang}
+                extra={'today_stars': today_stars, 'language': lang, 'preview': preview_url}
             ))
             
     except Exception as e:
@@ -1022,6 +1026,15 @@ def generate_report(
                 today_stars = item.extra.get('today_stars', 0)
                 lang = item.extra.get('language', 'Unknown')
                 lines.append(f"| {item.title} | {desc} | {lang} | +{today_stars} | [Repo]({item.url}) |")
+                
+                # 添加预览图（如果有）+ 分割线
+                preview_url = item.extra.get('preview', '')
+                if preview_url:
+                    lines.append("")
+                    lines.append(f"![preview]({preview_url})")
+                    lines.append("")
+                    lines.append("---")
+                    lines.append("")
         else:
             lines.extend([
                 "| 项目 | 描述 | 语言 | ⭐ 今日 | 链接 |",
@@ -1032,6 +1045,15 @@ def generate_report(
                 today_stars = item.extra.get('today_stars', 0)
                 lang = item.extra.get('language', 'Unknown')
                 lines.append(f"| {item.title} | {desc} | {lang} | +{today_stars} | [Repo]({item.url}) |")
+                
+                # 添加预览图（如果有）+ 分割线
+                preview_url = item.extra.get('preview', '')
+                if preview_url:
+                    lines.append("")
+                    lines.append(f"![preview]({preview_url})")
+                    lines.append("")
+                    lines.append("---")
+                    lines.append("")
         lines.append("")
     
     # CG 图形学专属版块
