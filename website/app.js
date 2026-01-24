@@ -28,7 +28,11 @@ const elements = {
     refreshBtn: document.getElementById('refreshBtn'),
     pageTitle: document.getElementById('pageTitle'),
     currentDate: document.getElementById('currentDate'),
-    status: document.getElementById('status')
+    status: document.getElementById('status'),
+    // 移动端菜单
+    menuBtn: document.getElementById('menuBtn'),
+    sidebar: document.querySelector('.sidebar'),
+    overlay: document.getElementById('sidebarOverlay')
 };
 
 // ============================================================================
@@ -238,6 +242,25 @@ async function refresh() {
 document.addEventListener('DOMContentLoaded', async () => {
     // 绑定刷新按钮
     elements.refreshBtn.addEventListener('click', refresh);
+
+    // 移动端菜单切换
+    const toggleSidebar = (open) => {
+        elements.sidebar.classList.toggle('open', open);
+        elements.overlay.classList.toggle('active', open);
+    };
+
+    // 点击菜单按钮打开侧边栏
+    elements.menuBtn.addEventListener('click', () => toggleSidebar(true));
+
+    // 点击遮罩层关闭侧边栏
+    elements.overlay.addEventListener('click', () => toggleSidebar(false));
+
+    // 选择日期后自动关闭侧边栏（移动端体验优化）
+    elements.historyList.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+            toggleSidebar(false);
+        }
+    });
 
     // 配置 marked.js
     marked.setOptions({
