@@ -139,6 +139,13 @@ function renderMarkdown(markdown) {
     if (window.innerWidth <= 768) {
         hideMobileColumns();
     }
+
+    // 图片加载失败时隐藏
+    elements.content.querySelectorAll('img').forEach(img => {
+        img.onerror = () => {
+            img.style.display = 'none';
+        };
+    });
 }
 
 /**

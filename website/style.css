@@ -335,6 +335,22 @@ body {
     background: var(--bg-hover);
 }
 
+/* 新闻预览图 */
+.content img {
+    max-width: 100%;
+    max-height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin: 4px 0 16px 0;
+    display: block;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* 图片加载失败时隐藏 */
+.content img[src=""] {
+    display: none;
+}
+
 .content hr {
     border: none;
     height: 1px;

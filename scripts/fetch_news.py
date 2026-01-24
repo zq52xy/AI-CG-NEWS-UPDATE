@@ -1056,6 +1056,13 @@ def generate_report(
                 # 链接文本
                 link_text = "官方" if item.extra.get('is_official') else "帖子"
                 lines.append(f"| {summary} | {label} | {mark_str} | [{link_text}]({item.url}) |")
+                
+                # 添加预览图（如果有）
+                preview_url = item.extra.get('preview', '')
+                if preview_url:
+                    lines.append("")
+                    lines.append(f"![preview]({preview_url})")
+                    lines.append("")
         else:
             lines.extend([
                 "| 标题 | 领域 | AI | 热度 | 链接 |",
@@ -1066,6 +1073,13 @@ def generate_report(
                 label = item.category
                 is_ai = "🤖" if item.extra.get('is_ai_related') else ""
                 lines.append(f"| {title} | {label} | {is_ai} | 🔥 {item.score} | [帖子]({item.url}) |")
+                
+                # 添加预览图（如果有）
+                preview_url = item.extra.get('preview', '')
+                if preview_url:
+                    lines.append("")
+                    lines.append(f"![preview]({preview_url})")
+                    lines.append("")
         lines.append("")
     
     # Bluesky 部分（原 Twitter/X）
@@ -1106,6 +1120,13 @@ def generate_report(
             for item in reddit_items[:10]:
                 summary = generate_chinese_summary(item.title, 60)
                 lines.append(f"| {summary} | {item.category} | 🔥 {item.score} | [帖子]({item.url}) |")
+                
+                # 添加预览图（如果有）
+                preview_url = item.extra.get('preview', '')
+                if preview_url:
+                    lines.append("")
+                    lines.append(f"![preview]({preview_url})")
+                    lines.append("")
         else:
             lines.extend([
                 "| 标题 | 社区 | 热度 | 链接 |",
@@ -1114,6 +1135,13 @@ def generate_report(
             for item in reddit_items[:10]:
                 title = item.title[:60] + '...' if len(item.title) > 60 else item.title
                 lines.append(f"| {title} | {item.category} | 🔥 {item.score} | [帖子]({item.url}) |")
+                
+                # 添加预览图（如果有）
+                preview_url = item.extra.get('preview', '')
+                if preview_url:
+                    lines.append("")
+                    lines.append(f"![preview]({preview_url})")
+                    lines.append("")
         lines.append("")
     
     # Hacker News 部分
