@@ -218,6 +218,12 @@ body {
     gap: 16px;
 }
 
+.beijing-time {
+    color: var(--accent-primary);
+    font-size: 14px;
+    font-weight: 500;
+}
+
 .date {
     color: var(--text-secondary);
     font-size: 14px;

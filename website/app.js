@@ -28,6 +28,7 @@ const elements = {
     refreshBtn: document.getElementById('refreshBtn'),
     pageTitle: document.getElementById('pageTitle'),
     currentDate: document.getElementById('currentDate'),
+    beijingTime: document.getElementById('beijingTime'),
     status: document.getElementById('status'),
     // 移动端菜单
     menuBtn: document.getElementById('menuBtn'),
@@ -46,6 +47,16 @@ function formatDate(dateStr) {
     const date = new Date(dateStr);
     const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
     return date.toLocaleDateString('zh-CN', options);
+}
+
+/**
+ * 更新北京时间显示
+ */
+function updateBeijingTime() {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    elements.beijingTime.textContent = `北京时间 ${hours}:${minutes}`;
 }
 
 /**
@@ -318,6 +329,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 初始加载
     await refresh();
+
+    // 北京时间更新（每分钟更新一次）
+    updateBeijingTime();
+    setInterval(updateBeijingTime, 60000);
 
     // 自动刷新
     if (CONFIG.autoRefresh > 0) {
