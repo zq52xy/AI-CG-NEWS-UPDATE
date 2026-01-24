@@ -1,4 +1,4 @@
-name: Manual News Fetch
+name: Daily News Fetch
 
 on:
   workflow_dispatch:  # 允许在 GitHub Actions 界面手动触发
@@ -7,6 +7,8 @@ on:
         description: '抓取来源 (默认 all，可选: arxiv, github, cg, reddit)'
         required: false
         default: 'all'
+  schedule:
+    - cron: '0 0 * * *'  # 每天 UTC 00:00 (北京时间 08:00) 自动运行
 
 permissions:
   contents: write  # 赋予提交代码的权限
@@ -28,9 +30,13 @@ jobs:
           pip install httpx feedparser beautifulsoup4
 
       - name: Run fetch script
+        env:
+          TZ: 'Asia/Shanghai'
         run: |
-          if [ "${{ github.event.inputs.source }}" != "all" ]; then
-            python scripts/fetch_news.py --source ${{ github.event.inputs.source }}
+          SOURCE="${{ github.event.inputs.source }}"
+          # 如果是定时任务(schedule)触发，SOURCE 为空，默认为 all
+          if [ -n "$SOURCE" ] && [ "$SOURCE" != "all" ]; then
+            python scripts/fetch_news.py --source "$SOURCE"
           else
             python scripts/fetch_news.py --all
           fi
