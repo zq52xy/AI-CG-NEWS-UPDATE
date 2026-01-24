@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-[INPUT]: 依赖 requests, feedparser, httpx 进行网络请求
+[INPUT]: 依赖 httpx, feedparser, beautifulsoup4 进行网络请求
 [OUTPUT]: 对外提供 CLI 接口，生成 Markdown 格式的新闻报告
 [POS]: ai-cg-news-aggregator Skill 的核心执行脚本
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
@@ -75,7 +75,7 @@ def fetch_arxiv(categories: list[str], days: int = 1, max_results: int = 30) -> 
     
     for cat in categories:
         # 使用 Atom API（比 RSS 更稳定）
-        url = f"http://export.arxiv.org/api/query?search_query=cat:{cat}&start=0&max_results={per_cat_limit}&sortBy=submittedDate&sortOrder=descending"
+        url = f"https://export.arxiv.org/api/query?search_query=cat:{cat}&start=0&max_results={per_cat_limit}&sortBy=submittedDate&sortOrder=descending"
         print(f"[INFO] 正在获取 arXiv {cat}...")
         
         try:
@@ -83,7 +83,7 @@ def fetch_arxiv(categories: list[str], days: int = 1, max_results: int = 30) -> 
             
             if not feed.entries:
                 # 降级到 RSS
-                rss_url = f"http://export.arxiv.org/rss/{cat}"
+                rss_url = f"https://export.arxiv.org/rss/{cat}"
                 print(f"[INFO] Atom API 无结果，尝试 RSS: {cat}")
                 feed = feedparser.parse(rss_url)
             

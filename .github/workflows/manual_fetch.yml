@@ -1,0 +1,44 @@
+name: Manual News Fetch
+
+on:
+  workflow_dispatch:  # 允许在 GitHub Actions 界面手动触发
+    inputs:
+      source:
+        description: '抓取来源 (默认 all，可选: arxiv, github, cg, reddit)'
+        required: false
+        default: 'all'
+
+permissions:
+  contents: write  # 赋予提交代码的权限
+
+jobs:
+  fetch-and-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install httpx feedparser beautifulsoup4
+
+      - name: Run fetch script
+        run: |
+          if [ "${{ github.event.inputs.source }}" != "all" ]; then
+            python scripts/fetch_news.py --source ${{ github.event.inputs.source }}
+          else
+            python scripts/fetch_news.py --all
+          fi
+
+      - name: Commit and push report
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add daily_news/*.md
+          git commit -m "Docs: update daily news report [skip ci]" || echo "No changes to commit"
+          git push
