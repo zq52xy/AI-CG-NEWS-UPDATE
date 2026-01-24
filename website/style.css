@@ -458,74 +458,87 @@ body {
     }
 
     .content-wrapper {
-        padding: 12px;
+        padding: 16px;
     }
 
-    /* 标题适配 */
+    /* ======== 标题适配 ======== */
     .content h1 {
-        font-size: 20px;
+        font-size: 22px;
         line-height: 1.4;
         margin-bottom: 12px;
     }
 
     .content h2 {
-        font-size: 16px;
-        margin: 20px 0 12px;
+        font-size: 17px;
+        margin: 24px 0 12px;
+        padding-bottom: 8px;
     }
 
     .content h3 {
-        font-size: 14px;
-        margin: 16px 0 8px;
+        font-size: 15px;
+        margin: 20px 0 10px;
     }
 
-    /* 段落和引用 */
+    /* ======== 段落和引用 ======== */
     .content p {
         font-size: 14px;
-        line-height: 1.7;
+        line-height: 1.8;
     }
 
     .content blockquote {
-        padding: 10px 12px;
-        margin: 12px 0;
+        padding: 12px 14px;
+        margin: 14px 0;
         font-size: 13px;
+        line-height: 1.6;
     }
 
-    /* 表格适配 - 允许文字换行 */
+    /* ======== 表格 - 完整显示所有内容 ======== */
     .content table {
         display: block;
         overflow-x: auto;
-        font-size: 12px;
+        font-size: 13px;
         -webkit-overflow-scrolling: touch;
+        border-radius: var(--radius-sm);
     }
 
     .content th,
     .content td {
-        padding: 8px 10px;
+        padding: 10px 12px;
+        /* 允许换行，完整显示内容 */
         white-space: normal;
+        word-wrap: break-word;
         word-break: break-word;
-        min-width: 80px;
+        line-height: 1.5;
+        vertical-align: top;
     }
 
-    /* 第一列（项目名/标题）保持不换行 */
-    .content td:first-child {
-        white-space: nowrap;
-        max-width: 150px;
-        overflow: hidden;
-        text-overflow: ellipsis;
+    /* 表头样式 */
+    .content th {
+        font-size: 12px;
+        font-weight: 600;
     }
 
-    /* 链接列紧凑 */
-    .content td:last-child {
-        white-space: nowrap;
+    /* 链接样式 */
+    .content td a {
+        display: inline-block;
+        padding: 4px 10px;
+        background: var(--bg-tertiary);
+        border-radius: var(--radius-sm);
+        font-size: 12px;
+        transition: background 0.2s ease;
     }
 
-    /* 空状态适配 */
+    .content td a:hover {
+        background: var(--accent-glow);
+    }
+
+    /* ======== 空状态 ======== */
     .empty-state {
-        padding: 40px 16px;
+        padding: 48px 20px;
     }
 
     .empty-icon {
-        font-size: 48px;
+        font-size: 56px;
     }
 
     .empty-title {
@@ -533,11 +546,12 @@ body {
     }
 
     .empty-desc {
-        font-size: 13px;
+        font-size: 14px;
+        line-height: 1.6;
     }
 
-    /* 加载状态 */
+    /* ======== 加载状态 ======== */
     .loading {
-        padding: 60px 16px;
+        padding: 60px 20px;
     }
 }
