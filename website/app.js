@@ -12,8 +12,8 @@
 const CONFIG = {
     // 新闻文件目录（相对于网站根目录）
     newsDir: '../daily_news/',
-    // 首页显示的历史记录数量
-    historyLimit: 30,
+    // 首页显示的历史记录数量（只检查最近7天）
+    historyLimit: 7,
     // 自动刷新间隔（毫秒），0 表示禁用
     autoRefresh: 0
 };
@@ -162,7 +162,9 @@ async function initHistoryList() {
         const url = `${CONFIG.newsDir}${dateStr}.md`;
         try {
             const response = await fetch(url, { method: 'HEAD' });
-            if (response.ok) {
+            // 确保是真正的 Markdown 文件（检查状态码和内容类型）
+            const contentType = response.headers.get('content-type') || '';
+            if (response.ok && !contentType.includes('text/html')) {
                 availableDates.push(dateStr);
             }
         } catch (e) {
