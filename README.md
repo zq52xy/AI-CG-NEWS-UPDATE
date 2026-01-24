@@ -4,7 +4,7 @@
 
 ## 🌐 在线访问
 
-访问地址：`https://<username>.github.io/ai-cg-news/website/`
+访问地址：https://ai-cg-news-update.pages.dev/
 
 ## 📰 数据来源
 
