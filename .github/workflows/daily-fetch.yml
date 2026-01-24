@@ -29,6 +29,8 @@ jobs:
           pip install -r scripts/requirements.txt
 
       - name: Fetch news
+        env:
+          TZ: 'Asia/Shanghai'
         run: |
           cd scripts
           python fetch_news.py --all --with-summary
