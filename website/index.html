@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI & CG 每日资讯</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="app">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">📰</span>
+                    <span class="logo-text">Daily News</span>
+                </div>
+            </div>
+            <nav class="nav">
+                <div class="nav-section">
+                    <div class="nav-title">历史记录</div>
+                    <ul class="history-list" id="historyList">
+                        <!-- 动态填充 -->
+                    </ul>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="refresh-btn" id="refreshBtn">
+                    <span class="refresh-icon">🔄</span>
+                    刷新数据
+                </button>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main">
+            <header class="header">
+                <div class="header-content">
+                    <h1 class="page-title" id="pageTitle">AI & CG 每日资讯</h1>
+                    <div class="header-meta">
+                        <span class="date" id="currentDate"></span>
+                        <span class="status" id="status">● 在线</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <article class="content" id="content">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>加载中...</p>
+                    </div>
+                </article>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
