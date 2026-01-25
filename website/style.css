@@ -1,3 +1,10 @@
+/**
+ * [INPUT]: 这里的样式被 index.html 引用
+ * [OUTPUT]: 定义网站的全局样式、布局、组件样式
+ * [POS]: website 模块的样式表
+ * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+ */
+
 /* ============================================================================
    AI & CG Daily News - 样式表
    ============================================================================ */
@@ -276,8 +283,8 @@ body {
     border-radius: var(--radius-lg);
     overflow: hidden;
     position: relative;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
+    /* background: var(--bg-secondary); */
+    /* border: 1px solid var(--border); */
 }
 
 /* Banner 图片 */
@@ -292,8 +299,8 @@ body {
 /* Banner 上的标题文字 */
 .section-header-overlay {
     padding: 16px 24px;
-    background: var(--bg-secondary);
-    border-top: 1px solid var(--border);
+    background: transparent;
+    border-top: none;
 }
 
 .section-header-overlay h2 {
