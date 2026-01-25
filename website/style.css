@@ -294,6 +294,11 @@ body {
     object-fit: cover; /* 确保填充满容器且不变形 */
     object-position: center; /* 图片居中显示 */
     display: block;
+    
+    /* 重置继承自 .content img 的样式，确保无缝填充 */
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
 }
 
 /* Banner 上的标题文字 */

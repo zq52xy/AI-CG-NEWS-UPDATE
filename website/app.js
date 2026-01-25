@@ -156,11 +156,11 @@ function renderMarkdown(markdown) {
  */
 function injectBanners() {
     const bannerMap = {
-        'GitHub Trending': '../img/github-universe-1920x768.png',
-        'CG 图形学': '../img/CG.jpg',
-        'Reddit 讨论': '../img/reddit.webp',
-        'Hacker News': '../img/Hacker News.jpg',
-        '学术前沿': '../img/arXiv.jpg'
+        'GitHub Trending': '../img/github.png',
+        'CG 图形学': '../img/CG.png',
+        'Reddit 讨论': '../img/reddit.png',
+        'Hacker News': '../img/Hacker News.png',
+        '学术前沿': '../img/arXiv.png'
     };
 
     const headers = elements.content.querySelectorAll('h2');
