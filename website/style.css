@@ -288,7 +288,7 @@ body {
 }
 
 /* Banner 图片 */
-.section-banner {
+.content .section-banner {
     width: 100%;
     height: 240px; /* 统一高度，增加可视区域 */
     object-fit: cover; /* 确保填充满容器且不变形 */
