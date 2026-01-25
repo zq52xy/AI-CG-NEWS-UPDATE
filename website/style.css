@@ -283,14 +283,10 @@ body {
 /* Banner 图片 */
 .section-banner {
     width: 100%;
-    height: 160px; /* 统一高度 */
-    object-fit: cover;
+    height: 240px; /* 统一高度，增加可视区域 */
+    object-fit: cover; /* 确保填充满容器且不变形 */
+    object-position: center; /* 图片居中显示 */
     display: block;
-    transition: transform 0.3s ease;
-}
-
-.section-header-container:hover .section-banner {
-    transform: scale(1.02);
 }
 
 /* Banner 上的标题文字 */
