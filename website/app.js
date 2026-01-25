@@ -135,6 +135,9 @@ function renderMarkdown(markdown) {
     const html = marked.parse(markdown);
     elements.content.innerHTML = html;
 
+    // 注入版块 Banner
+    injectBanners();
+
     // 移动端隐藏次要列
     if (window.innerWidth <= 768) {
         hideMobileColumns();
@@ -145,6 +148,56 @@ function renderMarkdown(markdown) {
         img.onerror = () => {
             img.style.display = 'none';
         };
+    });
+}
+
+/**
+ * 为版块标题注入 Banner 图片
+ */
+function injectBanners() {
+    const bannerMap = {
+        'GitHub Trending': '../img/github-universe-1920x768.png',
+        'CG 图形学': '../img/CG.jpg',
+        'Reddit 讨论': '../img/reddit.webp',
+        'Hacker News': '../img/Hacker News.jpg',
+        '学术前沿': '../img/arXiv.jpg'
+    };
+
+    const headers = elements.content.querySelectorAll('h2');
+    
+    headers.forEach(h2 => {
+        const text = h2.textContent;
+        let bannerSrc = null;
+
+        for (const [key, src] of Object.entries(bannerMap)) {
+            if (text.includes(key)) {
+                bannerSrc = src;
+                break;
+            }
+        }
+
+        if (bannerSrc) {
+            // 创建容器
+            const container = document.createElement('div');
+            container.className = 'section-header-container';
+
+            // 创建图片
+            const img = document.createElement('img');
+            img.src = bannerSrc;
+            img.className = 'section-banner';
+            img.alt = text;
+            img.onerror = () => { img.style.display = 'none'; }; // 容错
+            
+            // 创建标题覆盖层
+            const overlay = document.createElement('div');
+            overlay.className = 'section-header-overlay';
+            
+            // 插入 DOM：先插入容器，再移动 h2
+            h2.parentNode.insertBefore(container, h2);
+            container.appendChild(img);
+            container.appendChild(overlay);
+            overlay.appendChild(h2);
+        }
     });
 }
 
