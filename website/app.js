@@ -161,11 +161,11 @@ function injectBanners() {
         'Reddit 讨论': '../img/reddit.png',
         'Hacker News': '../img/Hacker News.png',
         '学术前沿': '../img/arXiv.png',
-        'Product Hunt': '../img/producthunt.png'
+        'Product Hunt': '../img/product hunt.png'
     };
 
     const headers = elements.content.querySelectorAll('h2');
-    
+
     headers.forEach(h2 => {
         const text = h2.textContent;
         let bannerSrc = null;
@@ -188,11 +188,11 @@ function injectBanners() {
             img.className = 'section-banner';
             img.alt = text;
             img.onerror = () => { img.style.display = 'none'; }; // 容错
-            
+
             // 创建标题覆盖层
             const overlay = document.createElement('div');
             overlay.className = 'section-header-overlay';
-            
+
             // 插入 DOM：先插入容器，再移动 h2
             h2.parentNode.insertBefore(container, h2);
             container.appendChild(img);
