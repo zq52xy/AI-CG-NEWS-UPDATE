@@ -1432,3 +1432,7 @@ def main():
         print("[WARN] 未获取到任何内容")
         sys.exit(1)
 
+
+
+if __name__ == '__main__':
+    main()
