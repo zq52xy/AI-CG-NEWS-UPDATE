@@ -905,7 +905,8 @@ def fetch_product_hunt(limit: int = 15) -> list[NewsItem]:
     
     items = []
     try:
-        feed = feedparser.parse(url)
+        # 添加 User-Agent防止被拦截
+        feed = feedparser.parse(url, agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AI-CG-NewsBot/1.0')
         for entry in feed.entries[:limit]:
             title = entry.title
             link = entry.link
