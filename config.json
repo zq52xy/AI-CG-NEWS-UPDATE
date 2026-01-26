@@ -1,0 +1,83 @@
+{
+    "sources": {
+      "arxiv": {
+        "categories": ["cs.AI", "cs.GR", "cs.CV"],
+        "keywords": [
+          "neural rendering", "diffusion", "transformer", "ray tracing",
+          "real-time", "GPU", "3D", "generative", "NeRF", "Gaussian",
+          "language model", "vision", "multimodal", "embodied"
+        ]
+      },
+      "github": {
+        "keywords": ["graphics", "rendering", "ai", "ml", "neural", "3d", "gpu", "cuda"]
+      },
+      "hackernews": {
+        "min_score": 50,
+        "keywords": ["ai", "graphics", "gpu", "rendering", "neural", "llm", "diffusion"]
+      },
+      "reddit": {
+          "subreddits": [
+              "MachineLearning", "GraphicsProgramming", "computergraphics", 
+              "LocalLLaMA", "artificial", "unrealengine", "unrealengine5", "gamedev"
+          ],
+          "priority_subreddits": ["unrealengine", "unrealengine5", "gamedev"],
+          "min_upvotes": 50
+      },
+      "cg": {
+          "subreddits": [
+              {"name": "unrealengine", "label": "Unreal Engine"},
+              {"name": "unrealengine5", "label": "UE5"},
+              {"name": "threejs", "label": "Three.js"},
+              {"name": "blender", "label": "Blender"},
+              {"name": "blenderhelp", "label": "Blender Help"},
+              {"name": "Cinema4D", "label": "Cinema 4D"},
+              {"name": "Houdini", "label": "Houdini"},
+              {"name": "shaders", "label": "Shaders"},
+              {"name": "opengl", "label": "OpenGL"},
+              {"name": "computergraphics", "label": "CG"},
+              {"name": "GraphicsProgramming", "label": "Graphics"}
+          ],
+          "official_feeds": [
+              {"name": "Unreal Engine", "url": "https://www.unrealengine.com/en-US/rss", "label": "UE Official", "type": "rss"},
+              {"name": "Blender", "url": "https://www.blender.org/feed/", "label": "Blender Official", "type": "rss"},
+              {"name": "Three.js", "url": "https://github.com/mrdoob/three.js/releases.atom", "label": "Three.js Releases", "type": "atom"},
+              {"name": "Houdini", "url": "https://www.sidefx.com/feed/", "label": "Houdini Official", "type": "rss"},
+              {"name": "Unity", "url": "https://blog.unity.com/feed", "label": "Unity Official", "type": "rss"},
+              {"name": "Godot", "url": "https://godotengine.org/rss.xml", "label": "Godot Official", "type": "rss"},
+              {"name": "NVIDIA", "url": "https://developer.nvidia.com/blog/feed/", "label": "NVIDIA Dev", "type": "rss"}
+          ],
+          "ai_keywords": [
+              "ai", "machine learning", "ml", "neural", "deep learning",
+              "gpt", "llm", "diffusion", "stable diffusion", "midjourney",
+              "generative", "procedural", "automated", "artificial intelligence",
+              "comfyui", "automatic", "dall-e", "dalle", "sora", "kling",
+              "nerf", "gaussian", "splat", "3d gaussian", "radiance field",
+              "dlss", "rtx", "tensor"
+          ]
+      },
+      "bluesky": {
+          "accounts": [
+              "jay.bsky.team", 
+              "simonwillison.net",
+              "stratechery.com",
+              "arstechnica.com"
+          ],
+          "keywords": [
+              "ai", "gpt", "llm", "diffusion", "neural", "rendering",
+              "3d", "graphics", "cuda", "gpu", "transformer", "model",
+              "paper", "research", "release", "open source",
+              "unreal", "ue5", "game dev", "nanite", "lumen"
+          ]
+      },
+      "product_hunt": {
+        "enabled": true,
+        "rss_url": "https://www.producthunt.com/feed?category=undefined",
+        "keywords": ["ai", "gpt", "llm", "bot", "agent", "automation", "coding", "developer", "design", "graphics", "3d", "video", "image"],
+        "min_votes": 50
+      }
+    },
+    "filtering": {
+      "exclude_keywords": ["blockchain", "crypto", "nft", "web3", "bitcoin", "ethereum", "token"],
+      "deduplicate": true
+    }
+}

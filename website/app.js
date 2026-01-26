@@ -160,7 +160,8 @@ function injectBanners() {
         'CG 图形学': '../img/CG.png',
         'Reddit 讨论': '../img/reddit.png',
         'Hacker News': '../img/Hacker News.png',
-        '学术前沿': '../img/arXiv.png'
+        '学术前沿': '../img/arXiv.png',
+        'Product Hunt': '../img/producthunt.png'
     };
 
     const headers = elements.content.querySelectorAll('h2');
