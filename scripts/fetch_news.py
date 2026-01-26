@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 [INPUT]: 依赖 httpx, feedparser, beautifulsoup4 进行网络请求
@@ -37,6 +37,7 @@ class NewsItem:
     authors: str = ""
     summary: str = ""
     date: str = ""
+    image_url: str = ""  # 新增图片链接字段
     extra: dict = field(default_factory=dict)
 
 
@@ -358,6 +359,15 @@ def fetch_reddit(
                 if score < min_upvotes:
                     continue
                 
+                # 尝试提取图片
+                image_url = ""
+                preview = post_data.get('preview', {})
+                images = preview.get('images', [])
+                if images:
+                    image_url = images[0].get('source', {}).get('url', '').replace('&amp;', '&')
+                elif post_data.get('thumbnail') and post_data.get('thumbnail').startswith('http'):
+                    image_url = post_data.get('thumbnail')
+
                 items.append(NewsItem(
                     title=title,
                     url=f"https://www.reddit.com{permalink}",
@@ -365,6 +375,7 @@ def fetch_reddit(
                     category=f"r/{sub}",
                     score=score,
                     comments=comments,
+                    image_url=image_url,
                     extra={
                         'subreddit': sub
                     }
@@ -936,6 +947,50 @@ def generate_chinese_summary(text: str, max_length: int = 80, retries: int = 5) 
 #                           报告生成模块
 # ============================================================================
 
+# ============================================================================
+#                           报告生成模块
+# ============================================================================
+
+def _generate_html_card(item: NewsItem, summary: str, meta_left: str, meta_right: str) -> str:
+    """生成 Quora 风格的新闻卡片 HTML"""
+    
+    # 默认图片（如果是 GitHub，使用 OpenGraph）
+    image_html = ""
+    if item.image_url:
+        image_html = f'<div class="news-card-image" style="background-image: url(\'{item.image_url}\')"></div>'
+    elif item.source == 'GitHub':
+        # GitHub OpenGraph Image 构造
+        try:
+            repo_path = item.url.replace('https://github.com/', '')
+            og_url = f"https://opengraph.githubassets.com/1/{repo_path}"
+            image_html = f'<div class="news-card-image" style="background-image: url(\'{og_url}\')"></div>'
+        except:
+            pass
+    
+    # 布局决定：如果有图片，使用带图片的布局；否则使用纯文本布局
+    has_image_class = " has-image" if image_html else ""
+    
+    html = f"""
+<div class="news-card{has_image_class}">
+    <div class="news-card-content">
+        <div class="news-card-header">
+            <span class="news-source-tag">{item.category}</span>
+            <span class="news-date">{item.date or 'Today'}</span>
+        </div>
+        <a href="{item.url}" target="_blank" class="news-title-link">
+            <h3 class="news-title">{item.title}</h3>
+        </a>
+        <div class="news-summary">{summary}</div>
+        <div class="news-meta">
+            <span class="meta-left">{meta_left}</span>
+            <span class="meta-right">{meta_right}</span>
+        </div>
+    </div>
+    {image_html}
+</div>
+"""
+    return html
+
 def generate_report(
     arxiv_items: list[NewsItem],
     github_items: list[NewsItem],
@@ -948,21 +1003,7 @@ def generate_report(
     report_date: str = None
 ) -> str:
     """
-    生成 Markdown 格式的新闻报告
-    
-    Args:
-        arxiv_items: arXiv 论文列表
-        github_items: GitHub 项目列表
-        hn_items: HN 帖子列表
-        output_dir: 输出目录
-        reddit_items: Reddit 帖子列表
-        twitter_items: Twitter 推文列表
-        cg_items: CG 图形学相关条目列表
-        with_summary: 是否生成中文概述
-        report_date: 报告日期 (YYYY-MM-DD 格式)，默认为今天
-    
-    Returns:
-        生成的报告文件路径
+    生成 Markdown 格式的新闻报告 (嵌入 HTML 卡片)
     """
     if report_date:
         today = datetime.datetime.strptime(report_date, '%Y-%m-%d').date()
@@ -992,192 +1033,148 @@ def generate_report(
     if github_items:
         lines.extend([
             "## 🔥 GitHub Trending",
-            "",
+            '<div class="news-grid">',
         ])
-        if with_summary:
-            lines.extend([
-                "| 项目 | 中文描述 | 语言 | ⭐ 今日 | 链接 |",
-                "|------|----------|------|--------|------|",
-            ])
-            for item in github_items[:10]:
-                desc = generate_chinese_summary(item.summary, 50)
-                today_stars = item.extra.get('today_stars', 0)
-                lang = item.extra.get('language', 'Unknown')
-                lines.append(f"| {item.title} | {desc} | {lang} | +{today_stars} | [Repo]({item.url}) |")
-                
-
-        else:
-            lines.extend([
-                "| 项目 | 描述 | 语言 | ⭐ 今日 | 链接 |",
-                "|------|------|------|--------|------|",
-            ])
-            for item in github_items[:10]:
-                desc = item.summary[:40] + '...' if len(item.summary) > 40 else item.summary
-                today_stars = item.extra.get('today_stars', 0)
-                lang = item.extra.get('language', 'Unknown')
-                lines.append(f"| {item.title} | {desc} | {lang} | +{today_stars} | [Repo]({item.url}) |")
-                
-
+        for item in github_items[:10]:
+            if with_summary:
+                desc = generate_chinese_summary(item.summary, 60)
+            else:
+                desc = item.summary[:60] + '...'
+            
+            today_stars = item.extra.get('today_stars', 0)
+            lang = item.extra.get('language', 'Unknown')
+            
+            card = _generate_html_card(
+                item, 
+                desc, 
+                f"🔤 {lang}", 
+                f"⭐ +{today_stars}"
+            )
+            lines.append(card)
+            
+        lines.append('</div>') # End grid
         lines.append("")
     
     # CG 图形学专属版块
     if cg_items:
         lines.extend([
             "## 🎨 CG 图形学",
-            "",
             "> 覆盖: Unreal Engine | Three.js | Blender | Houdini | Unity | Godot | NVIDIA",
-            "> 🏛️ = 官方源 | 🤖 = AI 相关",
             "",
+            '<div class="news-grid">',
         ])
-        if with_summary:
-            lines.extend([
-                "| 中文概述 | 来源 | 标记 | 链接 |",
-                "|----------|------|:----:|------|",
-            ])
-            for item in cg_items[:20]:
-                summary = generate_chinese_summary(item.title, 50)
-                label = item.category
-                # 标记：官方源 + AI 相关
-                marks = []
-                if item.extra.get('is_official'):
-                    marks.append("🏛️")
-                if item.extra.get('is_ai_related'):
-                    marks.append("🤖")
-                mark_str = " ".join(marks)
-                # 链接文本
-                link_text = "官方" if item.extra.get('is_official') else "帖子"
-                lines.append(f"| {summary} | {label} | {mark_str} | [{link_text}]({item.url}) |")
-                
-
-        else:
-            lines.extend([
-                "| 标题 | 领域 | AI | 热度 | 链接 |",
-                "|------|------|:--:|------|------|",
-            ])
-            for item in cg_items[:15]:
-                title = item.title[:50] + '...' if len(item.title) > 50 else item.title
-                label = item.category
-                is_ai = "🤖" if item.extra.get('is_ai_related') else ""
-                lines.append(f"| {title} | {label} | {is_ai} | 🔥 {item.score} | [帖子]({item.url}) |")
-                
-
+        for item in cg_items[:20]:
+            if with_summary:
+                summary_text = generate_chinese_summary(item.title, 80)
+            else:
+                summary_text = item.summary[:80] + '...'
+            
+            # 标记
+            marks = []
+            if item.extra.get('is_official'): marks.append("🏛️ 官方")
+            if item.extra.get('is_ai_related'): marks.append("🤖 AI")
+            meta_left = " ".join(marks) if marks else "🔥 热门"
+            
+            card = _generate_html_card(
+                item,
+                summary_text,
+                meta_left,
+                f"🔥 {item.score}"
+            )
+            lines.append(card)
+            
+        lines.append('</div>')
         lines.append("")
     
-    # Bluesky 部分（原 Twitter/X）
+    # Bluesky 部分
     if twitter_items:
         lines.extend([
             "## 🦋 Bluesky 动态",
-            "",
+            '<div class="news-grid">',
         ])
-        if with_summary:
-            lines.extend([
-                "| 中文概述 | 作者 | 链接 |",
-                "|----------|------|------|",
-            ])
-            for item in twitter_items[:10]:
-                summary = generate_chinese_summary(item.title, 60)
-                lines.append(f"| {summary} | {item.category} | [原帖]({item.url}) |")
-        else:
-            lines.extend([
-                "| 内容 | 作者 | 链接 |",
-                "|------|------|------|",
-            ])
-            for item in twitter_items[:10]:
-                title = item.title[:80] + '...' if len(item.title) > 80 else item.title
-                lines.append(f"| {title} | {item.category} | [原帖]({item.url}) |")
+        for item in twitter_items[:10]:
+            if with_summary:
+                summary = generate_chinese_summary(item.title, 80)
+            else:
+                summary = item.title[:80] + '...'
+            
+            card = _generate_html_card(
+                item,
+                summary,
+                "👤 KOL",
+                "[原帖]"
+            )
+            lines.append(card)
+        lines.append('</div>')
         lines.append("")
     
     # Reddit 部分
     if reddit_items:
         lines.extend([
             "## 🔴 Reddit 讨论",
-            "",
+            '<div class="news-grid">',
         ])
-        if with_summary:
-            lines.extend([
-                "| 中文概述 | 社区 | 热度 | 链接 |",
-                "|----------|------|------|------|",
-            ])
-            for item in reddit_items[:10]:
-                summary = generate_chinese_summary(item.title, 60)
-                lines.append(f"| {summary} | {item.category} | 🔥 {item.score} | [帖子]({item.url}) |")
-                
-
-        else:
-            lines.extend([
-                "| 标题 | 社区 | 热度 | 链接 |",
-                "|------|------|------|------|",
-            ])
-            for item in reddit_items[:10]:
-                title = item.title[:60] + '...' if len(item.title) > 60 else item.title
-                lines.append(f"| {title} | {item.category} | 🔥 {item.score} | [帖子]({item.url}) |")
-                
-
+        for item in reddit_items[:10]:
+            if with_summary:
+                summary = generate_chinese_summary(item.title, 80)
+            else:
+                summary = item.title[:80] + '...'
+            
+            card = _generate_html_card(
+                item,
+                summary,
+                f"r/{item.extra.get('subreddit')}",
+                f"🔥 {item.score}"
+            )
+            lines.append(card)
+        lines.append('</div>')
         lines.append("")
     
     # Hacker News 部分
     if hn_items:
         lines.extend([
             "## 💬 Hacker News 热议",
-            "",
+            '<div class="news-grid">',
         ])
-        if with_summary:
-            lines.extend([
-                "| 中文概述 | 分数 | 评论 | 链接 |",
-                "|----------|------|------|------|",
-            ])
-            for item in hn_items[:10]:
-                summary = generate_chinese_summary(item.title, 50)
-                lines.append(f"| {summary} | {item.score} | {item.comments} | [讨论]({item.url}) |")
-        else:
-            lines.extend([
-                "| 标题 | 分数 | 评论 | 链接 |",
-                "|------|------|------|------|",
-            ])
-            for item in hn_items[:10]:
-                title = item.title[:50] + '...' if len(item.title) > 50 else item.title
-                lines.append(f"| {title} | {item.score} | {item.comments} | [讨论]({item.url}) |")
+        for item in hn_items[:10]:
+            if with_summary:
+                summary = generate_chinese_summary(item.title, 80)
+            else:
+                summary = item.title[:80] + '...'
+            
+            card = _generate_html_card(
+                item,
+                summary,
+                f"💬 {item.comments} 评论",
+                f"Points: {item.score}"
+            )
+            lines.append(card)
+        lines.append('</div>')
         lines.append("")
     
-    # arXiv 学术前沿（放在最后）
+    # arXiv 学术前沿
     if arxiv_items:
         lines.extend([
             "## 🎓 学术前沿 (arXiv)",
-            "",
+            '<div class="news-grid">',
         ])
-        
-        # 按分类分组
-        categories = {}
-        for item in arxiv_items:
-            cat = item.category
-            if cat not in categories:
-                categories[cat] = []
-            categories[cat].append(item)
-        
-        for cat, cat_items in categories.items():
+        for item in arxiv_items[:10]: # 限制数量
             if with_summary:
-                lines.extend([
-                    f"### {cat}",
-                    "",
-                    "| 中文概述 | 作者 | 链接 |",
-                    "|----------|------|------|",
-                ])
-                for item in cat_items[:5]:
-                    summary = generate_chinese_summary(item.title)
-                    authors = item.authors[:25] + '...' if len(item.authors) > 25 else item.authors
-                    lines.append(f"| {summary} | {authors} | [PDF]({item.url}) |")
+                summary = generate_chinese_summary(item.title, 100)
             else:
-                lines.extend([
-                    f"### {cat}",
-                    "",
-                    "| 标题 | 作者 | 链接 |",
-                    "|------|------|------|",
-                ])
-                for item in cat_items[:5]:
-                    title = item.title[:60] + '...' if len(item.title) > 60 else item.title
-                    authors = item.authors[:30] + '...' if len(item.authors) > 30 else item.authors
-                    lines.append(f"| {title} | {authors} | [PDF]({item.url}) |")
-            lines.append("")
+                summary = item.title[:100] + '...'
+            
+            authors = item.authors[:30] + '...' if len(item.authors) > 30 else item.authors
+            
+            card = _generate_html_card(
+                item,
+                summary,
+                f"✍️ {authors}",
+                "📄 PDF"
+            )
+            lines.append(card)
+        lines.append('</div>')
+        lines.append("")
     
     # 页脚
     lines.extend([
@@ -1191,7 +1188,6 @@ def generate_report(
     
     print(f"[OK] 报告已生成: {filename}")
     return str(filename)
-
 
 
 # ============================================================================
