@@ -198,29 +198,57 @@ function renderMarkdown(markdown) {
  * 注入收藏按钮到表格行
  */
 function injectFavoriteButtons() {
+    // 1. 处理表格行 (Legacy)
     const rows = elements.content.querySelectorAll('table tr');
-
     rows.forEach(row => {
-        // 跳过表头
         if (row.querySelector('th')) return;
-
         const link = row.querySelector('a');
         if (!link) return;
-
         const firstCell = row.querySelector('td');
         if (!firstCell) return;
-
         const url = link.href;
         const title = firstCell.textContent.trim();
-        const date = elements.currentDate.innerText; // 当前显示的日报日期
+        injectBtn(firstCell, url, title, 'prepend');
+    });
 
+    // 2. 处理新闻卡片 (Card Layout)
+    const cards = elements.content.querySelectorAll('.news-card');
+    cards.forEach(card => {
+        const link = card.querySelector('.news-title-link');
+        if (!link) return;
+
+        const titleEl = card.querySelector('.news-title');
+        const title = titleEl ? titleEl.textContent.trim() : '未命名新闻';
+        const url = link.href;
+
+        // 注入到 Card Header 中
+        const header = card.querySelector('.news-card-header');
+        if (header) {
+            // 简单的 flex 布局调整，确保星星在最右侧
+            header.style.display = 'flex';
+            header.style.justifyContent = 'space-between';
+            header.style.alignItems = 'center';
+
+            // 检查之前是否已经注入
+            if (header.querySelector('.fav-btn')) return;
+
+            injectBtn(header, url, title, 'append');
+        }
+    });
+
+    /**
+     * 通用注入逻辑
+     */
+    function injectBtn(container, url, title, method = 'append') {
+        const date = elements.currentDate.innerText;
         const btn = document.createElement('button');
-        btn.className = 'fav-in-row ' + (FavoritesManager.isFavorite(url) ? 'active' : '');
+        btn.className = 'fav-btn ' + (FavoritesManager.isFavorite(url) ? 'active' : '');
         btn.innerHTML = btn.classList.contains('active') ? '★' : '☆';
         btn.title = '收藏此链接';
 
         btn.onclick = (e) => {
-            e.stopPropagation(); // 防止触发其他点击
+            e.preventDefault();
+            e.stopPropagation();
 
             if (FavoritesManager.isFavorite(url)) {
                 FavoritesManager.remove(url);
@@ -231,23 +259,23 @@ function injectFavoriteButtons() {
                 btn.classList.add('active');
                 btn.innerHTML = '★';
 
-                // 简单的动画反馈
                 btn.style.transform = 'scale(1.2)';
                 setTimeout(() => btn.style.transform = 'scale(1)', 200);
             }
             renderFavoritesSidebar();
         };
 
-        // 将按钮插入到第一个单元格的最前面
-        firstCell.style.position = 'relative';
-        firstCell.style.paddingLeft = '30px';
-        btn.style.position = 'absolute';
-        btn.style.left = '5px';
-        btn.style.top = '50%';
-        btn.style.transform = 'translateY(-50%)';
-
-        firstCell.prepend(btn);
-    });
+        if (method === 'prepend') {
+            container.style.position = 'relative';
+            // container.style.paddingLeft = '30px'; // 表格模式下需要
+            btn.style.marginRight = '8px';
+            container.prepend(btn);
+        } else {
+            // 卡片模式下，append 到 header 末尾
+            btn.style.fontSize = '1.2rem';
+            container.appendChild(btn);
+        }
+    }
 }
 
 /**
