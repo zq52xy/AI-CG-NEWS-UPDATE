@@ -472,8 +472,8 @@ a:hover {
     pointer-events: auto;
 }
 
-/* Favorites Button in Table */
-.fav-in-row {
+/* Favorites Button */
+.fav-btn {
     background: none;
     border: none;
     cursor: pointer;
@@ -482,15 +482,18 @@ a:hover {
     transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     padding: 0;
     line-height: 1;
+    z-index: 2;
+    /* 确保在点击层之上 */
 }
 
-.fav-in-row.active {
+.fav-btn.active {
     color: #f1c40f;
     text-shadow: 0 0 2px rgba(241, 196, 15, 0.5);
 }
 
-.fav-in-row:hover {
+.fav-btn:hover {
     transform: scale(1.1);
+    color: #ffd700;
 }
 
 .history-item.fav-item:hover {
