@@ -55,6 +55,17 @@ class FavoritesManager {
         const list = this.get();
         return list.some(i => i.url === url);
     }
+
+    static update(url, updates) {
+        const list = this.get();
+        const index = list.findIndex(i => i.url === url);
+        if (index !== -1) {
+            list[index] = { ...list[index], ...updates };
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(list));
+            return true;
+        }
+        return false;
+    }
 }
 
 // ============================================================================
@@ -195,22 +206,9 @@ function renderMarkdown(markdown) {
 }
 
 /**
- * 注入收藏按钮到表格行
+ * 注入收藏按钮到新闻卡片
  */
 function injectFavoriteButtons() {
-    // 1. 处理表格行 (Legacy)
-    const rows = elements.content.querySelectorAll('table tr');
-    rows.forEach(row => {
-        if (row.querySelector('th')) return;
-        const link = row.querySelector('a');
-        if (!link) return;
-        const firstCell = row.querySelector('td');
-        if (!firstCell) return;
-        const url = link.href;
-        const title = firstCell.textContent.trim();
-        injectBtn(firstCell, url, title, 'prepend');
-    });
-
     // 2. 处理新闻卡片 (Card Layout)
     const cards = elements.content.querySelectorAll('.news-card');
     cards.forEach(card => {
@@ -232,14 +230,14 @@ function injectFavoriteButtons() {
             // 检查之前是否已经注入
             if (header.querySelector('.fav-btn')) return;
 
-            injectBtn(header, url, title, 'append');
+            injectBtn(header, url, title);
         }
     });
 
     /**
      * 通用注入逻辑
      */
-    function injectBtn(container, url, title, method = 'append') {
+    function injectBtn(container, url, title) {
         const date = elements.currentDate.innerText;
         const btn = document.createElement('button');
         btn.className = 'fav-btn ' + (FavoritesManager.isFavorite(url) ? 'active' : '');
@@ -265,16 +263,9 @@ function injectFavoriteButtons() {
             renderFavoritesSidebar();
         };
 
-        if (method === 'prepend') {
-            container.style.position = 'relative';
-            // container.style.paddingLeft = '30px'; // 表格模式下需要
-            btn.style.marginRight = '8px';
-            container.prepend(btn);
-        } else {
-            // 卡片模式下，append 到 header 末尾
-            btn.style.fontSize = '1.2rem';
-            container.appendChild(btn);
-        }
+        // 卡片模式下，append 到 header 末尾
+        btn.style.fontSize = '1.2rem';
+        container.appendChild(btn);
     }
 }
 
@@ -301,43 +292,103 @@ function renderFavoritesSidebar() {
     list.forEach(item => {
         const li = document.createElement('li');
         li.className = 'history-item fav-item';
-        // 复用 history-item 样式，增加自定义样式
         li.style.flexDirection = 'column';
         li.style.alignItems = 'flex-start';
         li.style.gap = '4px';
 
+        // 头部行：星星 + 标题 + 操作区
         const topRow = document.createElement('div');
         topRow.style.display = 'flex';
         topRow.style.alignItems = 'center';
         topRow.style.width = '100%';
         topRow.style.gap = '8px';
 
-        topRow.innerHTML = `
-            <span style="color: #f1c40f;">★</span>
-            <span style="flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:500;">${item.title}</span>
-        `;
+        const titleSpan = document.createElement('span');
+        titleSpan.style.flex = '1';
+        titleSpan.style.whiteSpace = 'nowrap';
+        titleSpan.style.overflow = 'hidden';
+        titleSpan.style.textOverflow = 'ellipsis';
+        titleSpan.style.fontWeight = '500';
+        titleSpan.textContent = item.title;
+        titleSpan.title = item.title; // hover 显示全名
 
+        topRow.innerHTML = `<span style="color: #f1c40f;">★</span>`;
+        topRow.appendChild(titleSpan);
+
+        // 编辑按钮 (铅笔)
+        const editBtn = document.createElement('span');
+        editBtn.innerHTML = '✏️';
+        editBtn.title = '编辑标题/备注';
+        editBtn.style.cursor = 'pointer';
+        editBtn.style.fontSize = '0.9em';
+        editBtn.style.opacity = '0.5';
+        editBtn.style.transition = 'opacity 0.2s';
+        editBtn.onmouseover = () => editBtn.style.opacity = '1';
+        editBtn.onmouseout = () => editBtn.style.opacity = '0.5';
+
+        editBtn.onclick = (e) => {
+            e.stopPropagation();
+            const newTitle = prompt("修改标题:", item.title);
+            if (newTitle !== null) {
+                const newNote = prompt("添加备注 (可选):", item.note || "");
+                if (newNote !== null) {
+                    FavoritesManager.update(item.url, {
+                        title: newTitle.trim() || item.title,
+                        note: newNote.trim()
+                    });
+                    renderFavoritesSidebar();
+                }
+            }
+        };
+
+        // 删除按钮 (叉号)
+        const delBtn = document.createElement('span');
+        delBtn.innerHTML = '×';
+        delBtn.title = '删除收藏';
+        delBtn.style.cursor = 'pointer';
+        delBtn.style.fontSize = '1.2em';
+        delBtn.style.fontWeight = 'bold';
+        delBtn.style.color = '#e74c3c';
+        delBtn.style.marginLeft = '4px';
+        delBtn.style.opacity = '0.5';
+        delBtn.onclick = (e) => {
+            e.stopPropagation();
+            if (confirm(`确定要删除 "${item.title}" 吗？`)) {
+                FavoritesManager.remove(item.url);
+                renderFavoritesSidebar();
+                injectFavoriteButtons();
+            }
+        };
+
+        topRow.appendChild(editBtn);
+        topRow.appendChild(delBtn);
+
+        // 第二行：日期
         const dateSpan = document.createElement('span');
         dateSpan.textContent = item.date || '未知日期';
         dateSpan.style.fontSize = '0.75rem';
         dateSpan.style.opacity = '0.6';
-        dateSpan.style.paddingLeft = '24px'; // 对齐文字
+        dateSpan.style.paddingLeft = '24px';
 
         li.appendChild(topRow);
         li.appendChild(dateSpan);
 
+        // 第三行：备注 (如果有)
+        if (item.note) {
+            const noteDiv = document.createElement('div');
+            noteDiv.style.fontSize = '0.75rem';
+            noteDiv.style.color = '#888';
+            noteDiv.style.paddingLeft = '24px';
+            noteDiv.style.fontStyle = 'italic';
+            noteDiv.style.marginTop = '-2px';
+            noteDiv.textContent = `📝 ${item.note}`;
+            li.appendChild(noteDiv);
+        }
+
         // 点击跳转
         li.onclick = (e) => {
-            window.open(item.url, '_blank');
-        };
-
-        // 右键删除
-        li.oncontextmenu = (e) => {
-            e.preventDefault();
-            if (confirm('要删除这条收藏吗？')) {
-                FavoritesManager.remove(item.url);
-                renderFavoritesSidebar();
-                injectFavoriteButtons();
+            if (e.target !== editBtn && e.target !== delBtn) {
+                window.open(item.url, '_blank');
             }
         };
 
