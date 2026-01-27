@@ -324,8 +324,14 @@ function injectFavoriteButtons() {
             header.style.justifyContent = 'space-between';
             header.style.alignItems = 'center';
 
-            // 检查之前是否已经注入
-            if (header.querySelector('.fav-btn')) return;
+            // 检查之前是否已经注入，如果有则更新状态
+            const existingBtn = header.querySelector('.fav-btn');
+            if (existingBtn) {
+                const isFav = FavoritesManager.isFavorite(url);
+                existingBtn.className = 'fav-btn ' + (isFav ? 'active' : '');
+                existingBtn.innerHTML = isFav ? '★' : '☆';
+                return;
+            }
 
             injectBtn(header, url, title);
         }
@@ -406,8 +412,20 @@ function renderFavoritesSidebar() {
         titleSpan.style.overflow = 'hidden';
         titleSpan.style.textOverflow = 'ellipsis';
         titleSpan.style.fontWeight = '500';
+        titleSpan.style.cursor = 'pointer'; // 只有标题可点击
+        titleSpan.className = 'fav-title-link'; // 添加类名以便可能的CSS控制
         titleSpan.textContent = item.title;
-        titleSpan.title = item.title; // hover 显示全名
+        titleSpan.title = `${item.title} (点击打开)`;
+
+        // 点击标题跳转
+        titleSpan.onclick = (e) => {
+            e.stopPropagation();
+            window.open(item.url, '_blank');
+        };
+        // hover效果通过CSS或简单的JS实现
+        titleSpan.onmouseover = () => titleSpan.style.textDecoration = 'underline';
+        titleSpan.onmouseout = () => titleSpan.style.textDecoration = 'none';
+
 
         topRow.innerHTML = `<span style="color: #f1c40f;">★</span>`;
         topRow.appendChild(titleSpan);
@@ -420,6 +438,7 @@ function renderFavoritesSidebar() {
         editBtn.style.fontSize = '0.9em';
         editBtn.style.opacity = '0.5';
         editBtn.style.transition = 'opacity 0.2s';
+        editBtn.style.padding = '4px'; // 增加一点内边距方便点击
         editBtn.onmouseover = () => editBtn.style.opacity = '1';
         editBtn.onmouseout = () => editBtn.style.opacity = '0.5';
 
@@ -479,13 +498,7 @@ function renderFavoritesSidebar() {
             li.appendChild(noteDiv);
         }
 
-        // 点击跳转
-        li.onclick = (e) => {
-            if (e.target !== editBtn && e.target !== delBtn) {
-                window.open(item.url, '_blank');
-            }
-        };
-
+        // 移除 li.onclick，防止误触
         elements.favList.appendChild(li);
     });
 }
