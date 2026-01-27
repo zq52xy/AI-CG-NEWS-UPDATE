@@ -216,9 +216,9 @@ body {
 
 /* News Cards (Quora Style) */
 .news-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
 }
 
 .news-card {
@@ -243,9 +243,7 @@ body {
     justify-content: space-between;
 }
 
-.news-card.has-image .news-card-content {
-    /* If image exists, text takes remaining space */
-}
+
 
 .news-card-image {
     width: 160px;
@@ -296,6 +294,7 @@ body {
     margin-bottom: 12px;
     display: -webkit-box;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }

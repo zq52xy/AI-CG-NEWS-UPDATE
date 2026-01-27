@@ -324,21 +324,22 @@ def fetch_reddit(
         print("[ERROR] 请安装 httpx: pip install httpx")
         return []
     
-    if subreddits is None:
-        subreddits = [
-            'MachineLearning',
-            'GraphicsProgramming',
-            'computergraphics',
-            'LocalLLaMA',
-            'artificial',
-            'unrealengine',       # Unreal Engine 社区
-            'unrealengine5',      # UE5 专属
-            'gamedev'             # 游戏开发
-        ]
+    # 从全局配置加载默认值
+    config = GLOBAL_CONFIG.get('sources', {}).get('reddit', {})
     
+    if subreddits is None:
+        subreddits = config.get('subreddits', [
+            'MachineLearning', 'GraphicsProgramming', 'computergraphics',
+            'LocalLLaMA', 'artificial', 'unrealengine', 'unrealengine5', 'gamedev'
+        ])
+    
+    if min_upvotes == 50 and config.get('min_upvotes'):
+         min_upvotes = config.get('min_upvotes')
+
     items = []
+    # 使用更真实的 User-Agent
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AI-CG-NewsBot/1.0'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
     }
     
     for sub in subreddits:
@@ -502,7 +503,7 @@ def fetch_cg_graphics(
     
     items = []
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) CG-Graphics-Bot/1.0'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
     }
     
     for sub, label in cg_subreddits:
