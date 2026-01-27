@@ -9,6 +9,10 @@
 //                          配置
 // ============================================================================
 
+// ============================================================================
+//                          配置
+// ============================================================================
+
 const CONFIG = {
     // 新闻文件目录（相对于网站根目录）
     newsDir: '../daily_news/',
@@ -19,12 +23,48 @@ const CONFIG = {
 };
 
 // ============================================================================
+//                          数据管理 - 收藏夾核心 (L2 Essential)
+// ============================================================================
+
+class FavoritesManager {
+    static STORAGE_KEY = 'aicg_news_favorites';
+
+    static get() {
+        const data = localStorage.getItem(this.STORAGE_KEY);
+        return data ? JSON.parse(data) : [];
+    }
+
+    static add(item) {
+        const list = this.get();
+        // 核心哲学：URL是唯一真理，通过URL去重
+        if (!list.some(i => i.url === item.url)) {
+            list.unshift(item); // 新增在头部
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(list));
+            return true;
+        }
+        return false;
+    }
+
+    static remove(url) {
+        const list = this.get();
+        const newList = list.filter(i => i.url !== url);
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(newList));
+    }
+
+    static isFavorite(url) {
+        const list = this.get();
+        return list.some(i => i.url === url);
+    }
+}
+
+// ============================================================================
 //                          DOM 元素
 // ============================================================================
 
 const elements = {
     content: document.getElementById('content'),
     historyList: document.getElementById('historyList'),
+    favList: document.getElementById('favList'),
     refreshBtn: document.getElementById('refreshBtn'),
     pageTitle: document.getElementById('pageTitle'),
     currentDate: document.getElementById('currentDate'),
@@ -138,6 +178,9 @@ function renderMarkdown(markdown) {
     // 注入版块 Banner
     injectBanners();
 
+    // 注入收藏按钮
+    injectFavoriteButtons();
+
     // 移动端隐藏次要列
     if (window.innerWidth <= 768) {
         hideMobileColumns();
@@ -148,6 +191,129 @@ function renderMarkdown(markdown) {
         img.onerror = () => {
             img.style.display = 'none';
         };
+    });
+}
+
+/**
+ * 注入收藏按钮到表格行
+ */
+function injectFavoriteButtons() {
+    const rows = elements.content.querySelectorAll('table tr');
+
+    rows.forEach(row => {
+        // 跳过表头
+        if (row.querySelector('th')) return;
+
+        const link = row.querySelector('a');
+        if (!link) return;
+
+        const firstCell = row.querySelector('td');
+        if (!firstCell) return;
+
+        const url = link.href;
+        const title = firstCell.textContent.trim();
+        const date = elements.currentDate.innerText; // 当前显示的日报日期
+
+        const btn = document.createElement('button');
+        btn.className = 'fav-in-row ' + (FavoritesManager.isFavorite(url) ? 'active' : '');
+        btn.innerHTML = btn.classList.contains('active') ? '★' : '☆';
+        btn.title = '收藏此链接';
+
+        btn.onclick = (e) => {
+            e.stopPropagation(); // 防止触发其他点击
+
+            if (FavoritesManager.isFavorite(url)) {
+                FavoritesManager.remove(url);
+                btn.classList.remove('active');
+                btn.innerHTML = '☆';
+            } else {
+                FavoritesManager.add({ title, url, date });
+                btn.classList.add('active');
+                btn.innerHTML = '★';
+
+                // 简单的动画反馈
+                btn.style.transform = 'scale(1.2)';
+                setTimeout(() => btn.style.transform = 'scale(1)', 200);
+            }
+            renderFavoritesSidebar();
+        };
+
+        // 将按钮插入到第一个单元格的最前面
+        firstCell.style.position = 'relative';
+        firstCell.style.paddingLeft = '30px';
+        btn.style.position = 'absolute';
+        btn.style.left = '5px';
+        btn.style.top = '50%';
+        btn.style.transform = 'translateY(-50%)';
+
+        firstCell.prepend(btn);
+    });
+}
+
+/**
+ * 渲染侧边栏收藏列表
+ */
+function renderFavoritesSidebar() {
+    const list = FavoritesManager.get();
+
+    // 如果没有元素，不显示或显示空状态，这里选择显示空状态
+    if (!elements.favList) return;
+
+    if (list.length === 0) {
+        elements.favList.innerHTML = `
+            <li class="history-item" style="pointer-events: none; color: var(--text-muted); padding:10px 20px;">
+                <span style="font-size:1.2em;">☆</span>
+                <span style="margin-left:8px; font-size:0.9em;">暂无收藏</span>
+            </li>
+        `;
+        return;
+    }
+
+    elements.favList.innerHTML = '';
+    list.forEach(item => {
+        const li = document.createElement('li');
+        li.className = 'history-item fav-item';
+        // 复用 history-item 样式，增加自定义样式
+        li.style.flexDirection = 'column';
+        li.style.alignItems = 'flex-start';
+        li.style.gap = '4px';
+
+        const topRow = document.createElement('div');
+        topRow.style.display = 'flex';
+        topRow.style.alignItems = 'center';
+        topRow.style.width = '100%';
+        topRow.style.gap = '8px';
+
+        topRow.innerHTML = `
+            <span style="color: #f1c40f;">★</span>
+            <span style="flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:500;">${item.title}</span>
+        `;
+
+        const dateSpan = document.createElement('span');
+        dateSpan.textContent = item.date || '未知日期';
+        dateSpan.style.fontSize = '0.75rem';
+        dateSpan.style.opacity = '0.6';
+        dateSpan.style.paddingLeft = '24px'; // 对齐文字
+
+        li.appendChild(topRow);
+        li.appendChild(dateSpan);
+
+        // 点击跳转
+        li.onclick = (e) => {
+            window.open(item.url, '_blank');
+        };
+
+        // 右键删除
+        li.oncontextmenu = (e) => {
+            e.preventDefault();
+            if (confirm('要删除这条收藏吗？')) {
+                FavoritesManager.remove(item.url);
+                renderFavoritesSidebar();
+                injectFavoriteButtons();
+            }
+        };
+
+        elements.favList.appendChild(li);
     });
 }
 
@@ -362,6 +528,9 @@ async function refresh() {
 document.addEventListener('DOMContentLoaded', async () => {
     // 绑定刷新按钮
     elements.refreshBtn.addEventListener('click', refresh);
+
+    // 初始化收藏栏
+    renderFavoritesSidebar();
 
     // 移动端菜单切换
     const toggleSidebar = (open) => {
