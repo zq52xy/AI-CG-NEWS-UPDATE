@@ -75,6 +75,36 @@
         </main>
     </div>
 
+    <!-- Modals -->
+    <div id="modalOverlay" class="modal-overlay hidden">
+        <!-- Edit Modal -->
+        <div id="editModal" class="modal-card hidden">
+            <h3 class="modal-title">编辑收藏</h3>
+            <div class="form-group">
+                <label>标题</label>
+                <input type="text" id="editTitleInput" class="modal-input" placeholder="输入标题...">
+            </div>
+            <div class="form-group">
+                <label>备注</label>
+                <textarea id="editNoteInput" class="modal-input" rows="3" placeholder="添加备注 (可选)..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-ghost" id="editCancelBtn">取消</button>
+                <button class="btn btn-primary" id="editSaveBtn">保存</button>
+            </div>
+        </div>
+
+        <!-- Delete Modal -->
+        <div id="deleteModal" class="modal-card hidden">
+            <h3 class="modal-title">删除收藏</h3>
+            <p class="modal-desc">确定要删除这个收藏吗？此操作无法撤销。</p>
+            <div class="modal-actions">
+                <button class="btn btn-ghost" id="deleteCancelBtn">取消</button>
+                <button class="btn btn-danger" id="deleteConfirmBtn">删除</button>
+            </div>
+        </div>
+    </div>
+
     <script src="app.js?v=16"></script>
 </body>
 
