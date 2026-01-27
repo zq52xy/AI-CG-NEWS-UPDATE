@@ -69,6 +69,103 @@ class FavoritesManager {
 }
 
 // ============================================================================
+//                          UI 组件 - 模态框管理 (L2 Component)
+// ============================================================================
+
+class ModalManager {
+    static overlay = document.getElementById('modalOverlay');
+    static editModal = document.getElementById('editModal');
+    static deleteModal = document.getElementById('deleteModal');
+
+    // Edit Inputs
+    static editTitle = document.getElementById('editTitleInput');
+    static editNote = document.getElementById('editNoteInput');
+    static editSaveBtn = document.getElementById('editSaveBtn');
+    static editCancelBtn = document.getElementById('editCancelBtn');
+
+    // Delete Buttons
+    static deleteConfirmBtn = document.getElementById('deleteConfirmBtn');
+    static deleteCancelBtn = document.getElementById('deleteCancelBtn');
+
+    // Callbacks
+    static onSave = null;
+    static onDelete = null;
+
+    static init() {
+        // Edit Handlers
+        if (this.editCancelBtn) this.editCancelBtn.onclick = () => this.close();
+        if (this.editSaveBtn) this.editSaveBtn.onclick = () => {
+            if (this.onSave) {
+                this.onSave({
+                    title: this.editTitle.value.trim(),
+                    note: this.editNote.value.trim()
+                });
+            }
+            this.close();
+        };
+
+        // Delete Handlers
+        if (this.deleteCancelBtn) this.deleteCancelBtn.onclick = () => this.close();
+        if (this.deleteConfirmBtn) this.deleteConfirmBtn.onclick = () => {
+            if (this.onDelete) this.onDelete();
+            this.close();
+        };
+
+        // Click outside to close
+        if (this.overlay) {
+            this.overlay.onclick = (e) => {
+                if (e.target === this.overlay) this.close();
+            };
+        }
+
+        // ESC to close
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') this.close();
+        });
+    }
+
+    static openEdit(item, onSave) {
+        if (!this.editTitle || !this.editNote) return;
+        this.editTitle.value = item.title || '';
+        this.editNote.value = item.note || '';
+        this.onSave = onSave;
+
+        this.show(this.editModal);
+        this.editTitle.focus();
+    }
+
+    static openDelete(onDelete) {
+        this.onDelete = onDelete;
+        this.show(this.deleteModal);
+    }
+
+    static show(modal) {
+        if (!modal || !this.overlay) return;
+        // Hide all first
+        this.editModal.classList.add('hidden');
+        this.deleteModal.classList.add('hidden');
+
+        // Show target
+        modal.classList.remove('hidden');
+
+        // Show overlay with animation
+        this.overlay.classList.remove('hidden');
+        // Small delay to allow CSS transition
+        requestAnimationFrame(() => {
+            this.overlay.classList.add('active');
+        });
+    }
+
+    static close() {
+        if (!this.overlay) return;
+        this.overlay.classList.remove('active');
+        setTimeout(() => {
+            this.overlay.classList.add('hidden');
+        }, 300);
+    }
+}
+
+// ============================================================================
 //                          DOM 元素
 // ============================================================================
 
@@ -328,17 +425,13 @@ function renderFavoritesSidebar() {
 
         editBtn.onclick = (e) => {
             e.stopPropagation();
-            const newTitle = prompt("修改标题:", item.title);
-            if (newTitle !== null) {
-                const newNote = prompt("添加备注 (可选):", item.note || "");
-                if (newNote !== null) {
-                    FavoritesManager.update(item.url, {
-                        title: newTitle.trim() || item.title,
-                        note: newNote.trim()
-                    });
+            // 使用新模态框
+            ModalManager.openEdit(item, (newData) => {
+                if (newData.title) {
+                    FavoritesManager.update(item.url, newData);
                     renderFavoritesSidebar();
                 }
-            }
+            });
         };
 
         // 删除按钮 (叉号)
@@ -353,11 +446,12 @@ function renderFavoritesSidebar() {
         delBtn.style.opacity = '0.5';
         delBtn.onclick = (e) => {
             e.stopPropagation();
-            if (confirm(`确定要删除 "${item.title}" 吗？`)) {
+            // 使用新模态框
+            ModalManager.openDelete(() => {
                 FavoritesManager.remove(item.url);
                 renderFavoritesSidebar();
                 injectFavoriteButtons();
-            }
+            });
         };
 
         topRow.appendChild(editBtn);
@@ -605,6 +699,9 @@ async function refresh() {
 // ============================================================================
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // 初始化 ModalManager
+    ModalManager.init();
+
     // 绑定刷新按钮
     elements.refreshBtn.addEventListener('click', refresh);
 
