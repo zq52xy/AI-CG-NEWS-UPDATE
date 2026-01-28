@@ -536,22 +536,46 @@ function injectBanners() {
             const container = document.createElement('div');
             container.className = 'section-header-container';
 
-            // 创建图片
-            const img = document.createElement('img');
-            img.src = bannerSrc;
+            // 查找现有的 Markdown 图片 (通常在 h2 紧邻的 p 标签中)
+            let img = null;
+            const nextEl = h2.nextElementSibling;
+            if (nextEl && nextEl.tagName === 'P') {
+                const existingImg = nextEl.querySelector('img');
+                // 简单检查：如果是图片，且 src 包含 img/ 或者是预期的 banner
+                // 注意：getAttribute('src') 返回的是 HTML 属性值 (相对路径 ../img/xxx.png)，src 属性返回绝对路径
+                if (existingImg) {
+                    img = existingImg;
+                }
+            }
+
+            // 如果没有现有图片，则创建新图片
+            if (!img) {
+                img = document.createElement('img');
+                img.src = bannerSrc;
+                img.alt = text;
+            }
+
             img.className = 'section-banner';
-            img.alt = text;
             img.onerror = () => { img.style.display = 'none'; }; // 容错
 
             // 创建标题覆盖层
             const overlay = document.createElement('div');
             overlay.className = 'section-header-overlay';
 
-            // 插入 DOM：先插入容器，再移动 h2
+            // 插入 DOM：
+            // 1. 在 h2 前插入容器
             h2.parentNode.insertBefore(container, h2);
+            // 2. 将图片移入容器
             container.appendChild(img);
+            // 3. 将 overlay 移入容器
             container.appendChild(overlay);
+            // 4. 将 h2 移入 overlay
             overlay.appendChild(h2);
+
+            // 清理空的 P 标签 (如果图片原本在 P 标签中，且移走图片后变空了)
+            if (nextEl && nextEl.tagName === 'P' && nextEl.children.length === 0 && !nextEl.textContent.trim()) {
+                nextEl.remove();
+            }
         }
     });
 }
