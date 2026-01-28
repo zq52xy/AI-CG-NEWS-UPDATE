@@ -949,6 +949,174 @@ def fetch_product_hunt(limit: int = 15) -> list[NewsItem]:
     return items
 
 # ============================================================================
+#                     Trending Skills 抓取模块 (skills.sh)
+# ============================================================================
+
+def fetch_trending_skills(limit: int = 15) -> list[NewsItem]:
+    """
+    从 skills.sh 获取热门 AI Agent 技能
+    """
+    try:
+        import httpx
+        from bs4 import BeautifulSoup
+    except ImportError:
+        print("[ERROR] 请安装依赖: pip install httpx beautifulsoup4")
+        return []
+    
+    # 检查配置是否启用
+    config = GLOBAL_CONFIG.get('sources', {}).get('trending_skills', {})
+    if not config.get('enabled', False):
+         return []
+    
+    limit = config.get('limit', limit)
+    
+    print("[INFO] 正在获取 Trending Skills (skills.sh)...")
+    url = "https://skills.sh/trending"
+    items = []
+    
+    try:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
+        response = httpx.get(url, headers=headers, timeout=30)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        
+        # 简单文本行分析 (参考原 repo 逻辑)
+        text = soup.get_text("\n", strip=True)
+        lines = text.split('\n')
+        
+        start_parsing = False
+        parsed_count = 0
+        
+        i = 0
+        while i < len(lines):
+            line = lines[i].strip()
+            
+            # 定位榜单开始
+            if "Leaderboard" in line or "Skills Leaderboard" in line:
+                start_parsing = True
+                i += 1
+                continue
+            
+            if not start_parsing:
+                i += 1
+                continue
+                
+            # 尝试匹配 Rank (数字)
+            if line.isdigit():
+                try:
+                    rank = int(line)
+                    if i + 1 < len(lines):
+                        name = lines[i+1]
+                        # 简单的验证: name 应该是 kebab-case
+                        if not re.match(r'^[a-z0-9-]+$', name):
+                             i += 1
+                             continue
+
+                        # Owner (下一行) ?
+                        owner = ""
+                        if i + 2 < len(lines):
+                            owner = lines[i+2]
+                        
+                        # 构造 item
+                        items.append(NewsItem(
+                            title=name,
+                            url=f"https://skills.sh/skills/{name}" if '/' not in name else f"https://skills.sh/{name}",
+                            source='Skills.sh',
+                            category='Agent Skill',
+                            score=100 - parsed_count, # 模拟分数
+                            summary=f"Rank #{rank} on skills.sh. Owner: {owner}",
+                            extra={'rank': rank, 'owner': owner}
+                        ))
+                        parsed_count += 1
+                        
+                        if parsed_count >= limit:
+                            break
+                        
+                        # 跳过已处理的行
+                        i += 3
+                        continue
+                except:
+                    pass
+            
+            i += 1
+            
+    except Exception as e:
+        print(f"[WARN] 获取 Trending Skills 失败: {e}")
+        
+    items.sort(key=lambda x: x.extra.get('rank', 999))
+    return items
+
+def fetch_huggingface_papers(limit: int = 10) -> list[NewsItem]:
+    """
+    从 Hugging Face Daily Papers 获取热门论文
+    """
+    try:
+        import httpx
+    except ImportError:
+        print("[ERROR] 请安装 httpx: pip install httpx")
+        return []
+
+    config = GLOBAL_CONFIG.get('sources', {}).get('huggingface', {})
+    if not config.get('enabled', True):
+        return []
+    
+    limit = config.get('limit', limit)
+    url = "https://huggingface.co/api/daily_papers"
+    print(f"[INFO] 正在获取 Hugging Face Daily Papers...")
+    
+    items = []
+    try:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+        response = httpx.get(url, headers=headers, timeout=30)
+        response.raise_for_status()
+        data = response.json()
+        
+        # data 是一个列表，每个元素包含 'paper' 键
+        for entry in data[:limit]:
+            paper = entry.get('paper', {})
+            title = paper.get('title', 'Untitled')
+            paper_id = paper.get('id', '')
+            link = f"https://huggingface.co/papers/{paper_id}" if paper_id else "https://huggingface.co/papers"
+            
+            summary = paper.get('summary', '')
+            # 优先使用 ai_summary 如果有
+            if paper.get('ai_summary'):
+                summary = paper.get('ai_summary')
+
+            upvotes = paper.get('upvotes', 0)
+            thumbnail = paper.get('thumbnail', '')
+            
+            # 作者处理
+            authors = paper.get('authors', [])
+            author_names = [a.get('name', 'Unknown') for a in authors[:3]]
+            author_str = ", ".join(author_names)
+            
+            items.append(NewsItem(
+                title=title,
+                url=link,
+                source='HuggingFace',
+                category='Paper',
+                summary=summary,
+                score=upvotes,
+                date=paper.get('publishedAt', ''),
+                extra={
+                    'thumbnail': thumbnail,
+                    'upvotes': upvotes,
+                    'is_hf': True
+                }
+            ))
+            
+    except Exception as e:
+        print(f"[WARN] 获取 Hugging Face Papers 失败: {e}")
+        
+    items.sort(key=lambda x: x.score, reverse=True)
+    return items
+
+
+# ============================================================================
 #                        智能过滤模块
 # ============================================================================
 
@@ -1065,10 +1233,6 @@ def generate_chinese_summary(text: str, max_length: int = 80, retries: int = 5) 
 #                           报告生成模块
 # ============================================================================
 
-# ============================================================================
-#                           报告生成模块
-# ============================================================================
-
 def _generate_html_card(item: NewsItem, summary: str, meta_left: str, meta_right: str) -> str:
     """生成 Quora 风格的新闻卡片 HTML"""
     
@@ -1117,7 +1281,9 @@ def generate_report(
     reddit_items: list[NewsItem] = None,
     twitter_items: list[NewsItem] = None,
     cg_items: list[NewsItem] = None,
-    ph_items: list[NewsItem] = None,   # Added
+    ph_items: list[NewsItem] = None,
+    trending_skills_items: list[NewsItem] = None,
+    hf_items: list[NewsItem] = None, # Added
     with_summary: bool = False,
     report_date: str = None
 ) -> str:
@@ -1133,6 +1299,7 @@ def generate_report(
     reddit_items = reddit_items or []
     twitter_items = twitter_items or []
     cg_items = cg_items or []
+    hf_items = hf_items or []
     
     # 确保输出目录存在
     output_path = Path(output_dir)
@@ -1176,6 +1343,60 @@ def generate_report(
     
     # CG 图形学专属版块
     
+    # Trending Skills 部分
+    if trending_skills_items:
+        lines.extend([
+            "## 🛠️ Trending Skills for Agents",
+            "> Top Agent Skills from skills.sh",
+            '<div class="news-grid">',
+        ])
+        for item in trending_skills_items[:10]:
+            if with_summary:
+                # 技能描述通常很短，或者不如 title 重要
+                summary = item.summary
+            else:
+                 summary = item.summary
+            
+            card = _generate_html_card(
+                item,
+                summary,
+                "🤖 Skill",
+                f"#{item.extra.get('rank', 0)}"
+            )
+            lines.append(card)
+        lines.append('</div>')
+        lines.append("")
+
+    # Hugging Face 部分
+    if hf_items:
+        lines.extend([
+            "## 🤗 Hugging Face Papers",
+            "> Daily Top Papers from hf.co/papers",
+            '<div class="news-grid">',
+        ])
+        for item in hf_items[:10]:
+            if with_summary:
+                summary = generate_chinese_summary(item.summary, 80)
+            else:
+                summary = item.summary[:100] + '...'
+            
+            thumb = item.extra.get('thumbnail', '')
+            upvotes = item.extra.get('upvotes', 0)
+            
+            # 如果有缩略图，可以考虑在卡片中显示，这里暂时用标准卡片
+            # 可以在 meta 中加图片标记
+            meta_left = "📄 Paper"
+            
+            card = _generate_html_card(
+                item,
+                summary,
+                meta_left,
+                f"👍 {upvotes}"
+            )
+            lines.append(card)
+        lines.append('</div>')
+        lines.append("")
+
     # Product Hunt 部分
     if ph_items:
         lines.extend([
@@ -1350,8 +1571,9 @@ def main():
     )
     
     parser.add_argument('--all', action='store_true', help='获取所有来源')
-    parser.add_argument('--source', choices=['arxiv', 'github', 'hackernews', 'reddit', 'cg', 'twitter', 'producthunt'], 
-                        help='指定单一来源')
+    parser.add_argument('--source', 
+        choices=['arxiv', 'github', 'hn', 'reddit', 'bluesky', 'cg', 'ph', 'trending_skills', 'huggingface'],
+        help='指定只获取某个源')
     parser.add_argument('--categories', default=None, help='arXiv 分类（逗号分隔）')
     parser.add_argument('--days', type=int, default=1, help='获取最近几天的内容')
     parser.add_argument('--output', default=None, help='输出目录')
@@ -1376,6 +1598,8 @@ def main():
     twitter_items = []
     cg_items = []
     ph_items = []
+    skills_items = []
+    hf_papers_items = []
     
     # 优先使用 CLI 参数，其次使用配置，最后默认
     if args.categories:
@@ -1408,11 +1632,27 @@ def main():
     
     if args.all or args.source == 'producthunt':
         ph_items = fetch_product_hunt()
+
+    if args.all or args.source == 'trending_skills':
+        skills_items = fetch_trending_skills()
     
+    if args.all or args.source == 'huggingface':
+        hf_papers_items = fetch_huggingface_papers()
+
     # 合并所有 items 进行去重
-    all_content = [arxiv_items, github_items, hn_items, reddit_items, cg_items, ph_items]
-    for i in range(len(all_content)):
-         all_content[i] = deduplicate_items(all_content[i])
+    all_content = []
+    all_content.extend(arxiv_items)
+    all_content.extend(github_items)
+    all_content.extend(hn_items)
+    all_content.extend(reddit_items)
+    all_content.extend(twitter_items) # Note: twitter_items is alias for bluesky_items
+    all_content.extend(cg_items)
+    all_content.extend(ph_items)
+    all_content.extend(skills_items)
+    all_content.extend(hf_papers_items)
+    
+    # 去重
+    all_content = deduplicate_items(all_content)
     
     # 生成报告
     has_content = any(all_content)
@@ -1426,6 +1666,8 @@ def main():
             twitter_items=twitter_items,
             cg_items=cg_items,
             ph_items=ph_items,
+            trending_skills_items=skills_items,
+            hf_items=hf_papers_items,
             with_summary=args.with_summary,
             report_date=args.date
         )

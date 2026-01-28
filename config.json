@@ -236,6 +236,14 @@
         "image"
       ],
       "min_votes": 0
+    },
+    "trending_skills": {
+      "enabled": true,
+      "limit": 15
+    },
+    "huggingface": {
+      "enabled": true,
+      "limit": 10
     }
   },
   "filtering": {
