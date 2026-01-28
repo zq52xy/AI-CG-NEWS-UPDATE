@@ -1322,7 +1322,6 @@ def generate_report(
     if github_items:
         lines.extend([
             "## 🔥 GitHub Trending",
-            "![GitHub Trending](../img/github.png)",
             '<div class="news-grid">',
         ])
         for item in github_items[:10]:
@@ -1351,7 +1350,6 @@ def generate_report(
     if trending_skills_items:
         lines.extend([
             "## 🛠️ Trending Skills for Agents",
-            "![Trending Skills](../img/skills.png)",
             "> Top Agent Skills from skills.sh",
             '<div class="news-grid">',
         ])
@@ -1376,7 +1374,6 @@ def generate_report(
     if hf_items:
         lines.extend([
             "## 🤗 Hugging Face Papers",
-            "![Hugging Face](../img/Hugging%20Face.png)",
             "> Daily Top Papers from hf.co/papers",
             '<div class="news-grid">',
         ])
@@ -1407,7 +1404,6 @@ def generate_report(
     if ph_items:
         lines.extend([
             "## 🚀 Product Hunt 每日精选",
-            "![Product Hunt](../img/product%20hunt.png)",
             '<div class="news-grid">',
         ])
         for item in ph_items[:10]:
@@ -1429,7 +1425,6 @@ def generate_report(
     if cg_items:
         lines.extend([
             "## 🎨 CG 图形学",
-            "![CG](../img/CG.png)",
             "> 覆盖: Unreal Engine | Three.js | Blender | Houdini | Unity | Godot | NVIDIA",
             "",
             '<div class="news-grid">',
@@ -1483,7 +1478,6 @@ def generate_report(
     if reddit_items:
         lines.extend([
             "## 🔴 Reddit 讨论",
-            "![Reddit](../img/reddit.png)",
             '<div class="news-grid">',
         ])
         for item in reddit_items[:10]:
@@ -1506,7 +1500,6 @@ def generate_report(
     if hn_items:
         lines.extend([
             "## 💬 Hacker News 热议",
-            "![Hacker News](../img/Hacker%20News.png)",
             '<div class="news-grid">',
         ])
         for item in hn_items[:10]:
@@ -1529,7 +1522,6 @@ def generate_report(
     if arxiv_items:
         lines.extend([
             "## 🎓 学术前沿 (arXiv)",
-            "![arXiv](../img/arXiv.png)",
             '<div class="news-grid">',
         ])
         for item in arxiv_items[:10]: # 限制数量

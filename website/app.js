@@ -513,7 +513,9 @@ function injectBanners() {
         'Reddit 讨论': '../img/reddit.png',
         'Hacker News': '../img/Hacker News.png',
         '学术前沿': '../img/arXiv.png',
-        'Product Hunt': '../img/product hunt.png'
+        'Product Hunt': '../img/product hunt.png',
+        'Hugging Face': '../img/Hugging Face.png',
+        'Trending Skills': '../img/skills.png'
     };
 
     const headers = elements.content.querySelectorAll('h2');
