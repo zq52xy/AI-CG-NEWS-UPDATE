@@ -1321,6 +1321,7 @@ def generate_report(
     # GitHub 部分
     if github_items:
         lines.extend([
+            "![GitHub Trending](../img/github.png)",
             "## 🔥 GitHub Trending",
             '<div class="news-grid">',
         ])
@@ -1349,6 +1350,7 @@ def generate_report(
     # Trending Skills 部分
     if trending_skills_items:
         lines.extend([
+            "![Trending Skills](../img/skills.png)",
             "## 🛠️ Trending Skills for Agents",
             "> Top Agent Skills from skills.sh",
             '<div class="news-grid">',
@@ -1373,6 +1375,7 @@ def generate_report(
     # Hugging Face 部分
     if hf_items:
         lines.extend([
+            "![Hugging Face](../img/Hugging%20Face.png)",
             "## 🤗 Hugging Face Papers",
             "> Daily Top Papers from hf.co/papers",
             '<div class="news-grid">',
@@ -1403,6 +1406,7 @@ def generate_report(
     # Product Hunt 部分
     if ph_items:
         lines.extend([
+            "![Product Hunt](../img/product%20hunt.png)",
             "## 🚀 Product Hunt 每日精选",
             '<div class="news-grid">',
         ])
@@ -1424,6 +1428,7 @@ def generate_report(
 
     if cg_items:
         lines.extend([
+            "![CG](../img/CG.png)",
             "## 🎨 CG 图形学",
             "> 覆盖: Unreal Engine | Three.js | Blender | Houdini | Unity | Godot | NVIDIA",
             "",
@@ -1477,6 +1482,7 @@ def generate_report(
     # Reddit 部分
     if reddit_items:
         lines.extend([
+            "![Reddit](../img/reddit.png)",
             "## 🔴 Reddit 讨论",
             '<div class="news-grid">',
         ])
@@ -1499,6 +1505,7 @@ def generate_report(
     # Hacker News 部分
     if hn_items:
         lines.extend([
+            "![Hacker News](../img/Hacker%20News.png)",
             "## 💬 Hacker News 热议",
             '<div class="news-grid">',
         ])
@@ -1521,6 +1528,7 @@ def generate_report(
     # arXiv 学术前沿
     if arxiv_items:
         lines.extend([
+            "![arXiv](../img/arXiv.png)",
             "## 🎓 学术前沿 (arXiv)",
             '<div class="news-grid">',
         ])
