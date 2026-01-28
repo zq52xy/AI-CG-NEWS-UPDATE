@@ -793,3 +793,267 @@ window.addEventListener('hashchange', () => {
         showNews(dateStr);
     }
 });
+
+// ============================================================================
+//                          分屏预览系统 (Split Screen Preview)
+// ============================================================================
+
+/**
+ * 分屏预览管理器
+ * 实现点击链接后在右侧显示 iframe 预览
+ */
+class PreviewManager {
+    static contentWrapper = document.getElementById('contentWrapper');
+    static splitDivider = document.getElementById('splitDivider');
+    static previewPanel = document.getElementById('previewPanel');
+    static previewUrl = document.getElementById('previewUrl');
+    static previewIframe = document.getElementById('previewIframe');
+    static previewLoading = document.getElementById('previewLoading');
+    static previewError = document.getElementById('previewError');
+    static previewOpenBtn = document.getElementById('previewOpenBtn');
+    static previewCloseBtn = document.getElementById('previewCloseBtn');
+    static previewErrorOpenBtn = document.getElementById('previewErrorOpenBtn');
+
+    static previewSpecial = document.getElementById('previewSpecial');
+    static specialPdfBtn = document.getElementById('specialPdfBtn');
+    static specialAbsBtn = document.getElementById('specialAbsBtn');
+
+    static currentUrl = null;
+    static isDragging = false;
+    static splitRatio = 0.5; // 默认 50:50
+
+    static init() {
+        if (!this.contentWrapper) return;
+
+        // 关闭按钮
+        if (this.previewCloseBtn) {
+            this.previewCloseBtn.addEventListener('click', () => this.close());
+        }
+
+        // 新标签打开按钮
+        if (this.previewOpenBtn) {
+            this.previewOpenBtn.addEventListener('click', () => this.openInNewTab());
+        }
+        if (this.previewErrorOpenBtn) {
+            this.previewErrorOpenBtn.addEventListener('click', () => this.openInNewTab());
+        }
+
+        // 特殊预览按钮
+        if (this.specialPdfBtn) {
+            this.specialPdfBtn.addEventListener('click', () => {
+                if (this.currentUrl) {
+                    // 转为 PDF 链接打开
+                    let pdfUrl = this.currentUrl.replace('/abs/', '/pdf/').replace('/html/', '/pdf/');
+                    if (!pdfUrl.endsWith('.pdf')) pdfUrl += '.pdf';
+                    window.open(pdfUrl, '_blank');
+                }
+            });
+        }
+        if (this.specialAbsBtn) {
+            this.specialAbsBtn.addEventListener('click', () => {
+                if (this.currentUrl) {
+                    // 转为摘要链接打开
+                    let absUrl = this.currentUrl.replace('/pdf/', '/abs/').replace('.pdf', '');
+                    window.open(absUrl, '_blank');
+                }
+            });
+        }
+
+        // iframe 加载事件
+        if (this.previewIframe) {
+            this.previewIframe.addEventListener('load', () => this.onIframeLoad());
+            this.previewIframe.addEventListener('error', () => this.showError());
+        }
+
+        // 拖拽分隔线
+        this.initDraggable();
+
+        // 拦截内容区域的链接点击
+        this.interceptLinks();
+
+        console.log('[PreviewManager] 初始化完成');
+    }
+
+    /**
+     * 拦截内容区域的链接点击
+     */
+    static interceptLinks() {
+        const content = document.getElementById('content');
+        if (!content) return;
+
+        content.addEventListener('click', (e) => {
+            // 查找最近的 <a> 标签
+            const link = e.target.closest('a[href]');
+            if (!link) return;
+
+            const href = link.getAttribute('href');
+            // 只拦截外部链接（http/https 开头）
+            if (!href || !href.startsWith('http')) return;
+
+            // 阻止默认跳转
+            e.preventDefault();
+            e.stopPropagation();
+
+            // 提取标题 (text content or title attribute)
+            const title = link.textContent.trim() || link.title || '无标题';
+
+            // 打开预览
+            this.open(href, title);
+        });
+    }
+
+    /**
+     * 打开预览
+     */
+    static open(url, title = null) {
+        if (!url) return;
+
+        this.currentUrl = url;
+
+        // 更新 URL 显示
+        if (this.previewUrl) {
+            this.previewUrl.textContent = url;
+            this.previewUrl.title = url;
+        }
+
+        // 进入分屏模式
+        this.contentWrapper.classList.add('split-mode');
+        this.applySplitRatio();
+
+        // 检测 arXiv
+        if (url.includes('arxiv.org/')) {
+            this.showSpecial(title);
+            return;
+        }
+
+        // 普通链接：使用 iframe
+        if (this.previewIframe) {
+            this.previewIframe.src = 'about:blank';
+        }
+
+        this.showLoading();
+        this.hideError();
+        this.hideSpecial();
+
+        // 延迟加载新 URL
+        if (this.previewIframe) {
+            setTimeout(() => {
+                this.previewIframe.src = url;
+
+                // 5秒超时检测
+                setTimeout(() => {
+                    if (!this.previewLoading.classList.contains('hidden')) {
+                        this.showError();
+                    }
+                }, 5000);
+            }, 50);
+        }
+    }
+
+    // ... (close, openInNewTab, onIframeLoad, showLoading, hideLoading, showError, hideError methods remain unchanged)
+
+    /**
+     * 显示特殊状态 (ArXiv)
+     */
+    static showSpecial(title) {
+        if (this.previewLoading) this.previewLoading.classList.add('hidden');
+        if (this.previewError) this.previewError.classList.add('hidden');
+        if (this.previewIframe) this.previewIframe.style.display = 'none';
+
+        if (this.previewSpecial) {
+            this.previewSpecial.classList.remove('hidden');
+            // 更新标题
+            const titleEl = this.previewSpecial.querySelector('.preview-special-title');
+            if (titleEl) {
+                titleEl.textContent = title || 'ArXiv 论文';
+            }
+        }
+    }
+
+    static hideSpecial() {
+        if (this.previewSpecial) this.previewSpecial.classList.add('hidden');
+        if (this.previewIframe) this.previewIframe.style.display = 'block';
+    }
+
+    /**
+     * 初始化拖拽分隔线
+     */
+    static initDraggable() {
+        if (!this.splitDivider) return;
+
+        const onMouseDown = (e) => {
+            e.preventDefault();
+            this.isDragging = true;
+            this.splitDivider.classList.add('dragging');
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none';
+        };
+
+        const onMouseMove = (e) => {
+            if (!this.isDragging) return;
+
+            const wrapperRect = this.contentWrapper.getBoundingClientRect();
+            const x = e.clientX - wrapperRect.left;
+            const ratio = x / wrapperRect.width;
+
+            // 限制比例范围 (20% - 80%)
+            this.splitRatio = Math.max(0.2, Math.min(0.8, ratio));
+            this.applySplitRatio();
+        };
+
+        const onMouseUp = () => {
+            if (!this.isDragging) return;
+            this.isDragging = false;
+            this.splitDivider.classList.remove('dragging');
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+
+            // 保存比例到 localStorage
+            localStorage.setItem('preview_split_ratio', this.splitRatio.toString());
+        };
+
+        // 从 localStorage 恢复比例
+        const savedRatio = localStorage.getItem('preview_split_ratio');
+        if (savedRatio) {
+            this.splitRatio = parseFloat(savedRatio);
+        }
+
+        this.splitDivider.addEventListener('mousedown', onMouseDown);
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+
+        // 触摸屏支持
+        this.splitDivider.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            this.isDragging = true;
+            this.splitDivider.classList.add('dragging');
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!this.isDragging) return;
+            const touch = e.touches[0];
+            const wrapperRect = this.contentWrapper.getBoundingClientRect();
+            const x = touch.clientX - wrapperRect.left;
+            const ratio = x / wrapperRect.width;
+            this.splitRatio = Math.max(0.2, Math.min(0.8, ratio));
+            this.applySplitRatio();
+        });
+
+        document.addEventListener('touchend', onMouseUp);
+    }
+
+    /**
+     * 应用分屏比例
+     */
+    static applySplitRatio() {
+        const content = this.contentWrapper.querySelector('.content');
+        if (content) {
+            content.style.flex = `0 0 ${this.splitRatio * 100}%`;
+        }
+    }
+}
+
+// 初始化预览管理器
+document.addEventListener('DOMContentLoaded', () => {
+    PreviewManager.init();
+});

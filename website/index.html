@@ -64,13 +64,53 @@
                 </div>
             </header>
 
-            <div class="content-wrapper">
+            <div class="content-wrapper" id="contentWrapper">
                 <article class="content" id="content">
                     <div class="loading">
                         <div class="spinner"></div>
                         <p>加载中...</p>
                     </div>
                 </article>
+
+                <!-- 可拖拽分隔线 -->
+                <div class="split-divider" id="splitDivider"></div>
+
+                <!-- 预览面板 -->
+                <div class="preview-panel" id="previewPanel">
+                    <div class="preview-toolbar">
+                        <div class="preview-url" id="previewUrl" title=""></div>
+                        <div class="preview-actions">
+                            <button class="preview-btn preview-open-btn" id="previewOpenBtn" title="在新标签页打开">
+                                🔗 打开
+                            </button>
+                            <button class="preview-btn preview-close-btn" id="previewCloseBtn" title="关闭预览">
+                                ✕
+                            </button>
+                        </div>
+                    </div>
+                    <div class="preview-content">
+                        <div class="preview-loading" id="previewLoading">
+                            <div class="spinner"></div>
+                            <p>加载中...</p>
+                        </div>
+                        <div class="preview-error hidden" id="previewError">
+                            <div class="preview-error-icon">🚫</div>
+                            <p>此网站不支持嵌入预览</p>
+                            <button class="btn btn-primary" id="previewErrorOpenBtn">在新标签页打开</button>
+                        </div>
+                        <div class="preview-special hidden" id="previewSpecial">
+                            <div class="preview-special-icon">📄</div>
+                            <h3 class="preview-special-title">ArXiv 论文</h3>
+                            <p class="preview-special-desc">由于 ArXiv 安全策略，无法在页面内预览 PDF。</p>
+                            <div class="preview-special-actions">
+                                <button class="btn btn-primary" id="specialPdfBtn">阅读 PDF</button>
+                                <button class="btn btn-secondary" id="specialAbsBtn">查看摘要</button>
+                            </div>
+                        </div>
+                        <iframe id="previewIframe" class="preview-iframe"
+                            sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+                    </div>
+                </div>
             </div>
         </main>
     </div>

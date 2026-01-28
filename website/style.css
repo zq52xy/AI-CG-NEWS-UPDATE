@@ -10,18 +10,27 @@
     --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    /* 禁止 body 滚动 */
+}
+
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background-color: var(--bg-body);
     color: var(--text-main);
-    margin: 0;
-    padding: 0;
     line-height: 1.6;
 }
 
 .app {
     display: flex;
-    min-height: 100vh;
+    height: 100%;
+    /* 占满视口 */
+    overflow: hidden;
 }
 
 /* Sidebar */
@@ -131,6 +140,10 @@ body {
     /* Sidebar width */
     display: flex;
     flex-direction: column;
+    height: 100%;
+    /* 占满高度 */
+    overflow: hidden;
+    /* 由子元素控制滚动 */
 }
 
 .header {
@@ -172,6 +185,8 @@ body {
     flex: 1;
     padding: 32px;
     overflow-y: auto;
+    min-height: 0;
+    /* 允许 flex 子元素收缩 */
 }
 
 .content {
@@ -632,4 +647,322 @@ a:hover {
 
 .history-item.fav-item:hover {
     background-color: rgba(241, 196, 15, 0.05);
+}
+
+/* ================================================
+   Split Screen Preview
+   ================================================ */
+
+/* Content wrapper 默认状态 - 保持原有布局 */
+.content-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    position: relative;
+    min-height: 0;
+    /* 关键：允许 flex 子元素正确计算高度 */
+}
+
+/* 分屏模式下切换为 flex 布局，禁止容器滚动 */
+.content-wrapper.split-mode {
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+    /* 容器本身不滚动 */
+    padding: 0;
+    /* 移除 padding，由子元素控制 */
+}
+
+/* Content 区域 - 默认保持原有居中布局 */
+.content-wrapper .content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px;
+}
+
+/* 分屏模式下的内容区域 - 独立滚动 */
+.content-wrapper.split-mode .content {
+    flex: 0 0 50%;
+    min-width: 300px;
+    max-width: none;
+    margin: 0;
+    padding: 32px;
+    overflow-y: auto;
+    /* 左侧独立滚动 */
+    min-height: 0;
+    /* 关键：允许 flex 子元素正确计算高度 */
+    transition: flex 0.3s ease;
+}
+
+/* 可拖拽分隔线 */
+.split-divider {
+    display: none;
+    width: 6px;
+    background: var(--border-color);
+    cursor: col-resize;
+    position: relative;
+    flex-shrink: 0;
+    transition: background 0.2s;
+}
+
+.split-divider:hover,
+.split-divider.dragging {
+    background: var(--primary);
+}
+
+.split-divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 2px;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 2px;
+}
+
+.content-wrapper.split-mode .split-divider {
+    display: block;
+}
+
+/* 预览面板 - 独立滚动（通过 iframe 内部滚动） */
+.preview-panel {
+    display: none;
+    flex-direction: column;
+    flex: 1;
+    min-width: 300px;
+    min-height: 0;
+    /* 关键：允许 flex 子元素正确计算高度 */
+    overflow: hidden;
+    /* 面板本身不滚动，iframe 内部滚动 */
+    background: var(--bg-card);
+    border-left: 1px solid var(--border-color);
+}
+
+.content-wrapper.split-mode .preview-panel {
+    display: flex;
+}
+
+/* 预览工具栏 */
+.preview-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: #1a1a1a;
+    border-bottom: 1px solid #333;
+    gap: 12px;
+}
+
+.preview-url {
+    flex: 1;
+    font-size: 0.85rem;
+    color: #aaa;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: #2a2a2a;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-family: monospace;
+}
+
+.preview-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.preview-btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.preview-open-btn {
+    background: #3498db;
+    color: white;
+}
+
+.preview-open-btn:hover {
+    background: #2980b9;
+}
+
+.preview-close-btn {
+    background: #444;
+    color: #ccc;
+}
+
+.preview-close-btn:hover {
+    background: #555;
+    color: white;
+}
+
+/* 预览内容区域 */
+.preview-content {
+    flex: 1;
+    position: relative;
+    background: white;
+    overflow: hidden;
+}
+
+.preview-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+/* 预览加载状态 */
+.preview-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-body);
+    z-index: 10;
+}
+
+.preview-loading.hidden {
+    display: none;
+}
+
+/* 预览错误状态 */
+.preview-error {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-body);
+    z-index: 10;
+    text-align: center;
+    padding: 20px;
+}
+
+.preview-error.hidden {
+    display: none;
+}
+
+.preview-error-icon {
+    font-size: 4rem;
+    margin-bottom: 16px;
+}
+
+.preview-error p {
+    color: var(--text-muted);
+    margin-bottom: 20px;
+}
+
+/* 预览特殊状态（ArXiv 等） */
+.preview-special {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-body);
+    z-index: 10;
+    text-align: center;
+    padding: 30px;
+}
+
+.preview-special.hidden {
+    display: none;
+}
+
+.preview-special-icon {
+    font-size: 5rem;
+    margin-bottom: 20px;
+    color: var(--primary);
+}
+
+.preview-special-title {
+    font-size: 1.5rem;
+    margin: 0 0 10px 0;
+    color: var(--text-main);
+}
+
+.preview-special-desc {
+    color: var(--text-muted);
+    margin-bottom: 30px;
+    max-width: 400px;
+}
+
+.preview-special-actions {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.preview-special-actions .btn {
+    min-width: 120px;
+    padding: 10px 20px;
+}
+
+.btn-secondary {
+    background: #e0e0e0;
+    color: #333;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background: #d0d0d0;
+}
+
+/* ================================================
+   Mobile Responsive - Split Screen
+   ================================================ */
+
+@media (max-width: 768px) {
+
+    /* 移动端：预览面板全屏覆盖 */
+    .content-wrapper.split-mode {
+        position: relative;
+    }
+
+    .content-wrapper.split-mode .content {
+        flex: 1;
+        width: 100%;
+    }
+
+    .content-wrapper.split-mode .split-divider {
+        display: none;
+    }
+
+    .content-wrapper.split-mode .preview-panel {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1000;
+        border-left: none;
+    }
+
+    .preview-toolbar {
+        padding: 12px 16px;
+    }
 }
