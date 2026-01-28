@@ -538,13 +538,14 @@ function injectBanners() {
 
             // 查找现有的 Markdown 图片 (通常在 h2 紧邻的 p 标签中)
             let img = null;
+            let imgParentToRemove = null; // 保存需要删除的父元素
             const nextEl = h2.nextElementSibling;
             if (nextEl && nextEl.tagName === 'P') {
                 const existingImg = nextEl.querySelector('img');
-                // 简单检查：如果是图片，且 src 包含 img/ 或者是预期的 banner
-                // 注意：getAttribute('src') 返回的是 HTML 属性值 (相对路径 ../img/xxx.png)，src 属性返回绝对路径
+                // 检查：如果存在图片，就使用它并标记父元素待删除
                 if (existingImg) {
                     img = existingImg;
+                    imgParentToRemove = nextEl; // 保存引用，稍后删除
                 }
             }
 
@@ -572,9 +573,9 @@ function injectBanners() {
             // 4. 将 h2 移入 overlay
             overlay.appendChild(h2);
 
-            // 清理空的 P 标签 (如果图片原本在 P 标签中，且移走图片后变空了)
-            if (nextEl && nextEl.tagName === 'P' && nextEl.children.length === 0 && !nextEl.textContent.trim()) {
-                nextEl.remove();
+            // 删除原 Markdown 图片的父 P 标签（因为图片已移走，P 现在是空的或只剩空白）
+            if (imgParentToRemove) {
+                imgParentToRemove.remove();
             }
         }
     });
