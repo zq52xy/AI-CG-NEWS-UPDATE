@@ -1013,20 +1013,23 @@ def fetch_trending_skills(limit: int = 15) -> list[NewsItem]:
                              i += 1
                              continue
 
-                        # Owner (下一行) ?
-                        owner = ""
+                        # Owner/Repo (下一行)
+                        owner_repo = ""
                         if i + 2 < len(lines):
-                            owner = lines[i+2]
+                            owner_repo = lines[i+2]
                         
                         # 构造 item
+                        # URL 格式: https://skills.sh/{owner}/{repo}/{skill_name}
+                        url = f"https://skills.sh/{owner_repo}/{name}"
+                        
                         items.append(NewsItem(
                             title=name,
-                            url=f"https://skills.sh/skills/{name}" if '/' not in name else f"https://skills.sh/{name}",
+                            url=url,
                             source='Skills.sh',
                             category='Agent Skill',
                             score=100 - parsed_count, # 模拟分数
-                            summary=f"Rank #{rank} on skills.sh. Owner: {owner}",
-                            extra={'rank': rank, 'owner': owner}
+                            summary=f"Rank #{rank} on skills.sh. Owner: {owner_repo}",
+                            extra={'rank': rank, 'owner': owner_repo}
                         ))
                         parsed_count += 1
                         
