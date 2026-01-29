@@ -926,6 +926,12 @@ class PreviewManager {
             return;
         }
 
+        // 检测是否可在 iframe 中预览 (黑名单)
+        if (!this.isEmbeddable(url)) {
+            this.showError();
+            return;
+        }
+
         // 普通链接：使用 iframe
         if (this.previewIframe) {
             this.previewIframe.src = 'about:blank';
@@ -950,7 +956,90 @@ class PreviewManager {
         }
     }
 
-    // ... (close, openInNewTab, onIframeLoad, showLoading, hideLoading, showError, hideError methods remain unchanged)
+    /**
+     * 判断网站是否支持嵌入 (黑名单机制)
+     */
+    static isEmbeddable(url) {
+        const blockedDomains = [
+            'github.com',
+            'github.io',
+            'reddit.com',
+            'twitter.com',
+            'x.com',
+            'youtube.com',
+            'medium.com',
+            'zhihu.com',
+            'juejin.cn',
+            'bilibili.com',
+            'stackoverflow.com',
+            'v2ex.com',
+            'news.ycombinator.com', // HN usually blocks
+            'producthunt.com'
+        ];
+        try {
+            const hostname = new URL(url).hostname;
+            return !blockedDomains.some(domain => hostname.includes(domain));
+        } catch (e) {
+            return true; // 解析失败则默认尝试加载
+        }
+    }
+
+    static close() {
+        this.contentWrapper.classList.remove('split-mode');
+        this.currentUrl = null;
+        if (this.previewIframe) this.previewIframe.src = 'about:blank';
+        // 重置样式
+        const content = this.contentWrapper.querySelector('.content');
+        if (content) content.style.flex = '';
+
+        // 恢复标题栏状态
+        document.title = 'AI & CG 每日资讯';
+    }
+
+    static openInNewTab() {
+        if (this.currentUrl) {
+            window.open(this.currentUrl, '_blank');
+        }
+    }
+
+    static onIframeLoad() {
+        this.hideLoading();
+        // iframe 加载成功
+        console.log('[PreviewManager] Iframe loaded:', this.currentUrl);
+    }
+
+    static showLoading() {
+        if (this.previewLoading) {
+            this.previewLoading.classList.remove('hidden');
+            // 可以在加载时显示"在新标签页打开"的提示
+            const p = this.previewLoading.querySelector('p');
+            if (p) {
+                p.innerHTML = '加载中... <br><span style="font-size:0.8em; opacity:0.7; cursor:pointer; text-decoration:underline;">点此在新标签页打开</span>';
+                p.querySelector('span').onclick = () => this.openInNewTab();
+            }
+        }
+        if (this.previewIframe) {
+            this.previewIframe.classList.add('loading-blur');
+            // 确保 iframe 是显示的（被 hideSpecial 等可能会隐藏）
+            this.previewIframe.style.display = 'block';
+        }
+    }
+
+    static hideLoading() {
+        if (this.previewLoading) this.previewLoading.classList.add('hidden');
+        if (this.previewIframe) this.previewIframe.classList.remove('loading-blur');
+    }
+
+    static showError() {
+        this.hideLoading();
+        if (this.previewIframe) this.previewIframe.style.display = 'none';
+        if (this.previewError) this.previewError.classList.remove('hidden');
+    }
+
+    static hideError() {
+        if (this.previewError) this.previewError.classList.add('hidden');
+        if (this.previewIframe) this.previewIframe.style.display = 'block';
+    }
 
     /**
      * 显示特殊状态 (ArXiv)
