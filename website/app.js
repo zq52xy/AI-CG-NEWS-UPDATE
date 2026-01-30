@@ -1072,8 +1072,10 @@ class PreviewManager {
      * 显示特殊状态 (ArXiv)
      */
     static showSpecial(title) {
-        if (this.previewLoading) a        this.hidePlaceholder();
-        this.previewLoading.classList.add('hidden');
+        if (this.previewLoading) {
+            this.previewLoading.classList.add('hidden');
+        }
+        this.hidePlaceholder();
         if (this.previewError) this.previewError.classList.add('hidden');
         if (this.previewIframe) this.previewIframe.style.display = 'none';
 
