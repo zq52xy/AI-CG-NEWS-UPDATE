@@ -1,13 +1,18 @@
 :root {
-    --primary: #b92b27;
-    --primary-hover: #a32622;
-    --text-main: #222;
-    --text-muted: #666;
-    --bg-body: #f3f3f3;
-    --bg-card: #fff;
-    --border-color: #e0e0e0;
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05);
+    --primary: #1e3a5f;
+    --primary-hover: #152a45;
+    --accent: #ff6b4a;
+    --accent-hover: #e85a3a;
+    --text-main: #1a1a2e;
+    --text-muted: #5a5a6e;
+    --bg-body: #f8f9fa;
+    --bg-card: #ffffff;
+    --border-color: #e8e8ec;
+    --shadow-sm: 0 1px 3px rgba(30, 58, 95, 0.06);
+    --shadow-md: 0 4px 12px rgba(30, 58, 95, 0.08);
+    --shadow-lg: 0 8px 24px rgba(30, 58, 95, 0.12);
+    --transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 html,
@@ -16,11 +21,10 @@ body {
     margin: 0;
     padding: 0;
     overflow: hidden;
-    /* 禁止 body 滚动 */
 }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     background-color: var(--bg-body);
     color: var(--text-main);
     line-height: 1.6;
@@ -29,7 +33,6 @@ body {
 .app {
     display: flex;
     height: 100%;
-    /* 占满视口 */
     overflow: hidden;
 }
 
@@ -43,7 +46,7 @@ body {
     position: fixed;
     height: 100vh;
     z-index: 100;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sidebar-header {
@@ -74,7 +77,7 @@ body {
     padding: 0 20px 8px;
     font-size: 0.75rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
     color: var(--text-muted);
     font-weight: 600;
 }
@@ -93,19 +96,21 @@ body {
     gap: 10px;
     color: var(--text-muted);
     font-size: 0.95rem;
-    transition: all 0.2s;
+    transition: var(--transition-base);
+    border-radius: 0 6px 6px 0;
+    margin-right: 8px;
 }
 
 .history-item:hover {
-    background-color: rgba(0, 0, 0, 0.04);
+    background-color: rgba(30, 58, 95, 0.04);
     color: var(--text-main);
 }
 
 .history-item.active {
-    background-color: rgba(185, 43, 39, 0.08);
-    /* Primary with opacity */
+    background-color: rgba(30, 58, 95, 0.08);
     color: var(--primary);
     border-right: 3px solid var(--primary);
+    font-weight: 500;
 }
 
 .sidebar-footer {
@@ -118,32 +123,31 @@ body {
     padding: 10px;
     border: 1px solid var(--border-color);
     background: white;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
     font-weight: 500;
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 8px;
-    transition: all 0.2s;
+    transition: var(--transition-base);
+    font-family: inherit;
 }
 
 .refresh-btn:hover {
-    background: #f9f9f9;
-    border-color: #ccc;
+    background: var(--bg-body);
+    border-color: var(--primary);
+    color: var(--primary);
 }
 
 /* Main Content */
 .main {
     flex: 1;
     margin-left: 260px;
-    /* Sidebar width */
     display: flex;
     flex-direction: column;
     height: 100%;
-    /* 占满高度 */
     overflow: hidden;
-    /* 由子元素控制滚动 */
 }
 
 .header {
@@ -153,7 +157,7 @@ body {
     position: sticky;
     top: 0;
     z-index: 90;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+    box-shadow: var(--shadow-sm);
 }
 
 .header-content {
@@ -168,6 +172,8 @@ body {
     margin: 0;
     font-size: 1.5rem;
     font-weight: 700;
+    font-family: 'Noto Serif SC', serif;
+    color: var(--primary);
 }
 
 .header-meta {
@@ -179,6 +185,7 @@ body {
 
 .status {
     font-weight: 500;
+    color: var(--accent);
 }
 
 .content-wrapper {
@@ -186,7 +193,7 @@ body {
     padding: 32px;
     overflow-y: auto;
     min-height: 0;
-    /* 允许 flex 子元素收缩 */
+    transition: var(--transition-base);
 }
 
 .content {
@@ -198,10 +205,15 @@ body {
 .section-header-container {
     margin-top: 32px;
     margin-bottom: 16px;
-    border-radius: 8px;
+    border-radius: 12px;
     overflow: hidden;
     position: relative;
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--shadow-md);
+    transition: var(--transition-base);
+}
+
+.section-header-container:hover {
+    box-shadow: var(--shadow-lg);
 }
 
 .section-banner {
@@ -216,7 +228,7 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+    background: linear-gradient(to top, rgba(30, 58, 95, 0.9), transparent);
     padding: 20px 20px 10px;
     color: white;
 }
@@ -226,10 +238,11 @@ body {
     color: white;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     font-size: 1.5rem;
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 600;
 }
 
-
-/* News Cards (Quora Style) */
+/* News Cards */
 .news-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -239,16 +252,18 @@ body {
 .news-card {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: 12px;
     padding: 16px;
     box-shadow: var(--shadow-sm);
     display: flex;
     gap: 20px;
-    transition: box-shadow 0.2s ease;
+    transition: var(--transition-base);
 }
 
 .news-card:hover {
     box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    border-color: var(--primary);
 }
 
 .news-card-content {
@@ -258,14 +273,12 @@ body {
     justify-content: space-between;
 }
 
-
-
 .news-card-image {
     width: 160px;
     height: 100px;
     background-size: cover;
     background-position: center;
-    border-radius: 4px;
+    border-radius: 8px;
     flex-shrink: 0;
 }
 
@@ -279,11 +292,12 @@ body {
 }
 
 .news-source-tag {
-    background: #f0f0f0;
-    padding: 2px 8px;
+    background: rgba(30, 58, 95, 0.08);
+    padding: 2px 10px;
     border-radius: 12px;
     font-weight: 500;
     font-size: 0.75rem;
+    color: var(--primary);
 }
 
 .news-title-link {
@@ -294,8 +308,9 @@ body {
 .news-title {
     margin: 0 0 8px 0;
     font-size: 1.1rem;
-    font-weight: 700;
+    font-weight: 600;
     line-height: 1.4;
+    font-family: 'Noto Serif SC', serif;
 }
 
 .news-title-link:hover .news-title {
@@ -304,7 +319,7 @@ body {
 }
 
 .news-summary {
-    color: #444;
+    color: var(--text-muted);
     font-size: 0.95rem;
     margin-bottom: 12px;
     display: -webkit-box;
@@ -312,21 +327,22 @@ body {
     line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    line-height: 1.5;
 }
 
 .news-meta {
     display: flex;
     justify-content: space-between;
     font-size: 0.85rem;
-    color: #888;
+    color: var(--text-muted);
 }
 
-/* Old Table Styles (Fallback) */
+/* Table Styles */
 table {
     width: 100%;
     border-collapse: collapse;
     background: var(--bg-card);
-    border-radius: 8px;
+    border-radius: 12px;
     overflow: hidden;
     box-shadow: var(--shadow-sm);
     margin-bottom: 24px;
@@ -341,9 +357,10 @@ td {
 }
 
 th {
-    background: #f8f9fa;
+    background: rgba(30, 58, 95, 0.04);
     font-weight: 600;
     color: var(--text-muted);
+    font-family: 'Noto Serif SC', serif;
 }
 
 tr:last-child td {
@@ -353,10 +370,12 @@ tr:last-child td {
 a {
     color: var(--primary);
     text-decoration: none;
+    transition: var(--transition-base);
 }
 
 a:hover {
     text-decoration: underline;
+    color: var(--accent);
 }
 
 /* Loading */
@@ -372,7 +391,7 @@ a:hover {
 .spinner {
     width: 40px;
     height: 40px;
-    border: 3px solid rgba(0, 0, 0, 0.1);
+    border: 3px solid rgba(30, 58, 95, 0.1);
     border-radius: 50%;
     border-top-color: var(--primary);
     animation: spin 1s ease-in-out infinite;
@@ -400,6 +419,7 @@ a:hover {
 .empty-title {
     margin: 0 0 8px 0;
     font-size: 1.25rem;
+    font-family: 'Noto Serif SC', serif;
 }
 
 .empty-desc {
@@ -423,12 +443,10 @@ a:hover {
 
     .menu-btn {
         display: block !important;
-        /* Force show */
     }
 
     .news-card {
         flex-direction: column-reverse;
-        /* Image on top */
     }
 
     .news-card-image {
@@ -467,6 +485,7 @@ a:hover {
     cursor: pointer;
     padding: 0;
     margin-right: 12px;
+    color: var(--primary);
 }
 
 .sidebar-overlay {
@@ -475,11 +494,12 @@ a:hover {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(30, 58, 95, 0.4);
+    backdrop-filter: blur(4px);
     z-index: 95;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s;
+    transition: opacity 0.3s ease;
 }
 
 .sidebar-overlay.active {
@@ -494,7 +514,7 @@ a:hover {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(30, 58, 95, 0.5);
     backdrop-filter: blur(4px);
     z-index: 1000;
     display: flex;
@@ -502,7 +522,7 @@ a:hover {
     align-items: center;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s ease;
+    transition: var(--transition-base);
 }
 
 .modal-overlay.active {
@@ -513,16 +533,16 @@ a:hover {
 .modal-card {
     background: var(--bg-card);
     padding: 24px;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg);
     width: 90%;
     max-width: 400px;
-    transform: scale(0.95);
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform: scale(0.95) translateY(10px);
+    transition: var(--transition-bounce);
 }
 
 .modal-overlay.active .modal-card {
-    transform: scale(1);
+    transform: scale(1) translateY(0);
 }
 
 .modal-card.hidden {
@@ -533,6 +553,7 @@ a:hover {
     margin: 0 0 16px 0;
     font-size: 1.25rem;
     color: var(--text-main);
+    font-family: 'Noto Serif SC', serif;
 }
 
 .modal-desc {
@@ -554,21 +575,20 @@ a:hover {
 
 .modal-input {
     width: 100%;
-    padding: 10px;
+    padding: 10px 12px;
     border: 1px solid var(--border-color);
-    border-radius: 6px;
+    border-radius: 8px;
     font-family: inherit;
     font-size: 0.95rem;
     color: var(--text-main);
     box-sizing: border-box;
-    /* Important for width: 100% */
-    transition: border-color 0.2s;
+    transition: var(--transition-base);
 }
 
 .modal-input:focus {
     outline: none;
     border-color: var(--primary);
-    box-shadow: 0 0 0 2px rgba(185, 43, 39, 0.1);
+    box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.1);
 }
 
 .modal-actions {
@@ -581,12 +601,13 @@ a:hover {
 /* Base Buttons */
 .btn {
     padding: 8px 16px;
-    border-radius: 6px;
+    border-radius: 8px;
     font-weight: 500;
     cursor: pointer;
     font-size: 0.95rem;
     border: none;
-    transition: all 0.2s;
+    transition: var(--transition-base);
+    font-family: inherit;
 }
 
 .btn-ghost {
@@ -595,7 +616,7 @@ a:hover {
 }
 
 .btn-ghost:hover {
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(30, 58, 95, 0.05);
     color: var(--text-main);
 }
 
@@ -607,18 +628,18 @@ a:hover {
 .btn-primary:hover {
     background: var(--primary-hover);
     transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(185, 43, 39, 0.2);
+    box-shadow: var(--shadow-md);
 }
 
 .btn-danger {
-    background: #e74c3c;
+    background: var(--accent);
     color: white;
 }
 
 .btn-danger:hover {
-    background: #c0392b;
+    background: var(--accent-hover);
     transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(231, 76, 60, 0.2);
+    box-shadow: 0 2px 4px rgba(255, 107, 74, 0.2);
 }
 
 /* Favorites Button */
@@ -628,11 +649,10 @@ a:hover {
     cursor: pointer;
     font-size: 1.2rem;
     color: #ccc;
-    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: var(--transition-bounce);
     padding: 0;
     line-height: 1;
     z-index: 2;
-    /* 确保在点击层之上 */
 }
 
 .fav-btn.active {
@@ -641,7 +661,7 @@ a:hover {
 }
 
 .fav-btn:hover {
-    transform: scale(1.1);
+    transform: scale(1.15);
     color: #ffd700;
 }
 
@@ -649,17 +669,46 @@ a:hover {
     background-color: rgba(241, 196, 15, 0.05);
 }
 
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(30, 58, 95, 0.2);
+    border-radius: 3px;
+    transition: var(--transition-base);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(30, 58, 95, 0.4);
+}
+
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* Firefox Scrollbar */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(30, 58, 95, 0.2) transparent;
+}
+
 /* ================================================
    Split Screen Preview
    ================================================ */
 
-/* Content wrapper 默认状态 - 保持原有布局 */
 .content-wrapper {
     flex: 1;
     overflow-y: auto;
     position: relative;
     min-height: 0;
-    /* 关键：允许 flex 子元素正确计算高度 */
+    transition: var(--transition-base);
 }
 
 /* 分屏模式下切换为 flex 布局，禁止容器滚动 */
@@ -667,9 +716,7 @@ a:hover {
     display: flex;
     flex-direction: row;
     overflow: hidden;
-    /* 容器本身不滚动 */
     padding: 0;
-    /* 移除 padding，由子元素控制 */
 }
 
 /* Content 区域 - 默认保持原有居中布局 */
@@ -687,21 +734,19 @@ a:hover {
     margin: 0;
     padding: 32px;
     overflow-y: auto;
-    /* 左侧独立滚动 */
     min-height: 0;
-    /* 关键：允许 flex 子元素正确计算高度 */
-    transition: flex 0.3s ease;
+    transition: flex 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* 可拖拽分隔线 */
 .split-divider {
     display: none;
-    width: 6px;
+    width: 8px;
     background: var(--border-color);
     cursor: col-resize;
     position: relative;
     flex-shrink: 0;
-    transition: background 0.2s;
+    transition: var(--transition-base);
 }
 
 .split-divider:hover,
@@ -709,7 +754,7 @@ a:hover {
     background: var(--primary);
 }
 
-.split-divider::after {
+.split-divider::before {
     content: '';
     position: absolute;
     top: 50%;
@@ -717,8 +762,34 @@ a:hover {
     transform: translate(-50%, -50%);
     width: 2px;
     height: 40px;
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.8);
     border-radius: 2px;
+    opacity: 0;
+    transition: var(--transition-base);
+}
+
+.split-divider:hover::before,
+.split-divider.dragging::before {
+    opacity: 1;
+}
+
+.split-divider::after {
+    content: '⋮⋮';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: rgba(30, 58, 95, 0.3);
+    opacity: 0;
+    transition: var(--transition-base);
+}
+
+.split-divider:hover::after,
+.split-divider.dragging::after {
+    opacity: 1;
+    color: white;
 }
 
 .content-wrapper.split-mode .split-divider {
@@ -732,15 +803,18 @@ a:hover {
     flex: 1;
     min-width: 300px;
     min-height: 0;
-    /* 关键：允许 flex 子元素正确计算高度 */
     overflow: hidden;
-    /* 面板本身不滚动，iframe 内部滚动 */
     background: var(--bg-card);
     border-left: 1px solid var(--border-color);
+    transform: translateX(20px);
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
 }
 
 .content-wrapper.split-mode .preview-panel {
     display: flex;
+    transform: translateX(0);
+    opacity: 1;
 }
 
 /* 预览工具栏 */
@@ -748,23 +822,24 @@ a:hover {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 16px;
-    background: #1a1a1a;
-    border-bottom: 1px solid #333;
+    padding: 12px 16px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
     gap: 12px;
 }
 
 .preview-url {
     flex: 1;
-    font-size: 0.85rem;
-    color: #aaa;
+    font-size: 0.8rem;
+    color: var(--text-muted);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    background: #2a2a2a;
-    padding: 6px 12px;
-    border-radius: 4px;
-    font-family: monospace;
+    background: rgba(30, 58, 95, 0.04);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-family: 'Noto Sans SC', monospace;
+    border: 1px solid var(--border-color);
 }
 
 .preview-actions {
@@ -774,32 +849,39 @@ a:hover {
 }
 
 .preview-btn {
-    padding: 6px 12px;
+    padding: 8px 14px;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
     font-size: 0.85rem;
     font-weight: 500;
-    transition: all 0.2s;
+    transition: var(--transition-base);
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .preview-open-btn {
-    background: #3498db;
+    background: var(--primary);
     color: white;
 }
 
 .preview-open-btn:hover {
-    background: #2980b9;
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
 }
 
 .preview-close-btn {
-    background: #444;
-    color: #ccc;
+    background: rgba(30, 58, 95, 0.08);
+    color: var(--text-muted);
 }
 
 .preview-close-btn:hover {
-    background: #555;
+    background: var(--accent);
     color: white;
+    transform: translateY(-1px);
 }
 
 /* 预览内容区域 */
@@ -815,6 +897,16 @@ a:hover {
     height: 100%;
     border: none;
     display: block;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.preview-iframe.loaded {
+    opacity: 1;
+}
+
+.preview-iframe.loading-blur {
+    filter: blur(2px);
 }
 
 /* 预览加载状态 */
@@ -830,10 +922,33 @@ a:hover {
     justify-content: center;
     background: var(--bg-body);
     z-index: 10;
+    transition: opacity 0.3s ease;
 }
 
 .preview-loading.hidden {
-    display: none;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.preview-loading .spinner {
+    border-top-color: var(--primary);
+}
+
+.preview-loading p {
+    color: var(--text-muted);
+    margin-top: 12px;
+    font-size: 0.9rem;
+}
+
+.preview-loading span {
+    display: inline-block;
+    margin-top: 8px;
+    cursor: pointer;
+    transition: var(--transition-base);
+}
+
+.preview-loading span:hover {
+    color: var(--primary);
 }
 
 /* 预览错误状态 */
@@ -865,6 +980,7 @@ a:hover {
 .preview-error p {
     color: var(--text-muted);
     margin-bottom: 20px;
+    font-size: 1rem;
 }
 
 /* 预览特殊状态（ArXiv 等） */
@@ -898,12 +1014,14 @@ a:hover {
     font-size: 1.5rem;
     margin: 0 0 10px 0;
     color: var(--text-main);
+    font-family: 'Noto Serif SC', serif;
 }
 
 .preview-special-desc {
     color: var(--text-muted);
     margin-bottom: 30px;
     max-width: 400px;
+    line-height: 1.6;
 }
 
 .preview-special-actions {
@@ -919,17 +1037,18 @@ a:hover {
 }
 
 .btn-secondary {
-    background: #e0e0e0;
-    color: #333;
+    background: rgba(30, 58, 95, 0.08);
+    color: var(--text-main);
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
-    font-weight: 600;
-    transition: all 0.2s;
+    font-weight: 500;
+    transition: var(--transition-base);
 }
 
 .btn-secondary:hover {
-    background: #d0d0d0;
+    background: rgba(30, 58, 95, 0.15);
+    transform: translateY(-1px);
 }
 
 /* ================================================
@@ -937,7 +1056,6 @@ a:hover {
    ================================================ */
 
 @media (max-width: 768px) {
-
     /* 移动端：预览面板全屏覆盖 */
     .content-wrapper.split-mode {
         position: relative;
@@ -954,15 +1072,27 @@ a:hover {
 
     .content-wrapper.split-mode .preview-panel {
         position: fixed;
-        top: 0;
+        top: auto;
+        bottom: 0;
         left: 0;
         right: 0;
-        bottom: 0;
+        height: 85vh;
         z-index: 1000;
         border-left: none;
+        border-top: 1px solid var(--border-color);
+        border-radius: 16px 16px 0 0;
+        transform: translateY(100%);
+        animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes slideUp {
+        to {
+            transform: translateY(0);
+        }
     }
 
     .preview-toolbar {
         padding: 12px 16px;
+        border-radius: 16px 16px 0 0;
     }
 }
