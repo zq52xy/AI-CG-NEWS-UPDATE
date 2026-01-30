@@ -821,6 +821,7 @@ class PreviewManager {
     static currentUrl = null;
     static isDragging = false;
     static splitRatio = 0.5; // 默认 50:50
+    static loadTimeoutId = null; // 加载超时定时器引用
 
     static init() {
         if (!this.contentWrapper) return;
@@ -943,14 +944,27 @@ class PreviewManager {
 
         // 延迟加载新 URL
         if (this.previewIframe) {
+            // 清除之前的超时定时器
+            if (this.loadTimeoutId) {
+                clearTimeout(this.loadTimeoutId);
+                this.loadTimeoutId = null;
+            }
+
             setTimeout(() => {
                 this.previewIframe.src = url;
 
-                // 5秒超时检测
-                setTimeout(() => {
-                    if (!this.previewLoading.classList.contains('hidden')) {
+                // 5秒超时检测 - 改进逻辑：只有当仍处于加载状态且不是特殊状态时显示错误
+                this.loadTimeoutId = setTimeout(() => {
+                    // 检查是否仍处于加载状态（loading显示，error和special都隐藏）
+                    const isLoading = !this.previewLoading.classList.contains('hidden');
+                    const isErrorVisible = !this.previewError.classList.contains('hidden');
+                    const isSpecialVisible = !this.previewSpecial.classList.contains('hidden');
+                    
+                    // 只有当确实在加载中，且没有显示错误/特殊状态时，才显示错误
+                    if (isLoading && !isErrorVisible && !isSpecialVisible) {
                         this.showError();
                     }
+                    this.loadTimeoutId = null;
                 }, 5000);
             }, 50);
         }
@@ -994,6 +1008,12 @@ class PreviewManager {
 
         // 恢复标题栏状态
         document.title = 'AI & CG 每日资讯';
+
+        // 清除超时定时器
+        if (this.loadTimeoutId) {
+            clearTimeout(this.loadTimeoutId);
+            this.loadTimeoutId = null;
+        }
     }
 
     static openInNewTab() {
