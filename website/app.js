@@ -1186,3 +1186,206 @@ n    /*
 document.addEventListener('DOMContentLoaded', () => {
     PreviewManager.init();
 });
+
+// ============================================================================
+//                          搜索功能 (SearchManager)
+// ============================================================================
+
+class SearchManager {
+    static fuse = null;
+    static items = [];
+    
+    static init() {
+        this.searchInput = document.getElementById('searchInput');
+        this.searchClear = document.getElementById('searchClear');
+        this.searchCount = document.getElementById('searchCount');
+        
+        if (!this.searchInput) return;
+        
+        // 绑定事件
+        this.searchInput.addEventListener('input', this.debounce((e) => {
+            this.search(e.target.value);
+        }, 300));
+        
+        this.searchClear.addEventListener('click', () => this.clear());
+        
+        // 快捷键
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '/' && document.activeElement !== this.searchInput) {
+                e.preventDefault();
+                this.searchInput.focus();
+            }
+            if (e.key === 'Escape') {
+                this.clear();
+            }
+        });
+        
+        // 初始构建索引
+        this.buildIndex();
+        
+        // 监听内容变化，重新构建索引
+        const observer = new MutationObserver(() => {
+            this.buildIndex();
+        });
+        
+        const content = document.getElementById('content');
+        if (content) {
+            observer.observe(content, { childList: true, subtree: true });
+        }
+    }
+    
+    static buildIndex() {
+        const cards = document.querySelectorAll('.news-card');
+        this.items = Array.from(cards).map((card, index) => ({
+            id: index,
+            title: card.querySelector('.news-title')?.textContent?.trim() || '',
+            summary: card.querySelector('.news-summary')?.textContent?.trim() || '',
+            source: card.querySelector('.news-source-tag')?.textContent?.trim() || '',
+            category: card.closest('.section-header-container, [class*="section"]')?.querySelector('h2')?.textContent?.trim() || '',
+            element: card
+        }));
+        
+        // 配置 Fuse.js
+        const options = {
+            keys: [
+                { name: 'title', weight: 0.5 },
+                { name: 'summary', weight: 0.3 },
+                { name: 'source', weight: 0.1 },
+                { name: 'category', weight: 0.1 }
+            ],
+            threshold: 0.4,
+            includeScore: true,
+            includeMatches: true
+        };
+        
+        this.fuse = new Fuse(this.items, options);
+    }
+    
+    static search(query) {
+        if (!query.trim()) {
+            this.showAll();
+            this.searchCount.textContent = '';
+            return;
+        }
+        
+        if (!this.fuse) return;
+        
+        const results = this.fuse.search(query);
+        
+        // 隐藏所有
+        this.items.forEach(item => {
+            item.element.style.display = 'none';
+            this.removeHighlight(item.element);
+        });
+        
+        // 显示匹配项
+        if (results.length === 0) {
+            this.showNoResults();
+        } else {
+            this.hideNoResults();
+            results.forEach(result => {
+                const item = result.item;
+                item.element.style.display = 'flex';
+                if (result.matches) {
+                    this.highlightMatches(item.element, result.matches);
+                }
+            });
+        }
+        
+        // 更新计数
+        this.searchCount.textContent = `找到 ${results.length} 个结果`;
+    }
+    
+    static clear() {
+        this.searchInput.value = '';
+        this.showAll();
+        this.searchCount.textContent = '';
+        this.hideNoResults();
+        this.searchInput.blur();
+    }
+    
+    static showAll() {
+        this.items.forEach(item => {
+            item.element.style.display = 'flex';
+            this.removeHighlight(item.element);
+        });
+        this.hideNoResults();
+    }
+    
+    static highlightMatches(element, matches) {
+        this.removeHighlight(element);
+        
+        matches.forEach(match => {
+            const key = match.key;
+            const indices = match.indices;
+            
+            let targetElement;
+            if (key === 'title') {
+                targetElement = element.querySelector('.news-title');
+            } else if (key === 'summary') {
+                targetElement = element.querySelector('.news-summary');
+            } else if (key === 'source') {
+                targetElement = element.querySelector('.news-source-tag');
+            }
+            
+            if (targetElement && indices.length > 0) {
+                const text = targetElement.textContent;
+                let html = '';
+                let lastIndex = 0;
+                
+                indices.forEach(([start, end]) => {
+                    html += text.slice(lastIndex, start);
+                    html += `<span class="highlight">${text.slice(start, end + 1)}</span>`;
+                    lastIndex = end + 1;
+                });
+                html += text.slice(lastIndex);
+                
+                targetElement.innerHTML = html;
+            }
+        });
+    }
+    
+    static removeHighlight(element) {
+        const highlights = element.querySelectorAll('.highlight');
+        highlights.forEach(h => {
+            const parent = h.parentNode;
+            parent.replaceChild(document.createTextNode(h.textContent), h);
+            parent.normalize();
+        });
+    }
+    
+    static showNoResults() {
+        let noResults = document.getElementById('noSearchResults');
+        if (!noResults) {
+            noResults = document.createElement('div');
+            noResults.id = 'noSearchResults';
+            noResults.className = 'no-search-results';
+            noResults.innerHTML = `
+                <div class="no-search-results-icon">🔍</div>
+                <h3>未找到相关文章</h3>
+                <p>尝试使用其他关键词搜索</p>
+            `;
+            const content = document.getElementById('content');
+            if (content) content.appendChild(noResults);
+        }
+        noResults.style.display = 'block';
+    }
+    
+    static hideNoResults() {
+        const noResults = document.getElementById('noSearchResults');
+        if (noResults) noResults.style.display = 'none';
+    }
+    
+    static debounce(fn, delay) {
+        let timeout;
+        return (...args) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => fn.apply(this, args), delay);
+        };
+    }
+}
+
+// 初始化搜索功能
+document.addEventListener('DOMContentLoaded', () => {
+    SearchManager.init();
+});

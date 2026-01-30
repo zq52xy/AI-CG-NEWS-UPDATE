@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css?v=18">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
 </head>
 
 <body>
@@ -58,6 +59,12 @@
                     </button>
                     <h1 class="page-title" id="pageTitle">AI & CG 每日资讯</h1>
                     <div class="header-meta">
+                        <div class="search-box">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="searchInput" placeholder="搜索文章 (按 / 聚焦)..." />
+                            <span class="search-clear" id="searchClear">✕</span>
+                            <span class="search-count" id="searchCount"></span>
+                        </div>
                         <span class="beijing-time" id="beijingTime"></span>
                         <span class="date" id="currentDate"></span>
                         <span class="status" id="status">● 在线</span>

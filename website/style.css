@@ -1141,3 +1141,99 @@ a:hover {
     font-size: 0.85rem;
     opacity: 0.7;
 }
+
+/* 搜索框样式 */
+.search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-box input {
+    width: 200px;
+    padding: 8px 28px 8px 32px;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    background: var(--bg-body);
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: var(--primary);
+    width: 260px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(30, 58, 95, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    left: 10px;
+    font-size: 0.9rem;
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.search-clear {
+    position: absolute;
+    right: 36px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    opacity: 0;
+    transition: opacity 0.2s;
+    color: var(--text-muted);
+}
+
+.search-box input:not(:placeholder-shown) ~ .search-clear {
+    opacity: 0.5;
+}
+
+.search-clear:hover {
+    opacity: 1 !important;
+}
+
+.search-count {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+/* 搜索结果高亮 */
+.highlight {
+    background: rgba(255, 235, 59, 0.4);
+    padding: 1px 2px;
+    border-radius: 2px;
+    font-weight: 500;
+}
+
+/* 无结果提示 */
+.no-search-results {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+}
+
+.no-search-results-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+/* 移动端搜索框适配 */
+@media (max-width: 768px) {
+    .search-box input {
+        width: 140px;
+        padding: 6px 24px 6px 28px;
+        font-size: 0.8rem;
+    }
+    
+    .search-box input:focus {
+        width: 180px;
+    }
+    
+    .search-count {
+        display: none;
+    }
+}
