@@ -734,14 +734,23 @@ a:hover {
 
 /* 分屏模式下的内容区域 - 独立滚动 */
 .content-wrapper.split-mode .content {
-    flex: 0 0 50%;
+    flex: 0 0 var(--content-width, 50%);
     min-width: 300px;
     max-width: none;
     margin: 0;
     padding: 32px;
     overflow-y: auto;
     min-height: 0;
+    /* 拖拽时通过 JS 添加 .resizing 类来禁用过渡 */
     transition: flex 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: flex-basis;
+    contain: layout;
+}
+
+/* 拖拽时禁用过渡，确保跟手 */
+.content-wrapper.split-mode .content.resizing,
+.content-wrapper.split-mode.resizing .content {
+    transition: none !important;
 }
 
 /* 可拖拽分隔线 */

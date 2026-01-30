@@ -1001,12 +1001,11 @@ class PreviewManager {
     }
 
     static close() {
-        this.contentWrapper.classList.remove('split-mode');
+        this.contentWrapper.classList.remove('split-mode', 'resizing');
         this.currentUrl = null;
         if (this.previewIframe) this.previewIframe.src = 'about:blank';
-        // 重置样式
-        const content = this.contentWrapper.querySelector('.content');
-        if (content) content.style.flex = '';
+        // 重置 CSS 变量
+        this.contentWrapper.style.removeProperty('--content-width');
 
         // 恢复标题栏状态
         document.title = 'AI & CG 每日资讯';
@@ -1106,79 +1105,123 @@ n    /*
 
     /**
      * 初始化拖拽分隔线
+     * 优化策略：
+     * 1. requestAnimationFrame 节流渲染，避免布局抖动
+     * 2. setPointerCapture 确保拖拽不中断
+     * 3. CSS 变量驱动布局，减少 DOM 操作
+     * 4. 拖拽时禁用 CSS 过渡，确保跟手
      */
     static initDraggable() {
         if (!this.splitDivider) return;
-
-        const onMouseDown = (e) => {
-            e.preventDefault();
-            this.isDragging = true;
-            this.splitDivider.classList.add('dragging');
-            document.body.style.cursor = 'col-resize';
-            document.body.style.userSelect = 'none';
-        };
-
-        const onMouseMove = (e) => {
-            if (!this.isDragging) return;
-
-            const wrapperRect = this.contentWrapper.getBoundingClientRect();
-            const x = e.clientX - wrapperRect.left;
-            const ratio = x / wrapperRect.width;
-
-            // 限制比例范围 (20% - 80%)
-            this.splitRatio = Math.max(0.2, Math.min(0.8, ratio));
-            this.applySplitRatio();
-        };
-
-        const onMouseUp = () => {
-            if (!this.isDragging) return;
-            this.isDragging = false;
-            this.splitDivider.classList.remove('dragging');
-            document.body.style.cursor = '';
-            document.body.style.userSelect = '';
-
-            // 保存比例到 localStorage
-            localStorage.setItem('preview_split_ratio', this.splitRatio.toString());
-        };
 
         // 从 localStorage 恢复比例
         const savedRatio = localStorage.getItem('preview_split_ratio');
         if (savedRatio) {
             this.splitRatio = parseFloat(savedRatio);
+            this.applySplitRatio();
         }
 
-        this.splitDivider.addEventListener('mousedown', onMouseDown);
-        document.addEventListener('mousemove', onMouseMove);
-        document.addEventListener('mouseup', onMouseUp);
+        // RAF 节流相关
+        this._rafId = null;
+        this._pendingRatio = null;
 
-        // 触摸屏支持
-        this.splitDivider.addEventListener('touchstart', (e) => {
+        const startDrag = (e) => {
             e.preventDefault();
             this.isDragging = true;
             this.splitDivider.classList.add('dragging');
+            this.contentWrapper.classList.add('resizing');
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none';
+
+            // 指针捕获：确保拖拽期间持续接收事件
+            if (e.pointerId !== undefined) {
+                this.splitDivider.setPointerCapture(e.pointerId);
+            }
+        };
+
+        const updateRatio = (clientX) => {
+            const wrapperRect = this.contentWrapper.getBoundingClientRect();
+            const x = clientX - wrapperRect.left;
+            const ratio = Math.max(0.2, Math.min(0.8, x / wrapperRect.width));
+
+            if (this._rafId) return; // 已有待执行的帧，跳过
+
+            this._rafId = requestAnimationFrame(() => {
+                this.splitRatio = ratio;
+                this.applySplitRatio();
+                this._rafId = null;
+            });
+        };
+
+        const endDrag = () => {
+            if (!this.isDragging) return;
+            this.isDragging = false;
+            this.splitDivider.classList.remove('dragging');
+            this.contentWrapper.classList.remove('resizing');
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+
+            // 取消待执行的 RAF，避免状态不一致
+            if (this._rafId) {
+                cancelAnimationFrame(this._rafId);
+                this._rafId = null;
+            }
+
+            // 保存比例到 localStorage
+            localStorage.setItem('preview_split_ratio', this.splitRatio.toString());
+        };
+
+        // ========== Pointer Events (推荐，统一鼠标和触摸) ==========
+        this.splitDivider.addEventListener('pointerdown', startDrag);
+
+        this.splitDivider.addEventListener('pointermove', (e) => {
+            if (!this.isDragging) return;
+            updateRatio(e.clientX);
         });
+
+        this.splitDivider.addEventListener('pointerup', endDrag);
+        this.splitDivider.addEventListener('pointercancel', endDrag);
+
+        // ========== 降级：Mouse Events (旧浏览器兼容) ==========
+        this.splitDivider.addEventListener('mousedown', (e) => {
+            if (window.PointerEvent) return; // 有 PointerEvent 就不走这里
+            startDrag(e);
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (window.PointerEvent || !this.isDragging) return;
+            updateRatio(e.clientX);
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (window.PointerEvent) return;
+            endDrag();
+        });
+
+        // ========== 降级：Touch Events (旧浏览器兼容) ==========
+        this.splitDivider.addEventListener('touchstart', (e) => {
+            if (window.PointerEvent) return;
+            startDrag(e);
+        }, { passive: false });
 
         document.addEventListener('touchmove', (e) => {
-            if (!this.isDragging) return;
-            const touch = e.touches[0];
-            const wrapperRect = this.contentWrapper.getBoundingClientRect();
-            const x = touch.clientX - wrapperRect.left;
-            const ratio = x / wrapperRect.width;
-            this.splitRatio = Math.max(0.2, Math.min(0.8, ratio));
-            this.applySplitRatio();
-        });
+            if (window.PointerEvent || !this.isDragging) return;
+            updateRatio(e.touches[0].clientX);
+        }, { passive: false });
 
-        document.addEventListener('touchend', onMouseUp);
+        document.addEventListener('touchend', () => {
+            if (window.PointerEvent) return;
+            endDrag();
+        });
     }
 
     /**
      * 应用分屏比例
+     * 使用 CSS 变量驱动，配合 will-change 优化渲染性能
      */
     static applySplitRatio() {
-        const content = this.contentWrapper.querySelector('.content');
-        if (content) {
-            content.style.flex = `0 0 ${this.splitRatio * 100}%`;
-        }
+        // 使用 CSS 变量，避免频繁操作 DOM 属性
+        this.contentWrapper.style.setProperty('--content-width', `${this.splitRatio * 100}%`);
     }
 }
 
