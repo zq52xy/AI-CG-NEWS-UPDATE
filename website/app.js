@@ -815,6 +815,7 @@ class PreviewManager {
     static previewErrorOpenBtn = document.getElementById('previewErrorOpenBtn');
 
     static previewSpecial = document.getElementById('previewSpecial');
+    static previewPlaceholder = document.getElementById("previewPlaceholder");
     static specialPdfBtn = document.getElementById('specialPdfBtn');
     static specialAbsBtn = document.getElementById('specialAbsBtn');
 
@@ -939,6 +940,7 @@ class PreviewManager {
         }
 
         this.showLoading();
+        this.showPlaceholder();
         this.hideError();
         this.hideSpecial();
 
@@ -965,7 +967,7 @@ class PreviewManager {
                         this.showError();
                     }
                     this.loadTimeoutId = null;
-                }, 5000);
+                }, 3000);
             }, 50);
         }
     }
@@ -1024,6 +1026,10 @@ class PreviewManager {
 
     static onIframeLoad() {
         this.hideLoading();
+        this.hidePlaceholder();
+        if (this.previewIframe) {
+            this.previewIframe.classList.add("loaded");
+        }
         // iframe 加载成功
         console.log('[PreviewManager] Iframe loaded:', this.currentUrl);
     }
@@ -1052,6 +1058,7 @@ class PreviewManager {
 
     static showError() {
         this.hideLoading();
+        this.hidePlaceholder();
         if (this.previewIframe) this.previewIframe.style.display = 'none';
         if (this.previewError) this.previewError.classList.remove('hidden');
     }
@@ -1065,7 +1072,8 @@ class PreviewManager {
      * 显示特殊状态 (ArXiv)
      */
     static showSpecial(title) {
-        if (this.previewLoading) this.previewLoading.classList.add('hidden');
+        if (this.previewLoading) a        this.hidePlaceholder();
+        this.previewLoading.classList.add('hidden');
         if (this.previewError) this.previewError.classList.add('hidden');
         if (this.previewIframe) this.previewIframe.style.display = 'none';
 
@@ -1082,6 +1090,16 @@ class PreviewManager {
     static hideSpecial() {
         if (this.previewSpecial) this.previewSpecial.classList.add('hidden');
         if (this.previewIframe) this.previewIframe.style.display = 'block';
+    }
+n    /*
+     * 显示/隐藏占位层
+     */
+    static showPlaceholder() {
+        if (this.previewPlaceholder) this.previewPlaceholder.classList.remove("hidden");
+    }
+
+    static hidePlaceholder() {
+        if (this.previewPlaceholder) this.previewPlaceholder.classList.add("hidden");
     }
 
     /**
