@@ -1,3 +1,8 @@
+---
+description: 
+alwaysApply: true
+---
+
 # AI-CG-NEWS - 每日 AI & CG 资讯聚合
 Python + HTML/JS
 
