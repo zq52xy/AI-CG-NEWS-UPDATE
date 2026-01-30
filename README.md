@@ -16,7 +16,7 @@
 
 1. **📑 分屏预览系统** - 点击链接右侧 iframe 实时预览，支持拖拽调整比例（20%-80%），自动保存偏好设置
 2. **⭐ 智能收藏管理** - 收藏感兴趣的文章，支持编辑标题/添加备注，侧边栏快速访问
-3. **📡 多源聚合** - 自动抓取 arXiv、GitHub Trending、Hacker News、Reddit、官方博客等 8+ 来源
+3. **📡 多源聚合** - 自动抓取 arXiv、GitHub Trending、Hugging Face、skills.sh、Hacker News、Reddit、官方博客等 10+ 来源
 4. **📅 历史记录** - 自动保留最近7天新闻，支持按日期快速切换
 5. **🎨 学术风格 UI** - Noto Serif SC 标题字体，深靛蓝配色方案，6px 自定义滚动条
 6. **📱 响应式设计** - 桌面端分屏、移动端底部 Sheet，完美适配各种设备
@@ -28,6 +28,8 @@
 |------|------|------|
 | arXiv | 学术论文 | cs.AI, cs.CV, cs.GR, cs.LG 等方向 |
 | GitHub Trending | 开源项目 | 每日热门仓库 |
+| Hugging Face | AI 模型/数据集 | 热门模型、数据集和 Spaces 项目 |
+| skills.sh | 技能趋势 | 技术技能趋势和流行度分析 |
 | Hacker News | 技术社区 | 前沿技术讨论 |
 | Reddit | 社区讨论 | r/UE5, r/Blender, r/Threejs 等 |
 | 官方博客 | 引擎动态 | Unreal, Unity, Blender, Godot, NVIDIA |
