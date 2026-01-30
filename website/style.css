@@ -163,11 +163,12 @@ body {
 }
 
 .header-content {
-    max-width: 900px;
+    max-width: 1200px;
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 0 20px;
 }
 
 .page-title {
@@ -176,11 +177,14 @@ body {
     font-weight: 700;
     font-family: 'Noto Serif SC', serif;
     color: var(--primary);
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .header-meta {
     display: flex;
-    gap: 20px;
+    align-items: center;
+    gap: 16px;
     font-size: 0.9rem;
     color: var(--text-muted);
 }
@@ -1235,5 +1239,72 @@ a:hover {
     
     .search-count {
         display: none;
+    }
+}
+
+/* 移动端 header 优化 */
+@media (max-width: 768px) {
+    .header-content {
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 0 12px;
+    }
+    
+    .page-title {
+        font-size: 1rem;
+        order: 1;
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .header-meta {
+        order: 3;
+        width: 100%;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 4px;
+    }
+    
+    .search-box {
+        order: 2;
+        flex: 0 0 auto;
+    }
+    
+    .search-box input {
+        width: 120px;
+        padding: 6px 24px 6px 28px;
+        font-size: 0.8rem;
+    }
+    
+    .search-box input:focus {
+        width: 160px;
+    }
+    
+    .search-count {
+        display: none;
+    }
+    
+    .beijing-time,
+    .date {
+        display: none;
+    }
+    
+    .status {
+        font-size: 0.75rem;
+    }
+}
+
+/* 超小屏幕适配 */
+@media (max-width: 480px) {
+    .page-title {
+        font-size: 0.9rem;
+    }
+    
+    .search-box input {
+        width: 100px;
+    }
+    
+    .search-box input:focus {
+        width: 130px;
     }
 }
