@@ -2,8 +2,8 @@ name: Daily News Fetch
 
 on:
   schedule:
-    # 每天 12:00 UTC = 20:00 北京时间
-    - cron: '0 12 * * *'
+    # 每天 00:00 UTC = 08:00 北京时间
+    - cron: '0 0 * * *'
   workflow_dispatch:  # 允许手动触发
 
 permissions:

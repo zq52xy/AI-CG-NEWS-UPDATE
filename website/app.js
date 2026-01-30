@@ -725,7 +725,7 @@ async function refresh() {
             <div class="empty-state">
                 <div class="empty-icon">📭</div>
                 <h3 class="empty-title">暂无新闻</h3>
-                <p class="empty-desc">等待每日北京时间 20:00 自动生成新闻报告</p>
+                <p class="empty-desc">等待每日北京时间 08:00 自动生成新闻报告</p>
             </div>
         `;
     }
