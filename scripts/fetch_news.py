@@ -964,11 +964,25 @@ def fetch_product_hunt(limit: int = 15) -> list[NewsItem]:
             link = entry.link
             content = entry.get('summary', '') or entry.get('content', [{}])[0].get('value', '')
             
-            # 提取投票数
+            # 提取投票数 - 尝试多个可能的来源
             score = 0
-            votes_match = re.search(r'Votes: (\d+)', content)
+            # 方法1: 从 content 中提取 Votes: X
+            votes_match = re.search(r'Votes:\s*(\d+)', content)
             if votes_match:
                 score = int(votes_match.group(1))
+            # 方法2: 从 entry 的 tags 中查找投票数（某些 RSS 版本）
+            if score == 0 and hasattr(entry, 'tags'):
+                for tag in entry.tags:
+                    if hasattr(tag, 'term'):
+                        vote_match = re.search(r'(\d+)\s*votes?', tag.term, re.IGNORECASE)
+                        if vote_match:
+                            score = int(vote_match.group(1))
+                            break
+            # 方法3: 尝试从 summary 中提取数字（如 "123 votes"）
+            if score == 0:
+                vote_match = re.search(r'(\d+)\s*(?:votes?|upvotes?)', content, re.IGNORECASE)
+                if vote_match:
+                    score = int(vote_match.group(1))
             
             if score < min_votes:
                 continue
@@ -981,8 +995,12 @@ def fetch_product_hunt(limit: int = 15) -> list[NewsItem]:
             
             # 清理摘要 HTML
             summary = re.sub(r'<[^>]+>', '', content).strip()
-            # 移除结尾的 "Comments: X, Votes: Y"
-            summary = re.sub(r'Comments: \d+, Votes: \d+.*$', '', summary).strip()
+            # 移除 "Comments: X, Votes: Y" 及其后面的所有内容
+            summary = re.split(r'Comments:\s*\d+\s*,\s*Votes:\s*\d+', summary)[0].strip()
+            # 移除 "Discussion" 和 "Link" 等多余文本
+            summary = re.sub(r'\s*Discussion\s*\|\s*Link\s*$', '', summary).strip()
+            # 清理多余空白（包括换行符）
+            summary = ' '.join(summary.split())
             
             items.append(NewsItem(
                 title=title,
