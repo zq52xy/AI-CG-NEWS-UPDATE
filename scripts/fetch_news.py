@@ -994,13 +994,20 @@ def fetch_product_hunt(limit: int = 15) -> list[NewsItem]:
                 image_url = img_match.group(1)
             
             # 清理摘要 HTML
-            summary = re.sub(r'<[^>]+>', '', content).strip()
+            summary = re.sub(r'<[^>]+>', ' ', content).strip()
             # 移除 "Comments: X, Votes: Y" 及其后面的所有内容
-            summary = re.split(r'Comments:\s*\d+\s*,\s*Votes:\s*\d+', summary)[0].strip()
-            # 移除 "Discussion" 和 "Link" 等多余文本
-            summary = re.sub(r'\s*Discussion\s*\|\s*Link\s*$', '', summary).strip()
+            summary = re.split(r'Comments:\s*\d+\s*,\s*Votes:\s*\d+', summary, flags=re.IGNORECASE)[0].strip()
+            # 移除 "Discussion | Link" 等多余文本（支持多种变体）
+            summary = re.sub(r'\s*Discussion\s*\|\s*Link.*$', '', summary, flags=re.IGNORECASE).strip()
+            summary = re.sub(r'\s*Discussion\s*$', '', summary, flags=re.IGNORECASE).strip()
+            summary = re.sub(r'\|\s*Link.*$', '', summary, flags=re.IGNORECASE).strip()
             # 清理多余空白（包括换行符）
             summary = ' '.join(summary.split())
+            # 最后再次检查并移除 Discussion/Link 残留
+            if 'Discussion' in summary or '|' in summary:
+                parts = re.split(r'(?:Discussion|\|)', summary)
+                if parts:
+                    summary = parts[0].strip()
             
             items.append(NewsItem(
                 title=title,
