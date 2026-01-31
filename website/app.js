@@ -631,6 +631,9 @@ function hideMobileColumns() {
  * 显示指定日期的新闻
  */
 async function showNews(dateStr) {
+    // 切换日期时，重置标签筛选状态，防止之前的筛选影响新内容
+    TagFilterManager.clearFilters();
+
     // 显示加载状态
     elements.content.innerHTML = `
         <div class="loading">
