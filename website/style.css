@@ -1293,6 +1293,7 @@ a:hover {
     align-items: center;
     justify-content: center;
     background: var(--bg-body);
+    z-index: 20;
     z-index: 10;
     transition: opacity 0.3s ease;
 }

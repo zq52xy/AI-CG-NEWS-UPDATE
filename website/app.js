@@ -1238,7 +1238,7 @@ class PreviewManager {
         }
 
         this.showLoading();
-        this.showPlaceholder();
+        this.hidePlaceholder();
         this.hideError();
         this.hideSpecial();
 
