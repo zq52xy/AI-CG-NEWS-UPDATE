@@ -1852,7 +1852,8 @@ a:hover {
 
 .section-nav {
     position: fixed;
-    left: 24px;
+    left: 280px;
+    /* 侧边栏宽度 260px + 20px 间距 */
     top: 50%;
     transform: translateY(-50%);
     z-index: 200;
