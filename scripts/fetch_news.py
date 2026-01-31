@@ -38,6 +38,7 @@ class NewsItem:
     summary: str = ""
     date: str = ""
     image_url: str = ""  # 新增图片链接字段
+    tags: list = field(default_factory=list)  # 自动生成的标签
     extra: dict = field(default_factory=dict)
 
 
@@ -63,6 +64,51 @@ def load_config():
             print(f"[WARN] 配置文件加载失败: {e}")
     else:
         print(f"[INFO] 未找到配置文件，将使用默认内置规则")
+
+
+def generate_tags(title: str, summary: str, source: str = "", category: str = "") -> list[str]:
+    """
+    根据关键词规则为新闻生成标签
+    
+    Args:
+        title: 新闻标题
+        summary: 新闻摘要
+        source: 新闻来源（如 arXiv, GitHub）
+        category: 新闻分类（如 cs.CV, r/blender）
+    
+    Returns:
+        标签列表
+    """
+    tags = set()
+    
+    # 合并文本用于匹配
+    text = f"{title} {summary} {category}".lower()
+    
+    # 从配置获取标签规则
+    tag_rules = GLOBAL_CONFIG.get('tag_rules', {})
+    
+    # 规则匹配
+    for tag_name, keywords in tag_rules.items():
+        for keyword in keywords:
+            if keyword.lower() in text:
+                tags.add(tag_name)
+                break  # 匹配到一个关键词即可，避免重复
+    
+    # 基于来源添加默认标签
+    source_tags = {
+        'arXiv': '论文/研究',
+        'GitHub': '开源项目',
+        'HackerNews': '行业动态',
+        'Reddit': '社区讨论',
+        'Reddit-CG': 'CG图形学',
+        'Official': '官方资讯',
+        'ProductHunt': '产品发布',
+        'HuggingFace': '机器学习',
+    }
+    if source in source_tags:
+        tags.add(source_tags[source])
+    
+    return list(tags)
 
 # ============================================================================
 #                           arXiv 抓取模块
@@ -1255,17 +1301,34 @@ def _generate_html_card(item: NewsItem, summary: str, meta_left: str, meta_right
     # 布局决定：如果有图片，使用带图片的布局；否则使用纯文本布局
     has_image_class = " has-image" if image_html else ""
     
+    # 生成标签（如果 item 没有标签，则现场生成）
+    tags = item.tags if item.tags else generate_tags(item.title, item.summary, item.source, item.category)
+    # tags_json = json.dumps(tags, ensure_ascii=False) # This line is removed as per the change
+    
+    # 标签 HTML（小徽章形式）
+    tags_html = ""
+    if tags:
+        tag_badges = " ".join([f'<span class="news-tag">{tag}</span>' for tag in tags[:3]])  # 最多显示3个
+        tags_html = f'<div class="news-tags">{tag_badges}</div>'
+    
+    # 生成 HTML
+    # 注意：我们将标签数据放在一个隐藏的 div 中，而不是父 div 的 data-tags 属性
+    # 因为某些 Markdown 解析器（如 marked.js）可能会在这个过程中剥离 data- 属性
+    tags_json = json.dumps(item.tags, ensure_ascii=False)
+    
     html = f"""
-<div class="news-card{has_image_class}">
+<div class="news-card{' has-image' if item.image_url else ''}">
+    <div class="news-tags-data" style="display:none">{tags_json}</div>
     <div class="news-card-content">
         <div class="news-card-header">
-            <span class="news-source-tag">{item.category}</span>
-            <span class="news-date">{item.date or 'Today'}</span>
+            <span class="news-source-tag">{item.source}</span>
+            <span class="news-date">{item.date}</span>
         </div>
         <a href="{item.url}" target="_blank" class="news-title-link">
             <h3 class="news-title">{item.title}</h3>
         </a>
-        <div class="news-summary">{summary}</div>
+        <div class="news-summary">{item.summary}</div>
+        {tags_html}
         <div class="news-meta">
             <span class="meta-left">{meta_left}</span>
             <span class="meta-right">{meta_right}</span>

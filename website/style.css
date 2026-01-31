@@ -343,6 +343,149 @@ body {
     color: var(--text-muted);
 }
 
+/* ================================================
+   Tag Filter Bar & Tag Cloud
+   ================================================ */
+
+.tag-filter-bar {
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    padding: 12px 32px;
+    box-shadow: var(--shadow-sm);
+}
+
+.tag-filter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.tag-filter-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.tag-clear-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: var(--transition-base);
+    font-family: inherit;
+}
+
+.tag-clear-btn:hover {
+    background: var(--bg-body);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.tag-cloud:empty::after {
+    content: '加载中...';
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.tag-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    background: var(--bg-body);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: var(--transition-base);
+    user-select: none;
+}
+
+.tag-item:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: rgba(30, 58, 95, 0.04);
+}
+
+.tag-item.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.tag-item .tag-count {
+    background: rgba(0, 0, 0, 0.1);
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+}
+
+.tag-item.active .tag-count {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* 热门标签样式变化 */
+.tag-item.hot {
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+.tag-item.very-hot {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* News Card Tags */
+.news-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.news-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    background: rgba(30, 58, 95, 0.06);
+    border-radius: 4px;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+/* 筛选后隐藏的卡片 */
+.news-card.filtered-out {
+    display: none !important;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+    .tag-filter-bar {
+        padding: 10px 16px;
+    }
+
+    .tag-cloud {
+        max-height: 80px;
+    }
+
+    .tag-item {
+        padding: 3px 10px;
+        font-size: 0.75rem;
+    }
+}
+
 /* Table Styles */
 table {
     width: 100%;
@@ -1075,6 +1218,7 @@ a:hover {
    ================================================ */
 
 @media (max-width: 768px) {
+
     /* 移动端：预览面板全屏覆盖 */
     .content-wrapper.split-mode {
         position: relative;
@@ -1199,7 +1343,7 @@ a:hover {
     color: var(--text-muted);
 }
 
-.search-box input:not(:placeholder-shown) ~ .search-clear {
+.search-box input:not(:placeholder-shown)~.search-clear {
     opacity: 0.5;
 }
 
@@ -1241,11 +1385,11 @@ a:hover {
         padding: 6px 24px 6px 28px;
         font-size: 0.8rem;
     }
-    
+
     .search-box input:focus {
         width: 180px;
     }
-    
+
     .search-count {
         display: none;
     }
@@ -1258,14 +1402,14 @@ a:hover {
         gap: 8px;
         padding: 0 12px;
     }
-    
+
     .page-title {
         font-size: 1rem;
         order: 1;
         flex: 1;
         min-width: 0;
     }
-    
+
     .header-meta {
         order: 3;
         width: 100%;
@@ -1273,31 +1417,31 @@ a:hover {
         gap: 8px;
         margin-top: 4px;
     }
-    
+
     .search-box {
         order: 2;
         flex: 0 0 auto;
     }
-    
+
     .search-box input {
         width: 120px;
         padding: 6px 24px 6px 28px;
         font-size: 0.8rem;
     }
-    
+
     .search-box input:focus {
         width: 160px;
     }
-    
+
     .search-count {
         display: none;
     }
-    
+
     .beijing-time,
     .date {
         display: none;
     }
-    
+
     .status {
         font-size: 0.75rem;
     }
@@ -1308,12 +1452,43 @@ a:hover {
     .page-title {
         font-size: 0.9rem;
     }
-    
+
     .search-box input {
         width: 100px;
     }
-    
+
     .search-box input:focus {
         width: 130px;
     }
+}
+
+/* ================================================
+   News Card Tags (Badge Styles)
+   ================================================ */
+
+.news-tags {
+    margin-top: 10px;
+    margin-bottom: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.news-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    background-color: var(--bg-hover);
+    color: var(--text-secondary);
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.4;
+    border: 1px solid var(--border-color);
+    transition: var(--transition-base);
+}
+
+.news-tag:hover {
+    background-color: var(--bg-body);
+    color: var(--accent);
+    border-color: var(--accent);
 }

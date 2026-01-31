@@ -289,6 +289,9 @@ function renderMarkdown(markdown) {
     // 注入收藏按钮
     injectFavoriteButtons();
 
+    // 渲染标签云（从新闻卡片提取标签）
+    TagFilterManager.render();
+
     // 移动端隐藏次要列
     if (window.innerWidth <= 768) {
         hideMobileColumns();
@@ -735,12 +738,214 @@ async function refresh() {
 }
 
 // ============================================================================
+//                          标签筛选系统 (Tag Filter System)
+// ============================================================================
+
+/**
+ * 标签筛选管理器
+ * 动态从新闻卡片提取标签，渲染标签云，实现 OR 筛选逻辑
+ */
+class TagFilterManager {
+    static tagCloud = document.getElementById('tagCloud');
+    static clearBtn = document.getElementById('tagClearBtn');
+    static selectedTags = new Set();
+
+    /**
+     * 初始化标签筛选系统
+     */
+    static init() {
+        if (!this.tagCloud || !this.clearBtn) return;
+
+        // 绑定清除按钮
+        this.clearBtn.addEventListener('click', () => this.clearFilters());
+    }
+
+    /**
+     * 从当前页面的新闻卡片中提取所有标签及其出现次数
+     */
+    static extractTags() {
+        const tagCounts = new Map();
+        const cards = document.querySelectorAll('.news-card');
+
+        cards.forEach(card => {
+            let tags = [];
+
+            // 策略 1: 尝试从隐藏的 div 中获取完整数据 (新方式)
+            const tagsDataEl = card.querySelector('.news-tags-data');
+            if (tagsDataEl) {
+                try {
+                    tags = JSON.parse(tagsDataEl.textContent);
+                } catch (e) {
+                    console.warn('解析隐藏标签数据失败:', e);
+                }
+            }
+
+            // 策略 2: 回退到 data-tags 属性 (旧方式)
+            if (tags.length === 0 && card.dataset.tags) {
+                try {
+                    tags = JSON.parse(card.dataset.tags);
+                } catch (e) {
+                    console.warn('解析 data-tags 属性失败:', e);
+                }
+            }
+
+            // 策略 3: 最后回退到从 DOM 中可见的标签元素提取 (最稳健，但可能不完整)
+            if (tags.length === 0) {
+                const visibleTags = card.querySelectorAll('.news-tag');
+                visibleTags.forEach(tagEl => {
+                    tags.push(tagEl.textContent.trim());
+                });
+            }
+
+            if (tags.length === 0) return;
+
+            // 统计标签
+            tags.forEach(tag => {
+                if (tag) tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+            });
+
+            // 将提取到的标签重新保存到 dataset，方便后续筛选逻辑使用 (applyFilter)
+            if (!card.dataset.tags) {
+                card.dataset.tags = JSON.stringify(tags);
+            }
+        });
+
+        // 按出现次数排序
+        return [...tagCounts.entries()].sort((a, b) => b[1] - a[1]);
+    }
+
+    /**
+     * 渲染标签云
+     */
+    static render() {
+        if (!this.tagCloud) return;
+
+        const tagEntries = this.extractTags();
+
+        if (tagEntries.length === 0) {
+            this.tagCloud.innerHTML = '<span style="color: var(--text-muted); font-size: 0.85rem;">暂无标签数据</span>';
+            return;
+        }
+
+        // 计算最大/最小出现次数，用于动态样式
+        const maxCount = Math.max(...tagEntries.map(e => e[1]));
+
+        const minCount = Math.min(...tagEntries.map(e => e[1]));
+
+        this.tagCloud.innerHTML = '';
+
+        tagEntries.forEach(([tag, count]) => {
+            const item = document.createElement('span');
+            item.className = 'tag-item';
+            item.dataset.tag = tag;
+
+            // 根据出现频率添加样式类
+            if (maxCount > minCount) {
+                const ratio = (count - minCount) / (maxCount - minCount);
+                if (ratio > 0.7) item.classList.add('very-hot');
+                else if (ratio > 0.4) item.classList.add('hot');
+            }
+
+            item.innerHTML = `${tag} <span class="tag-count">${count}</span>`;
+
+            // 点击处理
+            item.addEventListener('click', () => this.toggleTag(tag, item));
+
+            this.tagCloud.appendChild(item);
+        });
+
+        // 恢复之前选中的标签状态
+        this.restoreSelection();
+    }
+
+    /**
+     * 切换标签选中状态
+     */
+    static toggleTag(tag, itemEl) {
+        if (this.selectedTags.has(tag)) {
+            this.selectedTags.delete(tag);
+            itemEl.classList.remove('active');
+        } else {
+            this.selectedTags.add(tag);
+            itemEl.classList.add('active');
+        }
+
+        this.applyFilter();
+    }
+
+    /**
+     * 恢复之前的选中状态（页面重新渲染后）
+     */
+    static restoreSelection() {
+        if (this.selectedTags.size === 0) return;
+
+        this.tagCloud.querySelectorAll('.tag-item').forEach(item => {
+            if (this.selectedTags.has(item.dataset.tag)) {
+                item.classList.add('active');
+            }
+        });
+
+        this.applyFilter();
+    }
+
+    /**
+     * 应用筛选逻辑（OR 模式）
+     */
+    static applyFilter() {
+        const cards = document.querySelectorAll('.news-card');
+
+        // 无筛选时显示全部
+        if (this.selectedTags.size === 0) {
+            cards.forEach(card => card.classList.remove('filtered-out'));
+            return;
+        }
+
+        cards.forEach(card => {
+            const tagsAttr = card.dataset.tags;
+            if (!tagsAttr) {
+                card.classList.add('filtered-out');
+                return;
+            }
+
+            try {
+                const cardTags = JSON.parse(tagsAttr);
+                // OR 逻辑：只要有任意一个选中的标签匹配即可
+                const hasMatch = cardTags.some(t => this.selectedTags.has(t));
+                card.classList.toggle('filtered-out', !hasMatch);
+            } catch (e) {
+                card.classList.add('filtered-out');
+            }
+        });
+    }
+
+    /**
+     * 清除所有筛选
+     */
+    static clearFilters() {
+        this.selectedTags.clear();
+
+        // 移除所有选中状态
+        this.tagCloud.querySelectorAll('.tag-item.active').forEach(item => {
+            item.classList.remove('active');
+        });
+
+        // 显示所有卡片
+        document.querySelectorAll('.news-card').forEach(card => {
+            card.classList.remove('filtered-out');
+        });
+    }
+}
+
+// ============================================================================
 //                          初始化
 // ============================================================================
 
 document.addEventListener('DOMContentLoaded', async () => {
     // 初始化 ModalManager
     ModalManager.init();
+
+    // 初始化标签筛选系统
+    TagFilterManager.init();
 
     // 绑定刷新按钮
     elements.refreshBtn.addEventListener('click', refresh);
@@ -961,7 +1166,7 @@ class PreviewManager {
                     const isLoading = !this.previewLoading.classList.contains('hidden');
                     const isErrorVisible = !this.previewError.classList.contains('hidden');
                     const isSpecialVisible = !this.previewSpecial.classList.contains('hidden');
-                    
+
                     // 只有当确实在加载中，且没有显示错误/特殊状态时，才显示错误
                     if (isLoading && !isErrorVisible && !isSpecialVisible) {
                         this.showError();
@@ -1092,7 +1297,7 @@ class PreviewManager {
         if (this.previewSpecial) this.previewSpecial.classList.add('hidden');
         if (this.previewIframe) this.previewIframe.style.display = 'block';
     }
-n    /*
+    n    /*
      * 显示/隐藏占位层
      */
     static showPlaceholder() {
@@ -1237,21 +1442,21 @@ document.addEventListener('DOMContentLoaded', () => {
 class SearchManager {
     static fuse = null;
     static items = [];
-    
+
     static init() {
         this.searchInput = document.getElementById('searchInput');
         this.searchClear = document.getElementById('searchClear');
         this.searchCount = document.getElementById('searchCount');
-        
+
         if (!this.searchInput) return;
-        
+
         // 绑定事件
         this.searchInput.addEventListener('input', this.debounce((e) => {
             this.search(e.target.value);
         }, 300));
-        
+
         this.searchClear.addEventListener('click', () => this.clear());
-        
+
         // 快捷键
         document.addEventListener('keydown', (e) => {
             if (e.key === '/' && document.activeElement !== this.searchInput) {
@@ -1262,21 +1467,21 @@ class SearchManager {
                 this.clear();
             }
         });
-        
+
         // 初始构建索引
         this.buildIndex();
-        
+
         // 监听内容变化，重新构建索引
         const observer = new MutationObserver(() => {
             this.buildIndex();
         });
-        
+
         const content = document.getElementById('content');
         if (content) {
             observer.observe(content, { childList: true, subtree: true });
         }
     }
-    
+
     static buildIndex() {
         const cards = document.querySelectorAll('.news-card');
         this.items = Array.from(cards).map((card, index) => ({
@@ -1287,7 +1492,7 @@ class SearchManager {
             category: card.closest('.section-header-container, [class*="section"]')?.querySelector('h2')?.textContent?.trim() || '',
             element: card
         }));
-        
+
         // 配置 Fuse.js
         const options = {
             keys: [
@@ -1300,27 +1505,27 @@ class SearchManager {
             includeScore: true,
             includeMatches: true
         };
-        
+
         this.fuse = new Fuse(this.items, options);
     }
-    
+
     static search(query) {
         if (!query.trim()) {
             this.showAll();
             this.searchCount.textContent = '';
             return;
         }
-        
+
         if (!this.fuse) return;
-        
+
         const results = this.fuse.search(query);
-        
+
         // 隐藏所有
         this.items.forEach(item => {
             item.element.style.display = 'none';
             this.removeHighlight(item.element);
         });
-        
+
         // 显示匹配项
         if (results.length === 0) {
             this.showNoResults();
@@ -1334,11 +1539,11 @@ class SearchManager {
                 }
             });
         }
-        
+
         // 更新计数
         this.searchCount.textContent = `找到 ${results.length} 个结果`;
     }
-    
+
     static clear() {
         this.searchInput.value = '';
         this.showAll();
@@ -1346,7 +1551,7 @@ class SearchManager {
         this.hideNoResults();
         this.searchInput.blur();
     }
-    
+
     static showAll() {
         this.items.forEach(item => {
             item.element.style.display = 'flex';
@@ -1354,14 +1559,14 @@ class SearchManager {
         });
         this.hideNoResults();
     }
-    
+
     static highlightMatches(element, matches) {
         this.removeHighlight(element);
-        
+
         matches.forEach(match => {
             const key = match.key;
             const indices = match.indices;
-            
+
             let targetElement;
             if (key === 'title') {
                 targetElement = element.querySelector('.news-title');
@@ -1370,24 +1575,24 @@ class SearchManager {
             } else if (key === 'source') {
                 targetElement = element.querySelector('.news-source-tag');
             }
-            
+
             if (targetElement && indices.length > 0) {
                 const text = targetElement.textContent;
                 let html = '';
                 let lastIndex = 0;
-                
+
                 indices.forEach(([start, end]) => {
                     html += text.slice(lastIndex, start);
                     html += `<span class="highlight">${text.slice(start, end + 1)}</span>`;
                     lastIndex = end + 1;
                 });
                 html += text.slice(lastIndex);
-                
+
                 targetElement.innerHTML = html;
             }
         });
     }
-    
+
     static removeHighlight(element) {
         const highlights = element.querySelectorAll('.highlight');
         highlights.forEach(h => {
@@ -1396,7 +1601,7 @@ class SearchManager {
             parent.normalize();
         });
     }
-    
+
     static showNoResults() {
         let noResults = document.getElementById('noSearchResults');
         if (!noResults) {
@@ -1413,12 +1618,12 @@ class SearchManager {
         }
         noResults.style.display = 'block';
     }
-    
+
     static hideNoResults() {
         const noResults = document.getElementById('noSearchResults');
         if (noResults) noResults.style.display = 'none';
     }
-    
+
     static debounce(fn, delay) {
         let timeout;
         return (...args) => {
@@ -1428,7 +1633,8 @@ class SearchManager {
     }
 }
 
-// 初始化搜索功能
+// 初始化搜索功能和标签筛选
 document.addEventListener('DOMContentLoaded', () => {
     SearchManager.init();
+    TagFilterManager.init();
 });

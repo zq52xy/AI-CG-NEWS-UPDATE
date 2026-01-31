@@ -257,5 +257,99 @@
       "token"
     ],
     "deduplicate": true
+  },
+  "tag_rules": {
+    "NeRF/3DGS": [
+      "nerf",
+      "gaussian",
+      "radiance field",
+      "3dgs",
+      "splat",
+      "3d gaussian"
+    ],
+    "图像生成": [
+      "diffusion",
+      "stable diffusion",
+      "midjourney",
+      "dall-e",
+      "dalle",
+      "imagen",
+      "flux",
+      "comfyui"
+    ],
+    "大语言模型": [
+      "llm",
+      "gpt",
+      "language model",
+      "transformer",
+      "claude",
+      "gemini",
+      "chatgpt",
+      "ollama"
+    ],
+    "实时渲染": [
+      "real-time",
+      "ray tracing",
+      "rtx",
+      "dlss",
+      "lumen",
+      "nanite",
+      "path tracing"
+    ],
+    "Blender": [
+      "blender"
+    ],
+    "Unreal Engine": [
+      "unreal",
+      "ue5",
+      "ue4",
+      "unrealengine"
+    ],
+    "Unity": [
+      "unity",
+      "unity3d"
+    ],
+    "Houdini": [
+      "houdini",
+      "sidefx"
+    ],
+    "Three.js": [
+      "threejs",
+      "three.js",
+      "webgl"
+    ],
+    "机器学习": [
+      "machine learning",
+      "ml",
+      "neural",
+      "deep learning",
+      "pytorch",
+      "tensorflow"
+    ],
+    "计算机视觉": [
+      "computer vision",
+      "cv",
+      "image recognition",
+      "object detection",
+      "segmentation"
+    ],
+    "开源项目": [
+      "open source",
+      "github",
+      "repo",
+      "repository"
+    ],
+    "论文/研究": [
+      "arxiv",
+      "paper",
+      "research",
+      "study"
+    ],
+    "游戏开发": [
+      "gamedev",
+      "game dev",
+      "game development",
+      "游戏"
+    ]
   }
 }

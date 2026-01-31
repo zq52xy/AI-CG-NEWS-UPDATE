@@ -7,8 +7,10 @@
     <title>AI & CG 每日资讯</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=18">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=19">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
 </head>
@@ -71,6 +73,17 @@
                     </div>
                 </div>
             </header>
+
+            <!-- 标签筛选栏 -->
+            <div class="tag-filter-bar" id="tagFilterBar">
+                <div class="tag-filter-header">
+                    <span class="tag-filter-title">🏷️ 标签筛选</span>
+                    <button class="tag-clear-btn" id="tagClearBtn" title="清除筛选">清除</button>
+                </div>
+                <div class="tag-cloud" id="tagCloud">
+                    <!-- 动态生成标签 -->
+                </div>
+            </div>
 
             <div class="content-wrapper" id="contentWrapper">
                 <article class="content" id="content">
@@ -158,7 +171,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=16"></script>
+    <script src="app.js?v=20"></script>
 </body>
 
 </html>
