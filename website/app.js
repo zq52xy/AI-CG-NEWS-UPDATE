@@ -297,11 +297,198 @@ function renderMarkdown(markdown) {
         hideMobileColumns();
     }
 
-    // 图片加载失败时隐藏
-    elements.content.querySelectorAll('img').forEach(img => {
+    // =========================================
+    // Phase 1 增强功能
+    // =========================================
+
+    // 1. HTML 内容消毒
+    sanitizeNewsContent();
+
+    // 2. 图片容错增强
+    enhanceImages();
+
+    // 3. 版块快速导航
+    initSectionNav();
+}
+
+// ============================================================================
+//                          Phase 1: HTML 内容消毒
+// ============================================================================
+
+/**
+ * 消毒新闻内容，防止损坏的 HTML 标签破坏 UI
+ */
+function sanitizeNewsContent() {
+    // 1. 移除所有 script 标签（安全防护）
+    document.querySelectorAll('#content script').forEach(el => el.remove());
+
+    // 2. 修复 news-summary 中的损坏 img 标签
+    document.querySelectorAll('.news-summary').forEach(summary => {
+        const html = summary.innerHTML;
+        // 检测包含 <img 但没有正确闭合的情况
+        if (html.includes('<img') && !html.includes('/>') && !html.match(/<img[^>]+>/)) {
+            summary.innerHTML = ''; // 清空损坏内容
+            console.warn('[Sanitize] Removed broken img tag in news-summary');
+        }
+        // 检测 style 属性未闭合的情况
+        if (html.includes('style="') && (html.match(/style="/g) || []).length > (html.match(/style="[^"]*"/g) || []).length) {
+            summary.innerHTML = '';
+            console.warn('[Sanitize] Removed unclosed style attribute');
+        }
+    });
+
+    // 3. 移除危险事件属性
+    document.querySelectorAll('#content [onclick], #content [onerror], #content [onload]').forEach(el => {
+        el.removeAttribute('onclick');
+        el.removeAttribute('onerror');
+        el.removeAttribute('onload');
+    });
+}
+
+// ============================================================================
+//                          Phase 1: 图片容错增强
+// ============================================================================
+
+/**
+ * 增强图片加载处理：懒加载 + 错误降级
+ */
+function enhanceImages() {
+    const images = elements.content.querySelectorAll('img');
+
+    images.forEach(img => {
+        // 1. 启用浏览器原生懒加载
+        img.loading = 'lazy';
+
+        // 2. 设置默认尺寸防止布局抖动
+        if (!img.style.minHeight && !img.height) {
+            img.style.minHeight = '80px';
+        }
+
+        // 3. 加载失败时优雅降级
         img.onerror = () => {
             img.style.display = 'none';
+            // 如果父容器是 news-summary 且只有这一个 img，清空容器
+            const parent = img.closest('.news-summary');
+            if (parent && parent.querySelectorAll('img').length === 1 && !parent.textContent.trim()) {
+                parent.innerHTML = '';
+            }
         };
+
+        // 4. 加载成功后移除最小高度限制
+        img.onload = () => {
+            img.style.minHeight = '';
+        };
+    });
+}
+
+// ============================================================================
+//                          Phase 1: 版块快速导航
+// ============================================================================
+
+const SECTION_NAV_ICONS = {
+    'GitHub Trending': '🔥',
+    'Trending Skills': '🛠️',
+    'Hugging Face': '🤗',
+    'Product Hunt': '🚀',
+    'CG 图形学': '🎨',
+    'Hacker News': '💬',
+    '学术前沿': '🎓',
+    'arXiv': '🎓'
+};
+
+/**
+ * 初始化版块快速导航
+ */
+function initSectionNav() {
+    const nav = document.getElementById('sectionNav');
+    if (!nav) return;
+
+    // 获取所有版块标题 (h2)
+    const sections = document.querySelectorAll('#content h2');
+    if (sections.length === 0) {
+        nav.style.display = 'none';
+        return;
+    }
+
+    nav.innerHTML = '';
+
+    sections.forEach((section, index) => {
+        const text = section.textContent;
+
+        // 匹配图标
+        let icon = '📌';
+        let name = text.slice(0, 15);
+        for (const [key, value] of Object.entries(SECTION_NAV_ICONS)) {
+            if (text.includes(key)) {
+                icon = value;
+                name = key;
+                break;
+            }
+        }
+
+        // 创建导航按钮
+        const btn = document.createElement('button');
+        btn.className = 'section-nav-item';
+        btn.innerHTML = icon;
+        btn.dataset.tooltip = name;
+        btn.dataset.index = index;
+        btn.setAttribute('aria-label', `跳转到 ${name}`);
+
+        // 点击平滑滚动
+        btn.onclick = () => {
+            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+
+        nav.appendChild(btn);
+    });
+
+    // 监听滚动更新高亮状态
+    const wrapper = document.getElementById('contentWrapper');
+    if (wrapper) {
+        // 使用 throttle 优化滚动性能
+        let ticking = false;
+        wrapper.addEventListener('scroll', () => {
+            if (!ticking) {
+                requestAnimationFrame(() => {
+                    updateActiveSection(sections, nav);
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        });
+
+        // 初始化高亮
+        updateActiveSection(sections, nav);
+    }
+}
+
+/**
+ * 更新当前活跃版块的高亮状态
+ */
+function updateActiveSection(sections, nav) {
+    const wrapper = document.getElementById('contentWrapper');
+    if (!wrapper) return;
+
+    const scrollTop = wrapper.scrollTop;
+    const wrapperHeight = wrapper.clientHeight;
+
+    let activeIndex = 0;
+
+    sections.forEach((section, i) => {
+        // 计算相对于 wrapper 的位置
+        const rect = section.getBoundingClientRect();
+        const wrapperRect = wrapper.getBoundingClientRect();
+        const relativeTop = rect.top - wrapperRect.top;
+
+        // 当版块标题进入视口上半部分时激活
+        if (relativeTop <= wrapperHeight * 0.4) {
+            activeIndex = i;
+        }
+    });
+
+    // 更新导航项状态
+    nav.querySelectorAll('.section-nav-item').forEach((item, i) => {
+        item.classList.toggle('active', i === activeIndex);
     });
 }
 

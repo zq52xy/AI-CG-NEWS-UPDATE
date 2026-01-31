@@ -1856,3 +1856,170 @@ a:hover {
     color: var(--accent);
     border-color: var(--accent);
 }
+
+/* ================================================
+   Section Quick Navigation (Glassmorphism Floating)
+   ================================================ */
+
+.section-nav {
+    position: fixed;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+    
+    /* Glassmorphism Effect */
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    box-shadow: 
+        0 8px 32px rgba(30, 58, 95, 0.12),
+        0 2px 8px rgba(30, 58, 95, 0.08),
+        inset 0 1px 1px rgba(255, 255, 255, 0.6);
+    
+    /* Entry Animation */
+    animation: slideInNav 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    opacity: 0;
+}
+
+@keyframes slideInNav {
+    from {
+        opacity: 0;
+        transform: translateY(-50%) translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(-50%) translateX(0);
+    }
+}
+
+.section-nav-item {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 250, 0.8) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 
+        0 2px 6px rgba(30, 58, 95, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    outline: none;
+}
+
+.section-nav-item:hover {
+    transform: scale(1.12);
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    box-shadow: 
+        0 6px 16px rgba(30, 58, 95, 0.15),
+        0 2px 4px rgba(30, 58, 95, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.section-nav-item:focus-visible {
+    box-shadow: 
+        0 0 0 3px rgba(255, 107, 74, 0.4),
+        0 6px 16px rgba(30, 58, 95, 0.15);
+}
+
+.section-nav-item.active {
+    background: linear-gradient(135deg, var(--primary) 0%, #2a4a6d 100%);
+    color: white;
+    box-shadow: 
+        0 4px 12px rgba(30, 58, 95, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    transform: scale(1.05);
+}
+
+.section-nav-item.active:hover {
+    transform: scale(1.15);
+}
+
+/* Tooltip on Hover */
+.section-nav-item::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    right: calc(100% + 12px);
+    top: 50%;
+    transform: translateY(-50%) translateX(8px);
+    padding: 6px 12px;
+    background: var(--text-main);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+    border-radius: 6px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.section-nav-item::after {
+    content: '';
+    position: absolute;
+    right: calc(100% + 6px);
+    top: 50%;
+    transform: translateY(-50%);
+    border: 5px solid transparent;
+    border-left-color: var(--text-main);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+}
+
+.section-nav-item:hover::before,
+.section-nav-item:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(-50%) translateX(0);
+}
+
+/* Progress Indicator (optional glow effect) */
+.section-nav-item.active::after {
+    display: none;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    .section-nav {
+        animation: none;
+        opacity: 1;
+        transform: translateY(-50%);
+    }
+    
+    .section-nav-item {
+        transition: none;
+    }
+    
+    .section-nav-item::before,
+    .section-nav-item::after {
+        transition: none;
+    }
+}
+
+/* Hide on Mobile (confliction with sidebar) */
+@media (max-width: 768px) {
+    .section-nav {
+        display: none;
+    }
+}
+
+/* Adjust position when sidebar is hidden on tablet */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .section-nav {
+        right: 16px;
+    }
+}
