@@ -1309,7 +1309,7 @@ def _generate_html_card(item: NewsItem, summary: str, meta_left: str, meta_right
     tags_html = ""
     if tags:
         tag_badges = " ".join([f'<span class="news-tag">{tag}</span>' for tag in tags[:3]])  # 最多显示3个
-        tags_html = f'<div class="news-tags">{tag_badges}</div>'
+        tags_html = f'\n        <div class="news-tags">{tag_badges}</div>'
     
     # 生成 HTML
     # 注意：我们将标签数据放在一个隐藏的 div 中，而不是父 div 的 data-tags 属性
@@ -1327,8 +1327,7 @@ def _generate_html_card(item: NewsItem, summary: str, meta_left: str, meta_right
         <a href="{item.url}" target="_blank" class="news-title-link">
             <h3 class="news-title">{item.title}</h3>
         </a>
-        <div class="news-summary">{item.summary}</div>
-        {tags_html}
+        <div class="news-summary">{item.summary}</div>{tags_html}
         <div class="news-meta">
             <span class="meta-left">{meta_left}</span>
             <span class="meta-right">{meta_right}</span>
