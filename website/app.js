@@ -628,19 +628,97 @@ function hideMobileColumns() {
 }
 
 /**
+ * 获取骨架屏 HTML
+ */
+function getSkeletonHTML() {
+    return `
+        <div class="loading" id="loadingSkeleton">
+            <!-- Section 1 -->
+            <div class="skeleton-section">
+                <div class="skeleton-section-header"></div>
+                <div class="skeleton-grid">
+                    <div class="skeleton-card">
+                        <div class="skeleton-card-image"></div>
+                        <div class="skeleton-card-content">
+                            <div class="skeleton-card-header">
+                                <div class="skeleton-tag"></div>
+                            </div>
+                            <div class="skeleton-title"></div>
+                            <div class="skeleton-desc"></div>
+                            <div class="skeleton-desc short"></div>
+                        </div>
+                    </div>
+                    <div class="skeleton-card">
+                        <div class="skeleton-card-image"></div>
+                        <div class="skeleton-card-content">
+                            <div class="skeleton-card-header">
+                                <div class="skeleton-tag"></div>
+                            </div>
+                            <div class="skeleton-title short"></div>
+                            <div class="skeleton-desc"></div>
+                            <div class="skeleton-desc"></div>
+                        </div>
+                    </div>
+                    <div class="skeleton-card">
+                        <div class="skeleton-card-image"></div>
+                        <div class="skeleton-card-content">
+                            <div class="skeleton-card-header">
+                                <div class="skeleton-tag"></div>
+                            </div>
+                            <div class="skeleton-title"></div>
+                            <div class="skeleton-desc short"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Section 2 -->
+            <div class="skeleton-section">
+                <div class="skeleton-section-header"></div>
+                <div class="skeleton-grid">
+                    <div class="skeleton-card">
+                        <div class="skeleton-card-image"></div>
+                        <div class="skeleton-card-content">
+                            <div class="skeleton-card-header">
+                                <div class="skeleton-tag"></div>
+                            </div>
+                            <div class="skeleton-title short"></div>
+                            <div class="skeleton-desc"></div>
+                        </div>
+                    </div>
+                    <div class="skeleton-card">
+                        <div class="skeleton-card-image"></div>
+                        <div class="skeleton-card-content">
+                            <div class="skeleton-card-header">
+                                <div class="skeleton-tag"></div>
+                            </div>
+                            <div class="skeleton-title"></div>
+                            <div class="skeleton-desc"></div>
+                            <div class="skeleton-desc short"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="loading-text">
+                正在加载资讯
+                <span class="loading-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </span>
+            </div>
+        </div>
+    `;
+}
+
+/**
  * 显示指定日期的新闻
  */
 async function showNews(dateStr) {
     // 切换日期时，重置标签筛选状态，防止之前的筛选影响新内容
     TagFilterManager.clearFilters();
 
-    // 显示加载状态
-    elements.content.innerHTML = `
-        <div class="loading">
-            <div class="spinner"></div>
-            <p>加载中...</p>
-        </div>
-    `;
+    // 显示骨架屏加载状态
+    elements.content.innerHTML = getSkeletonHTML();
 
     // 更新当前日期显示
     elements.currentDate.textContent = formatDate(dateStr);
@@ -718,6 +796,9 @@ async function initHistoryList() {
 async function refresh() {
     elements.status.textContent = '● 刷新中...';
     elements.status.style.color = 'var(--warning)';
+
+    // 显示骨架屏加载状态
+    elements.content.innerHTML = getSkeletonHTML();
 
     const dates = await initHistoryList();
 

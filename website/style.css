@@ -527,29 +527,239 @@ a:hover {
     color: var(--accent);
 }
 
-/* Loading */
+/* ================================================
+   Skeleton Loading Screen - 流光骨架屏
+   ================================================ */
+
 .loading {
+    padding: 40px 0;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* 骨架屏区域标题 */
+.skeleton-section {
+    margin-bottom: 32px;
+}
+
+.skeleton-section-header {
+    height: 120px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    background: linear-gradient(
+        90deg,
+        var(--bg-card) 0%,
+        rgba(30, 58, 95, 0.08) 50%,
+        var(--bg-card) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    box-shadow: var(--shadow-md);
+}
+
+/* 骨架屏卡片网格 */
+.skeleton-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+}
+
+/* 骨架屏卡片 */
+.skeleton-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    gap: 16px;
+    box-shadow: var(--shadow-sm);
+}
+
+.skeleton-card-image {
+    width: 140px;
+    height: 90px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    background: linear-gradient(
+        90deg,
+        rgba(30, 58, 95, 0.08) 0%,
+        rgba(30, 58, 95, 0.15) 50%,
+        rgba(30, 58, 95, 0.08) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+.skeleton-card-content {
+    flex: 1;
     display: flex;
     flex-direction: column;
+    gap: 12px;
+}
+
+.skeleton-card-header {
+    display: flex;
+    gap: 8px;
+}
+
+.skeleton-tag {
+    width: 60px;
+    height: 20px;
+    border-radius: 10px;
+    background: linear-gradient(
+        90deg,
+        rgba(30, 58, 95, 0.06) 0%,
+        rgba(30, 58, 95, 0.12) 50%,
+        rgba(30, 58, 95, 0.06) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+.skeleton-title {
+    height: 22px;
+    border-radius: 4px;
+    background: linear-gradient(
+        90deg,
+        rgba(30, 58, 95, 0.1) 0%,
+        rgba(30, 58, 95, 0.18) 50%,
+        rgba(30, 58, 95, 0.1) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+.skeleton-title.short {
+    width: 70%;
+}
+
+.skeleton-desc {
+    height: 14px;
+    border-radius: 4px;
+    background: linear-gradient(
+        90deg,
+        rgba(30, 58, 95, 0.06) 0%,
+        rgba(30, 58, 95, 0.12) 50%,
+        rgba(30, 58, 95, 0.06) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+.skeleton-desc.short {
+    width: 50%;
+}
+
+/* 流光动画 */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* 延迟动画，创造波浪效果 */
+.skeleton-section:nth-child(1) .skeleton-card:nth-child(1),
+.skeleton-section:nth-child(1) .skeleton-section-header {
+    animation-delay: 0s;
+}
+
+.skeleton-section:nth-child(1) .skeleton-card:nth-child(2),
+.skeleton-section:nth-child(2) .skeleton-section-header {
+    animation-delay: 0.1s;
+}
+
+.skeleton-section:nth-child(1) .skeleton-card:nth-child(3),
+.skeleton-section:nth-child(2) .skeleton-card:nth-child(1) {
+    animation-delay: 0.2s;
+}
+
+.skeleton-section:nth-child(2) .skeleton-card:nth-child(2) {
+    animation-delay: 0.3s;
+}
+
+.skeleton-section:nth-child(2) .skeleton-card:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+/* 脉冲动画替代方案（用于 prefers-reduced-motion） */
+@media (prefers-reduced-motion: reduce) {
+    .skeleton-section-header,
+    .skeleton-card-image,
+    .skeleton-tag,
+    .skeleton-title,
+    .skeleton-desc {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        background: rgba(30, 58, 95, 0.08);
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.5;
+        }
+    }
+}
+
+/* 加载文字 */
+.loading-text {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-top: 24px;
+    display: flex;
     align-items: center;
     justify-content: center;
-    padding: 60px 0;
-    color: var(--text-muted);
+    gap: 8px;
 }
 
-.spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid rgba(30, 58, 95, 0.1);
+.loading-dots {
+    display: inline-flex;
+    gap: 4px;
+}
+
+.loading-dots span {
+    width: 6px;
+    height: 6px;
+    background: var(--primary);
     border-radius: 50%;
-    border-top-color: var(--primary);
-    animation: spin 1s ease-in-out infinite;
-    margin-bottom: 16px;
+    animation: bounce 1.4s ease-in-out infinite both;
 }
 
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
+.loading-dots span:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.loading-dots span:nth-child(2) {
+    animation-delay: -0.16s;
+}
+
+@keyframes bounce {
+    0%, 80%, 100% {
+        transform: scale(0);
+    }
+    40% {
+        transform: scale(1);
+    }
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .skeleton-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .skeleton-card {
+        flex-direction: column-reverse;
+    }
+
+    .skeleton-card-image {
+        width: 100%;
+        height: 160px;
     }
 }
 
