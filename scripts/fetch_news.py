@@ -1334,8 +1334,7 @@ def _generate_html_card(item: NewsItem, summary: str, meta_left: str, meta_right
             <span class="meta-right">{meta_right}</span>
         </div>
     </div>
-    {image_html}
-</div>
+    {"<div class=\"news-card-image\" style=\"background-image: url(\'" + item.image_url + "\');\"></div>" if item.image_url else ""}</div>
 """
     return html
 
