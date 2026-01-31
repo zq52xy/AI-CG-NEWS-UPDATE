@@ -107,6 +107,7 @@ def generate_tags(title: str, summary: str, source: str = "", category: str = ""
         'Official': '官方资讯',
         'ProductHunt': '产品发布',
         'HuggingFace': '机器学习',
+        'Skills.sh': 'Agent Skill',
     }
     if source in source_tags:
         tags.add(source_tags[source])
@@ -1079,6 +1080,7 @@ def fetch_trending_skills(limit: int = 15) -> list[NewsItem]:
                             category='Agent Skill',
                             score=100 - parsed_count, # 模拟分数
                             summary=f"Rank #{rank} on skills.sh. Owner: {owner_repo}",
+                            tags=['AI Agent', 'Skill'], # Default tags
                             extra={'rank': rank, 'owner': owner_repo}
                         ))
                         parsed_count += 1

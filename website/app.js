@@ -800,6 +800,15 @@ class TagFilterManager {
                 });
             }
 
+            // 策略 4: 如果仍然没有标签，使用来源作为默认标签
+            if (tags.length === 0) {
+                const sourceTag = card.querySelector('.news-source-tag');
+                if (sourceTag) {
+                    tags.push(sourceTag.textContent.trim());
+                }
+            }
+
+
             if (tags.length === 0) return;
 
             // 统计标签
