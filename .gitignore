@@ -22,3 +22,17 @@ Thumbs.db
 # Local config
 .superdesign/
 server.py
+
+# Debug/temp files
+check_nesting.py
+per_section.py
+tag_distribution.py
+diagnose_tags.py
+count_papers.py
+find_dupes.py
+quick_check.py
+section_analysis.py
+tag_diagnostic.py
+*_check.py
+*_debug.py
+diag_output.txt
