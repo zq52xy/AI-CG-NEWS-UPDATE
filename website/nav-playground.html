@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>左侧导航效果 Playground - 高冷极简版</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600&family=Noto+Serif+SC:wght@400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1e3a5f;
+            --accent: #ff6b4a;
+            --text-main: #2c3e50;
+            --text-muted: #6c757d;
+            --bg-body: #f8f9fa;
+            --bg-card: #ffffff;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg-body);
+            min-height: 100vh;
+            padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 16px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+        }
+
+        .playground-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 32px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .demo-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .demo-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .demo-header {
+            background: var(--primary);
+            color: white;
+            padding: 16px 20px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .demo-body {
+            position: relative;
+            display: flex;
+            height: 380px;
+            background: #f8f9fa;
+            overflow: hidden;
+        }
+
+        .demo-content {
+            flex: 1;
+            padding: 20px;
+            padding-left: 140px;
+            overflow-y: auto;
+        }
+
+        .demo-content h3 {
+            color: var(--primary);
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+
+        .demo-content p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .vote-btn {
+            display: block;
+            width: calc(100% - 32px);
+            margin: 16px;
+            padding: 12px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .vote-btn:hover {
+            background: #e55a3a;
+            transform: scale(1.02);
+        }
+
+        /* ================================================
+           共用：无容器悬浮文字基础样式
+           ================================================ */
+        .floating-nav {
+            position: absolute;
+            left: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .floating-nav .nav-item {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            font-family: 'Noto Sans SC', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        /* ================================================
+           Style 1: 纯文字 + 文字投影
+           ================================================ */
+        .nav-style-1 .nav-item {
+            font-size: 0.85rem;
+            font-weight: 400;
+            color: var(--text-muted);
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            text-align: left;
+        }
+
+        .nav-style-1 .nav-item:hover {
+            color: var(--text-main);
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        .nav-style-1 .nav-item.active {
+            color: var(--primary);
+            font-weight: 600;
+            text-shadow: 0 4px 16px rgba(30, 58, 95, 0.2);
+        }
+
+        /* ================================================
+           Style 2: 字号变化 + 投影
+           ================================================ */
+        .nav-style-2 .nav-item {
+            font-size: 0.8rem;
+            font-weight: 400;
+            color: rgba(44, 62, 80, 0.5);
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+            text-align: left;
+            transform-origin: left center;
+        }
+
+        .nav-style-2 .nav-item:hover {
+            color: var(--text-main);
+            transform: scale(1.05);
+        }
+
+        .nav-style-2 .nav-item.active {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary);
+            text-shadow: 0 4px 16px rgba(30, 58, 95, 0.15);
+        }
+
+        /* ================================================
+           Style 3: 前缀圆点 + 投影
+           ================================================ */
+        .nav-style-3 .nav-item {
+            font-size: 0.85rem;
+            font-weight: 400;
+            color: var(--text-muted);
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-style-3 .nav-item::before {
+            content: '';
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: transparent;
+            transition: all 0.2s;
+        }
+
+        .nav-style-3 .nav-item:hover {
+            color: var(--text-main);
+        }
+
+        .nav-style-3 .nav-item:hover::before {
+            background: var(--text-muted);
+        }
+
+        .nav-style-3 .nav-item.active {
+            color: var(--primary);
+            font-weight: 500;
+            text-shadow: 0 4px 12px rgba(30, 58, 95, 0.12);
+        }
+
+        .nav-style-3 .nav-item.active::before {
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            box-shadow: 0 0 8px rgba(255, 107, 74, 0.5);
+        }
+
+        /* ================================================
+           Style 4: 衬线字体 + 优雅投影
+           ================================================ */
+        .nav-style-4 .nav-item {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: rgba(44, 62, 80, 0.55);
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            text-align: left;
+            letter-spacing: 1px;
+        }
+
+        .nav-style-4 .nav-item:hover {
+            color: var(--text-main);
+            text-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .nav-style-4 .nav-item.active {
+            color: var(--primary);
+            font-weight: 600;
+            text-shadow: 0 6px 20px rgba(30, 58, 95, 0.18);
+        }
+
+        /* ================================================
+           Style 5: 下划线浮现
+           ================================================ */
+        .nav-style-5 .nav-item {
+            font-size: 0.85rem;
+            font-weight: 400;
+            color: var(--text-muted);
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            text-align: left;
+            position: relative;
+        }
+
+        .nav-style-5 .nav-item::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1.5px;
+            background: var(--accent);
+            transition: width 0.3s ease;
+            box-shadow: 0 2px 6px rgba(255, 107, 74, 0.3);
+        }
+
+        .nav-style-5 .nav-item:hover {
+            color: var(--text-main);
+        }
+
+        .nav-style-5 .nav-item:hover::after {
+            width: 100%;
+        }
+
+        .nav-style-5 .nav-item.active {
+            color: var(--primary);
+            font-weight: 500;
+            text-shadow: 0 4px 12px rgba(30, 58, 95, 0.12);
+        }
+
+        .nav-style-5 .nav-item.active::after {
+            width: 100%;
+        }
+
+        /* ================================================
+           Style 6: 透明渐变（最高冷）
+           ================================================ */
+        .nav-style-6 .nav-item {
+            font-size: 0.85rem;
+            font-weight: 400;
+            color: rgba(44, 62, 80, 0.35);
+            text-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+
+        .nav-style-6 .nav-item:hover {
+            color: rgba(44, 62, 80, 0.7);
+            text-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            transform: translateX(4px);
+        }
+
+        .nav-style-6 .nav-item.active {
+            color: var(--primary);
+            font-weight: 500;
+            text-shadow: 0 6px 20px rgba(30, 58, 95, 0.15);
+        }
+
+        /* JavaScript 交互反馈 */
+        .selected-indicator {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            box-shadow: 0 8px 30px rgba(30, 58, 95, 0.3);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .selected-indicator.show {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>📍 高冷极简导航 Playground</h1>
+    <p class="subtitle">无容器、纯文字悬浮、轻投影 — 点击选择你喜欢的风格</p>
+
+    <div class="playground-grid">
+
+        <!-- Style 1: 纯文字投影 -->
+        <div class="demo-card">
+            <div class="demo-header">1. 纯文字 + 投影</div>
+            <div class="demo-body">
+                <nav class="floating-nav nav-style-1">
+                    <button class="nav-item active">GitHub Trending</button>
+                    <button class="nav-item">Trending Skills</button>
+                    <button class="nav-item">Hugging Face</button>
+                    <button class="nav-item">Product Hunt</button>
+                    <button class="nav-item">CG 图形学</button>
+                    <button class="nav-item">Hacker News</button>
+                    <button class="nav-item">arXiv</button>
+                </nav>
+                <div class="demo-content">
+                    <h3>特点</h3>
+                    <p>最简洁的方案。纯文字，没有任何装饰，仅靠字体颜色和微投影区分状态。高冷、克制。</p>
+                </div>
+            </div>
+            <button class="vote-btn" onclick="selectStyle(1)">选择这个 →</button>
+        </div>
+
+        <!-- Style 2: 字号变化 -->
+        <div class="demo-card">
+            <div class="demo-header">2. 字号变化 + 投影</div>
+            <div class="demo-body">
+                <nav class="floating-nav nav-style-2">
+                    <button class="nav-item active">GitHub Trending</button>
+                    <button class="nav-item">Trending Skills</button>
+                    <button class="nav-item">Hugging Face</button>
+                    <button class="nav-item">Product Hunt</button>
+                    <button class="nav-item">CG 图形学</button>
+                    <button class="nav-item">Hacker News</button>
+                    <button class="nav-item">arXiv</button>
+                </nav>
+                <div class="demo-content">
+                    <h3>特点</h3>
+                    <p>活跃项字号放大，其他项稍淡。通过大小对比强调当前位置，不需要任何背景色块。</p>
+                </div>
+            </div>
+            <button class="vote-btn" onclick="selectStyle(2)">选择这个 →</button>
+        </div>
+
+        <!-- Style 3: 圆点指示 -->
+        <div class="demo-card">
+            <div class="demo-header">3. 前缀圆点 + 投影 ⭐</div>
+            <div class="demo-body">
+                <nav class="floating-nav nav-style-3">
+                    <button class="nav-item active">GitHub Trending</button>
+                    <button class="nav-item">Trending Skills</button>
+                    <button class="nav-item">Hugging Face</button>
+                    <button class="nav-item">Product Hunt</button>
+                    <button class="nav-item">CG 图形学</button>
+                    <button class="nav-item">Hacker News</button>
+                    <button class="nav-item">arXiv</button>
+                </nav>
+                <div class="demo-content">
+                    <h3>特点</h3>
+                    <p>用一个小圆点作为指示器，活跃时圆点发光。比纯文字多一点视觉锚点，但依然克制。</p>
+                </div>
+            </div>
+            <button class="vote-btn" onclick="selectStyle(3)">选择这个 →</button>
+        </div>
+
+        <!-- Style 4: 衬线字体 -->
+        <div class="demo-card">
+            <div class="demo-header">4. 衬线字体 + 优雅投影</div>
+            <div class="demo-body">
+                <nav class="floating-nav nav-style-4">
+                    <button class="nav-item active">GitHub Trending</button>
+                    <button class="nav-item">Trending Skills</button>
+                    <button class="nav-item">Hugging Face</button>
+                    <button class="nav-item">Product Hunt</button>
+                    <button class="nav-item">CG 图形学</button>
+                    <button class="nav-item">Hacker News</button>
+                    <button class="nav-item">arXiv</button>
+                </nav>
+                <div class="demo-content">
+                    <h3>特点</h3>
+                    <p>使用衬线字体 (Noto Serif SC)，增添文雅气质。与网站标题「每日资讯」的书法感呼应。</p>
+                </div>
+            </div>
+            <button class="vote-btn" onclick="selectStyle(4)">选择这个 →</button>
+        </div>
+
+        <!-- Style 5: 下划线浮现 -->
+        <div class="demo-card">
+            <div class="demo-header">5. 下划线浮现</div>
+            <div class="demo-body">
+                <nav class="floating-nav nav-style-5">
+                    <button class="nav-item active">GitHub Trending</button>
+                    <button class="nav-item">Trending Skills</button>
+                    <button class="nav-item">Hugging Face</button>
+                    <button class="nav-item">Product Hunt</button>
+                    <button class="nav-item">CG 图形学</button>
+                    <button class="nav-item">Hacker News</button>
+                    <button class="nav-item">arXiv</button>
+                </nav>
+                <div class="demo-content">
+                    <h3>特点</h3>
+                    <p>Hover 时下划线从左向右展开，带有微光效果。依然是纯文字，但交互更有层次感。</p>
+                </div>
+            </div>
+            <button class="vote-btn" onclick="selectStyle(5)">选择这个 →</button>
+        </div>
+
+        <!-- Style 6: 最高冷 -->
+        <div class="demo-card">
+            <div class="demo-header">6. 极淡透明（最高冷）</div>
+            <div class="demo-body">
+                <nav class="floating-nav nav-style-6">
+                    <button class="nav-item active">GitHub Trending</button>
+                    <button class="nav-item">Trending Skills</button>
+                    <button class="nav-item">Hugging Face</button>
+                    <button class="nav-item">Product Hunt</button>
+                    <button class="nav-item">CG 图形学</button>
+                    <button class="nav-item">Hacker News</button>
+                    <button class="nav-item">arXiv</button>
+                </nav>
+                <div class="demo-content">
+                    <h3>特点</h3>
+                    <p>未激活项极度透明 (35% opacity)，几乎隐形。Hover 时才逐渐显现，最大程度不干扰阅读。</p>
+                </div>
+            </div>
+            <button class="vote-btn" onclick="selectStyle(6)">选择这个 →</button>
+        </div>
+
+    </div>
+
+    <div class="selected-indicator" id="indicator"></div>
+
+    <script>
+        // 为每个卡片内的 nav-item 添加点击切换
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function () {
+                const nav = this.closest('nav');
+                nav.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // 选择样式
+        function selectStyle(num) {
+            const names = {
+                1: '纯文字 + 投影',
+                2: '字号变化 + 投影',
+                3: '前缀圆点 + 投影',
+                4: '衬线字体 + 优雅投影',
+                5: '下划线浮现',
+                6: '极淡透明（最高冷）'
+            };
+
+            const indicator = document.getElementById('indicator');
+            indicator.textContent = `✅ 你选择了: ${names[num]}`;
+            indicator.classList.add('show');
+
+            // 复制选择结果到剪贴板
+            navigator.clipboard.writeText(`我选择导航样式 ${num}: ${names[num]}`);
+
+            setTimeout(() => {
+                indicator.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+
+</html>

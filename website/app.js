@@ -385,19 +385,20 @@ function enhanceImages() {
 //                          Phase 1: 版块快速导航
 // ============================================================================
 
-const SECTION_NAV_ICONS = {
-    'GitHub Trending': '🔥',
-    'Trending Skills': '🛠️',
-    'Hugging Face': '🤗',
-    'Product Hunt': '🚀',
-    'CG 图形学': '🎨',
-    'Hacker News': '💬',
-    '学术前沿': '🎓',
-    'arXiv': '🎓'
+// 版块名称映射（简化显示）
+const SECTION_NAV_NAMES = {
+    'GitHub Trending': 'GitHub',
+    'Trending Skills': 'Skills',
+    'Hugging Face': 'Hugging Face',
+    'Product Hunt': 'Product Hunt',
+    'CG 图形学': 'CG 图形',
+    'Hacker News': 'Hacker News',
+    '学术前沿': '学术前沿',
+    'arXiv': 'arXiv'
 };
 
 /**
- * 初始化版块快速导航
+ * 初始化版块快速导航（高冷极简文字版）
  */
 function initSectionNav() {
     const nav = document.getElementById('sectionNav');
@@ -415,24 +416,21 @@ function initSectionNav() {
     sections.forEach((section, index) => {
         const text = section.textContent;
 
-        // 匹配图标
-        let icon = '📌';
-        let name = text.slice(0, 15);
-        for (const [key, value] of Object.entries(SECTION_NAV_ICONS)) {
+        // 匹配简化名称
+        let displayName = text.slice(0, 12);
+        for (const [key, value] of Object.entries(SECTION_NAV_NAMES)) {
             if (text.includes(key)) {
-                icon = value;
-                name = key;
+                displayName = value;
                 break;
             }
         }
 
-        // 创建导航按钮
+        // 创建导航按钮（纯文字）
         const btn = document.createElement('button');
         btn.className = 'section-nav-item';
-        btn.innerHTML = icon;
-        btn.dataset.tooltip = name;
+        btn.textContent = displayName;
         btn.dataset.index = index;
-        btn.setAttribute('aria-label', `跳转到 ${name}`);
+        btn.setAttribute('aria-label', `跳转到 ${displayName}`);
 
         // 点击平滑滚动
         btn.onclick = () => {
