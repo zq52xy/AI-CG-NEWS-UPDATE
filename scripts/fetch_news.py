@@ -1323,8 +1323,16 @@ def _generate_html_card(item: NewsItem, summary: str, meta_left: str, meta_right
     # 因为某些 Markdown 解析器（如 marked.js）可能会在这个过程中剥离 data- 属性
     tags_json = json.dumps(item.tags, ensure_ascii=False)
     
+    # 生成图片 HTML
+    # Fix: Extract logic to avoid backslashes in f-string expressions (Python <3.12 syntax error)
+    image_div = ""
+    card_class = "news-card"
+    if item.image_url:
+        card_class += " has-image"
+        image_div = f'<div class="news-card-image" style="background-image: url(\'{item.image_url}\');"></div>'
+
     html = f"""
-<div class="news-card{' has-image' if item.image_url else ''}">
+<div class="{card_class}">
     <div class="news-tags-data" style="display:none">{tags_json}</div>
     <div class="news-card-content">
         <div class="news-card-header">
@@ -1340,7 +1348,7 @@ def _generate_html_card(item: NewsItem, summary: str, meta_left: str, meta_right
             <span class="meta-right">{meta_right}</span>
         </div>
     </div>
-    {"<div class=\"news-card-image\" style=\"background-image: url(\'" + item.image_url + "\');\"></div>" if item.image_url else ""}</div>
+    {image_div}</div>
 """
     return html
 
