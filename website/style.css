@@ -1281,7 +1281,7 @@ a:hover {
     filter: blur(2px);
 }
 
-/* 预览加载状态 */
+/* 预览加载状态 - 骨架屏 */
 .preview-loading {
     position: absolute;
     top: 0;
@@ -1302,25 +1302,178 @@ a:hover {
     pointer-events: none;
 }
 
-.preview-loading .spinner {
-    border-top-color: var(--primary);
+/* 预览面板骨架屏 */
+.preview-skeleton {
+    width: 85%;
+    max-width: 600px;
+    background: var(--bg-card);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
 }
 
-.preview-loading p {
+/* 浏览器工具栏骨架 */
+.preview-skeleton-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: rgba(30, 58, 95, 0.04);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.preview-skeleton-dots {
+    display: flex;
+    gap: 6px;
+}
+
+.preview-skeleton-dots span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 107, 74, 0.6) 0%,
+        rgba(255, 193, 7, 0.6) 50%,
+        rgba(76, 175, 80, 0.6) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+.preview-skeleton-dots span:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.preview-skeleton-dots span:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.preview-skeleton-address {
+    flex: 1;
+    height: 24px;
+    border-radius: 6px;
+    background: linear-gradient(
+        90deg,
+        rgba(30, 58, 95, 0.08) 0%,
+        rgba(30, 58, 95, 0.15) 50%,
+        rgba(30, 58, 95, 0.08) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+/* 预览内容骨架 */
+.preview-skeleton-content {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.preview-skeleton-header {
+    height: 120px;
+    border-radius: 8px;
+    background: linear-gradient(
+        90deg,
+        rgba(30, 58, 95, 0.08) 0%,
+        rgba(30, 58, 95, 0.15) 50%,
+        rgba(30, 58, 95, 0.08) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+.preview-skeleton-text {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.preview-skeleton-line {
+    height: 14px;
+    border-radius: 4px;
+    background: linear-gradient(
+        90deg,
+        rgba(30, 58, 95, 0.06) 0%,
+        rgba(30, 58, 95, 0.12) 50%,
+        rgba(30, 58, 95, 0.06) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+.preview-skeleton-line.long {
+    width: 95%;
+}
+
+.preview-skeleton-line.medium {
+    width: 70%;
+}
+
+.preview-skeleton-line.short {
+    width: 45%;
+}
+
+.preview-skeleton-line:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.preview-skeleton-line:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+/* 预览网格骨架 */
+.preview-skeleton-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin: 8px 0;
+}
+
+.preview-skeleton-card {
+    height: 80px;
+    border-radius: 8px;
+    background: linear-gradient(
+        90deg,
+        rgba(30, 58, 95, 0.06) 0%,
+        rgba(30, 58, 95, 0.12) 50%,
+        rgba(30, 58, 95, 0.06) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+.preview-skeleton-card:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+/* 加载文字 */
+.preview-loading-text {
     color: var(--text-muted);
-    margin-top: 12px;
     font-size: 0.9rem;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-.preview-loading span {
-    display: inline-block;
-    margin-top: 8px;
-    cursor: pointer;
-    transition: var(--transition-base);
-}
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .preview-skeleton {
+        width: 90%;
+        max-width: none;
+        margin: 0 16px;
+    }
 
-.preview-loading span:hover {
-    color: var(--primary);
+    .preview-skeleton-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .preview-skeleton-header {
+        height: 80px;
+    }
 }
 
 /* 预览错误状态 */

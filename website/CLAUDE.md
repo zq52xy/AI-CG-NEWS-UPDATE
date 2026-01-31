@@ -9,7 +9,7 @@
   - `FavoritesManager`: localStorage 收藏持久化
   - `ModalManager`: 模态框管理（编辑/删除收藏）
   - `getSkeletonHTML()`: 流光骨架屏 Loading 动画生成
-- `index.html`: 入口文件，定义页面结构和基本元数据，包含骨架屏 Loading 结构
+- `index.html`: 入口文件，定义页面结构和基本元数据，包含主内容区骨架屏和预览面板骨架屏 Loading 结构
 - `style.css`: 样式表，分屏布局使用 CSS 变量 `--content-width` 驱动，包含流光骨架屏动画
 
 ## 子目录

@@ -187,8 +187,42 @@
                             <span class="preview-placeholder-hint">部分网站可能无法嵌入显示</span>
                         </div>
                         <div class="preview-loading" id="previewLoading">
-                            <div class="spinner"></div>
-                            <p>加载中...</p>
+                            <div class="preview-skeleton">
+                                <!-- 浏览器地址栏骨架 -->
+                                <div class="preview-skeleton-toolbar">
+                                    <div class="preview-skeleton-dots">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                    </div>
+                                    <div class="preview-skeleton-address"></div>
+                                </div>
+                                <!-- 页面内容骨架 -->
+                                <div class="preview-skeleton-content">
+                                    <div class="preview-skeleton-header"></div>
+                                    <div class="preview-skeleton-text">
+                                        <div class="preview-skeleton-line long"></div>
+                                        <div class="preview-skeleton-line"></div>
+                                        <div class="preview-skeleton-line medium"></div>
+                                    </div>
+                                    <div class="preview-skeleton-grid">
+                                        <div class="preview-skeleton-card"></div>
+                                        <div class="preview-skeleton-card"></div>
+                                    </div>
+                                    <div class="preview-skeleton-text">
+                                        <div class="preview-skeleton-line"></div>
+                                        <div class="preview-skeleton-line short"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="preview-loading-text">
+                                正在加载页面
+                                <span class="loading-dots">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </span>
+                            </div>
                         </div>
                         <div class="preview-error hidden" id="previewError">
                             <div class="preview-error-icon">🚫</div>

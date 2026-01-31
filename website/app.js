@@ -1334,12 +1334,13 @@ class PreviewManager {
     static showLoading() {
         if (this.previewLoading) {
             this.previewLoading.classList.remove('hidden');
-            // 可以在加载时显示"在新标签页打开"的提示
-            const p = this.previewLoading.querySelector('p');
-            if (p) {
-                p.innerHTML = '加载中... <br><span style="font-size:0.8em; opacity:0.7; cursor:pointer; text-decoration:underline;">点此在新标签页打开</span>';
-                p.querySelector('span').onclick = () => this.openInNewTab();
-            }
+            // 点击加载区域可在新标签页打开
+            this.previewLoading.onclick = (e) => {
+                // 只有点击非骨架屏内容区域时才触发
+                if (e.target === this.previewLoading) {
+                    this.openInNewTab();
+                }
+            };
         }
         if (this.previewIframe) {
             this.previewIframe.classList.add('loading-blur');
