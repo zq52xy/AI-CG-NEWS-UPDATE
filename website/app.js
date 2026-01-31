@@ -440,46 +440,71 @@ function initSectionNav() {
         nav.appendChild(btn);
     });
 
-    // 监听滚动更新高亮状态
-    const wrapper = document.getElementById('contentWrapper');
-    if (wrapper) {
-        // 使用 throttle 优化滚动性能
-        let ticking = false;
-        wrapper.addEventListener('scroll', () => {
-            if (!ticking) {
-                requestAnimationFrame(() => {
-                    updateActiveSection(sections, nav);
-                    ticking = false;
-                });
-                ticking = true;
-            }
-        });
+    // 获取正确的滚动容器（分屏模式下是 #content，非分屏是 #contentWrapper）
+    const getScrollContainer = () => {
+        const wrapper = document.getElementById('contentWrapper');
+        const content = document.getElementById('content');
+        // 检查分屏模式：wrapper 有 split-mode 类时，content 是滚动容器
+        if (wrapper && wrapper.classList.contains('split-mode')) {
+            return content;
+        }
+        return wrapper;
+    };
 
-        // 初始化高亮
-        updateActiveSection(sections, nav);
+    // 滚动事件处理函数
+    let ticking = false;
+    const handleScroll = () => {
+        if (!ticking) {
+            requestAnimationFrame(() => {
+                const container = getScrollContainer();
+                if (container) {
+                    updateActiveSection(sections, nav, container);
+                }
+                ticking = false;
+            });
+            ticking = true;
+        }
+    };
+
+    // 同时监听两个可能的滚动容器
+    const wrapper = document.getElementById('contentWrapper');
+    const content = document.getElementById('content');
+
+    if (wrapper) {
+        wrapper.addEventListener('scroll', handleScroll);
+    }
+    if (content) {
+        content.addEventListener('scroll', handleScroll);
+    }
+
+    // 初始化高亮
+    const container = getScrollContainer();
+    if (container) {
+        updateActiveSection(sections, nav, container);
     }
 }
 
 /**
  * 更新当前活跃版块的高亮状态
+ * @param {NodeList} sections - 版块标题元素列表
+ * @param {HTMLElement} nav - 导航容器
+ * @param {HTMLElement} container - 滚动容器（分屏模式下是 #content，非分屏是 #contentWrapper）
  */
-function updateActiveSection(sections, nav) {
-    const wrapper = document.getElementById('contentWrapper');
-    if (!wrapper) return;
+function updateActiveSection(sections, nav, container) {
+    if (!container) return;
 
-    const scrollTop = wrapper.scrollTop;
-    const wrapperHeight = wrapper.clientHeight;
+    const containerHeight = container.clientHeight;
 
     let activeIndex = 0;
 
     sections.forEach((section, i) => {
-        // 计算相对于 wrapper 的位置
+        // 计算相对于容器的位置
         const rect = section.getBoundingClientRect();
-        const wrapperRect = wrapper.getBoundingClientRect();
-        const relativeTop = rect.top - wrapperRect.top;
+        const containerRect = container.getBoundingClientRect();
+        const relativeTop = rect.top - containerRect.top;
 
         // 当版块标题进入视口上半部分时激活
-        if (relativeTop <= wrapperHeight * 0.4) {
+        if (relativeTop <= containerHeight * 0.4) {
             activeIndex = i;
         }
     });
