@@ -47,6 +47,9 @@ class NewsItem:
 #                           配置加载模块
 # ============================================================================
 
+# 通用 User-Agent，避免被反爬虫拦截
+USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+
 GLOBAL_CONFIG = {}
 
 def load_config():
@@ -215,7 +218,7 @@ def fetch_github(topics: list[str], language: str = "", since: str = "daily") ->
     
     try:
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            'User-Agent': USER_AGENT
         }
         response = httpx.get(url, headers=headers, timeout=30)
         soup = BeautifulSoup(response.text, 'html.parser')
@@ -298,12 +301,13 @@ def fetch_hackernews(keywords: list[str], min_score: int = 50) -> list[NewsItem]
     try:
         # 获取 Top Stories
         top_url = "https://hacker-news.firebaseio.com/v0/topstories.json"
-        response = httpx.get(top_url, timeout=30)
+        headers = {'User-Agent': USER_AGENT}
+        response = httpx.get(top_url, headers=headers, timeout=30)
         story_ids = response.json()[:100]  # 取前 100
         
         for story_id in story_ids:
             item_url = f"https://hacker-news.firebaseio.com/v0/item/{story_id}.json"
-            item_resp = httpx.get(item_url, timeout=10)
+            item_resp = httpx.get(item_url, headers=headers, timeout=10)
             story = item_resp.json()
             
             if not story or story.get('type') != 'story':
@@ -385,7 +389,7 @@ def fetch_reddit(
     items = []
     # 使用更真实的 User-Agent
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        'User-Agent': USER_AGENT
     }
     
     for sub in subreddits:
@@ -549,7 +553,7 @@ def fetch_cg_graphics(
     
     items = []
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        'User-Agent': USER_AGENT
     }
     
     for sub, label in cg_subreddits:
@@ -853,7 +857,7 @@ def fetch_bluesky(
     
     items = []
     headers = {
-        'User-Agent': 'AI-CG-NewsBot/1.0'
+        'User-Agent': USER_AGENT
     }
     
     for account in accounts:
@@ -953,7 +957,7 @@ def fetch_product_hunt(limit: int = 15) -> list[NewsItem]:
     items = []
     try:
         # 添加 User-Agent防止被拦截
-        feed = feedparser.parse(url, agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AI-CG-NewsBot/1.0')
+        feed = feedparser.parse(url, agent=USER_AGENT)
         for entry in feed.entries[:limit]:
             title = entry.title
             link = entry.link
@@ -1022,7 +1026,7 @@ def fetch_trending_skills(limit: int = 15) -> list[NewsItem]:
     
     try:
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            'User-Agent': USER_AGENT
         }
         response = httpx.get(url, headers=headers, timeout=30)
         soup = BeautifulSoup(response.text, 'html.parser')
@@ -1117,7 +1121,7 @@ def fetch_huggingface_papers(limit: int = 10) -> list[NewsItem]:
     items = []
     try:
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            'User-Agent': USER_AGENT
         }
         response = httpx.get(url, headers=headers, timeout=30)
         response.raise_for_status()
@@ -1303,6 +1307,9 @@ def _generate_html_card(item: NewsItem, summary: str, meta_left: str, meta_right
     
     # 生成标签（如果 item 没有标签，则现场生成）
     tags = item.tags if item.tags else generate_tags(item.title, item.summary, item.source, item.category)
+    # FIX: 必须将生成的标签回写到 item 对象，否则下面的 json dump 将为空
+    if not item.tags and tags:
+        item.tags = tags
     # tags_json = json.dumps(tags, ensure_ascii=False) # This line is removed as per the change
     
     # 标签 HTML（小徽章形式）
