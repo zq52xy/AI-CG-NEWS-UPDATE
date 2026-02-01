@@ -2415,6 +2415,77 @@ a:hover {
 }
 
 /* ================================================
+   Section Banners (Dynamic Injection)
+   ================================================ */
+
+.section-header-container {
+    position: relative;
+    width: 100%;
+    height: 120px;
+    margin: 32px 0 16px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    background: var(--bg-card);
+    /* Fallback */
+}
+
+.section-banner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+    transition: transform 0.5s ease;
+}
+
+.section-header-container:hover .section-banner {
+    transform: scale(1.05);
+}
+
+/* Specific fix for arXiv logo */
+.section-banner[src*="arXiv"],
+.section-banner[src*="arxiv"] {
+    object-fit: contain;
+    background: white;
+    padding: 20px;
+}
+
+.section-header-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 20px 24px;
+    display: flex;
+    align-items: flex-end;
+    z-index: 2;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 50%, transparent 100%);
+    pointer-events: none;
+    /* Let clicks pass through if needed */
+}
+
+/* Ensure h2 inside banner is readable */
+.section-header-container h2 {
+    color: white !important;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+    font-size: 1.6rem;
+    position: relative;
+    z-index: 3;
+    letter-spacing: 0.5px;
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .section-header-container {
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+}
+
+/* ================================================
    P3: 主题切换按钮 (Theme Toggle)
    ================================================ */
 
