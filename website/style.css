@@ -736,6 +736,43 @@ body {
     flex-shrink: 0;
 }
 
+/* ======================================
+   带图片的新闻卡片样式
+   ====================================== */
+.news-card.has-image {
+    /* 确保图片卡片保持水平布局 */
+    flex-direction: row;
+    align-items: stretch;
+}
+
+.news-card.has-image .news-card-content {
+    /* 内容区域弹性增长填满剩余空间 */
+    flex: 1;
+    min-width: 0;
+}
+
+.news-card.has-image .news-card-image {
+    /* 图片在右侧固定尺寸 */
+    order: 1;
+    width: 140px;
+    height: 90px;
+    margin-left: auto;
+}
+
+/* 响应式: 小屏幕下图片卡片改为垂直布局 */
+@media (max-width: 500px) {
+    .news-card.has-image {
+        flex-direction: column-reverse;
+    }
+
+    .news-card.has-image .news-card-image {
+        width: 100%;
+        height: 150px;
+        margin-left: 0;
+        margin-bottom: 12px;
+    }
+}
+
 .news-card-header {
     display: flex;
     align-items: center;
