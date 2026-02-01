@@ -10,7 +10,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;600;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=22">
+    <link rel="stylesheet" href="style.css?v=23">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
 </head>
@@ -41,10 +41,22 @@
                 </div>
             </nav>
             <div class="sidebar-footer">
+                <!-- Phase 1: 行为设计 - 连续打开天数 -->
+                <div class="streak-display" id="streakDisplay">
+                    <span class="streak-icon">🔥</span>
+                    <span class="streak-text" id="streakText">加载中...</span>
+                </div>
+
                 <button class="refresh-btn" id="refreshBtn">
                     <span class="refresh-icon">🔄</span>
                     刷新数据
                 </button>
+
+                <!-- Phase 1: 行为设计 - 固定时间 Cue -->
+                <div class="update-hint" id="updateHint">
+                    <span class="update-hint-icon">⏰</span>
+                    <span class="update-hint-text">每日北京时间 08:00 更新</span>
+                </div>
             </div>
         </aside>
 
@@ -67,6 +79,8 @@
                             <span class="search-clear" id="searchClear">✕</span>
                             <span class="search-count" id="searchCount"></span>
                         </div>
+                        <!-- Phase 1: 行为设计 - 今日状态标签 -->
+                        <span class="today-badge" id="todayBadge"></span>
                         <span class="beijing-time" id="beijingTime"></span>
                         <span class="date" id="currentDate"></span>
                         <span class="status" id="status">● 在线</span>
@@ -281,7 +295,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=25"></script>
+    <script src="app.js?v=26"></script>
 </body>
 
 </html>

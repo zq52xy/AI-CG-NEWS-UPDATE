@@ -142,6 +142,152 @@ body {
     color: var(--primary);
 }
 
+/* ================================================
+   Phase 1: 行为设计样式 (Behavioral Design)
+   - 连续打开天数 (Streak Display)
+   - 今日状态标签 (Today Badge)
+   - 每日更新提示 (Update Hint)
+   ================================================ */
+
+/* 连续打开天数展示 */
+.streak-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, rgba(255, 107, 74, 0.08), rgba(255, 175, 140, 0.08));
+    border: 1px solid rgba(255, 107, 74, 0.15);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: var(--text-main);
+    transition: var(--transition-base);
+}
+
+.streak-display:hover {
+    background: linear-gradient(135deg, rgba(255, 107, 74, 0.12), rgba(255, 175, 140, 0.12));
+    border-color: rgba(255, 107, 74, 0.25);
+}
+
+.streak-icon {
+    font-size: 1.1rem;
+}
+
+.streak-text {
+    font-weight: 500;
+    flex: 1;
+}
+
+/* 隐藏连续打开天数为0的情况 */
+.streak-display.hidden {
+    display: none;
+}
+
+/* 每日更新时间提示 */
+.update-hint {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 8px 0;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    opacity: 0.8;
+}
+
+.update-hint-icon {
+    font-size: 0.9rem;
+}
+
+.update-hint-text {
+    font-weight: 400;
+}
+
+/* 今日状态标签 */
+.today-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 12px;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+    animation: todayBadgePulse 2s ease-in-out infinite;
+}
+
+.today-badge:empty {
+    display: none;
+}
+
+@keyframes todayBadgePulse {
+
+    0%,
+    100% {
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+    }
+
+    50% {
+        box-shadow: 0 2px 12px rgba(16, 185, 129, 0.4);
+    }
+}
+
+/* 新一天首次打开的轻量庆祝提示 (Toast) */
+.welcome-toast {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    padding: 12px 24px;
+    background: linear-gradient(135deg, var(--primary), #2a4a6f);
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(30, 58, 95, 0.3);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+}
+
+.welcome-toast.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .streak-display {
+        padding: 8px 10px;
+        font-size: 0.8rem;
+    }
+
+    .today-badge {
+        padding: 3px 8px;
+        font-size: 0.7rem;
+    }
+
+    .update-hint {
+        font-size: 0.7rem;
+    }
+
+    .welcome-toast {
+        top: 60px;
+        left: 16px;
+        right: 16px;
+        transform: translateY(-20px);
+        text-align: center;
+    }
+
+    .welcome-toast.show {
+        transform: translateY(0);
+    }
+}
+
 /* Main Content */
 .main {
     flex: 1;

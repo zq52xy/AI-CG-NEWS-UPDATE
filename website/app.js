@@ -23,6 +23,125 @@ const CONFIG = {
 };
 
 // ============================================================================
+//                          行为设计 - Phase 1: 连续打开天数追踪 (Behavioral Design)
+// ============================================================================
+
+/**
+ * 连续打开天数管理器
+ * 行为原理：损失厌恶 (Loss Aversion) + 习惯可见化
+ * 存储：localStorage { lastVisitDate: 'YYYY-MM-DD', streakDays: number }
+ */
+class StreakManager {
+    static STORAGE_KEY = 'aicg_news_streak';
+
+    /**
+     * 获取当前 streak 数据
+     */
+    static get() {
+        const data = localStorage.getItem(this.STORAGE_KEY);
+        return data ? JSON.parse(data) : { lastVisitDate: null, streakDays: 0 };
+    }
+
+    /**
+     * 更新 streak 状态（每次打开时调用）
+     * 返回: { streakDays, isNewDay, message }
+     */
+    static update() {
+        const today = getTodayStr();
+        const { lastVisitDate, streakDays } = this.get();
+
+        let newStreak = streakDays;
+        let isNewDay = false;
+        let message = '';
+
+        if (!lastVisitDate) {
+            // 首次访问
+            newStreak = 1;
+            isNewDay = true;
+            message = '欢迎！这是你的第一天';
+        } else if (lastVisitDate === today) {
+            // 今天已经访问过，保持 streak
+            newStreak = streakDays;
+            isNewDay = false;
+        } else {
+            // 检查是否是连续天
+            const lastDate = new Date(lastVisitDate);
+            const todayDate = new Date(today);
+            const diffDays = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+
+            if (diffDays === 1) {
+                // 连续打开
+                newStreak = streakDays + 1;
+                isNewDay = true;
+                if (newStreak === 7) {
+                    message = '🎉 已连续打开 7 天';
+                } else if (newStreak === 3) {
+                    message = '✨ 已连续打开 3 天';
+                }
+            } else {
+                // 断开了，重新计数（不惩罚，仅重置）
+                newStreak = 1;
+                isNewDay = true;
+            }
+        }
+
+        // 保存更新后的数据
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify({
+            lastVisitDate: today,
+            streakDays: newStreak
+        }));
+
+        return { streakDays: newStreak, isNewDay, message };
+    }
+
+    /**
+     * 获取显示文案
+     */
+    static getDisplayText() {
+        const { streakDays } = this.get();
+        if (streakDays <= 0) return '';
+        return `已连续打开 ${streakDays} 天`;
+    }
+}
+
+/**
+ * 今日状态管理器
+ * 行为原理：现时偏好 (Present Bias) - 强化「今天」的感知
+ */
+class TodayStatusManager {
+    static currentNewsCount = 0;
+
+    /**
+     * 设置当日新闻数量
+     */
+    static setCount(count) {
+        this.currentNewsCount = count;
+    }
+
+    /**
+     * 获取今日状态文案
+     * @param {boolean} isToday - 当前查看的是否是今天
+     */
+    static getStatusText(isToday) {
+        if (!isToday) return '';
+        const count = this.currentNewsCount;
+        if (count > 0) {
+            return `今日 · ${count} 条`;
+        }
+        return '今日 · 已更新';
+    }
+
+    /**
+     * 从 DOM 中计算新闻数量
+     */
+    static countFromDOM() {
+        const cards = document.querySelectorAll('#content .news-card');
+        this.currentNewsCount = cards.length;
+        return this.currentNewsCount;
+    }
+}
+
+// ============================================================================
 //                          数据管理 - 收藏夾核心 (L2 Essential)
 // ============================================================================
 
@@ -942,6 +1061,21 @@ async function showNews(dateStr) {
     const markdown = await loadMarkdown(dateStr);
     renderMarkdown(markdown);
 
+    // =========================================
+    // Phase 1: 行为设计 - 今日状态标签更新
+    // =========================================
+    const isToday = dateStr === getTodayStr();
+    const todayBadge = document.getElementById('todayBadge');
+    if (todayBadge) {
+        if (isToday) {
+            // 计算新闻数量
+            const count = TodayStatusManager.countFromDOM();
+            todayBadge.textContent = count > 0 ? `今日 · ${count} 条` : '今日 · 已更新';
+        } else {
+            todayBadge.textContent = '';
+        }
+    }
+
     // 更新 URL hash
     window.location.hash = dateStr;
 }
@@ -1256,6 +1390,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 初始化收藏栏
     renderFavoritesSidebar();
 
+    // =========================================
+    // Phase 1: 行为设计 - 连续打开天数初始化
+    // =========================================
+    const streakResult = StreakManager.update();
+    const streakDisplay = document.getElementById('streakDisplay');
+    const streakText = document.getElementById('streakText');
+
+    if (streakDisplay && streakText) {
+        if (streakResult.streakDays > 0) {
+            streakText.textContent = StreakManager.getDisplayText();
+            streakDisplay.classList.remove('hidden');
+        } else {
+            streakDisplay.classList.add('hidden');
+        }
+    }
+
+    // Phase 1: 行为设计 - 新一天首次打开的轻量庆祝提示
+    if (streakResult.isNewDay && streakResult.message) {
+        showWelcomeToast(streakResult.message);
+    }
+
     // 移动端菜单切换
     const toggleSidebar = (open) => {
         elements.sidebar.classList.toggle('open', open);
@@ -1293,6 +1448,34 @@ document.addEventListener('DOMContentLoaded', async () => {
         setInterval(refresh, CONFIG.autoRefresh);
     }
 });
+
+/**
+ * 显示轻量欢迎/庆祝提示 (Toast)
+ * Phase 1: 行为设计 - 暂停时刻 (Pause Moments)
+ * @param {string} message - 提示文案
+ */
+function showWelcomeToast(message) {
+    // 检查是否已经有 toast 元素
+    let toast = document.getElementById('welcomeToast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'welcomeToast';
+        toast.className = 'welcome-toast';
+        document.body.appendChild(toast);
+    }
+
+    toast.textContent = message;
+
+    // 延迟显示，等待页面加载完成
+    setTimeout(() => {
+        toast.classList.add('show');
+
+        // 3秒后自动隐藏
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }, 500);
+}
 
 // 处理 URL hash 变化
 window.addEventListener('hashchange', () => {
