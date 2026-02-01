@@ -690,8 +690,11 @@ body {
 /* News Cards */
 .news-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    /* Fix: 使用 auto-fit 替代 auto-fill，防止空轨道问题 */
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
     gap: 20px;
+    /* Fix: 确保 grid 容器不会溢出 */
+    min-width: 0;
 }
 
 .news-card {
@@ -703,6 +706,9 @@ body {
     display: flex;
     gap: 20px;
     transition: var(--transition-base);
+    /* Fix: 防止卡片内容溢出 */
+    min-width: 0;
+    overflow: hidden;
 }
 
 .news-card:hover {
@@ -716,6 +722,9 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    /* Fix: 防止内容溢出 */
+    min-width: 0;
+    overflow: hidden;
 }
 
 .news-card-image {
@@ -2407,8 +2416,7 @@ a:hover {
     border-radius: 0;
     box-shadow: none;
     position: absolute;
-    top: 0;
-    left: 0;
+    color: rgba(26, 26, 46, 1);
 }
 
 /* Specific fix for arXiv layout */
@@ -2435,8 +2443,9 @@ a:hover {
     left: 0;
     right: 0;
     height: 100%;
+    color: rgba(26, 26, 46, 1);
     /* 轻微遮罩 - 让图片透出来，同时保证文字可读 */
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.15) 100%);
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.98) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0) 100%);
     padding: 0 24px;
     display: flex;
     align-items: center;
