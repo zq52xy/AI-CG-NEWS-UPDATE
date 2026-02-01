@@ -2435,8 +2435,8 @@ a:hover {
     left: 0;
     right: 0;
     height: 100%;
-    /* 完全遮盖背景文字 - 使用近纯色黑色 */
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.98) 0%, rgba(0, 0, 0, 0.85) 50%, rgba(0, 0, 0, 0.7) 100%);
+    /* 轻微遮罩 - 让图片透出来，同时保证文字可读 */
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.15) 100%);
     padding: 0 24px;
     display: flex;
     align-items: center;
@@ -2444,16 +2444,16 @@ a:hover {
     pointer-events: none;
 }
 
-/* arXiv overlay 特殊处理 - 更强的遮罩 */
+/* arXiv overlay - 轻微遮罩 */
 .section-header-container:has(.section-banner[src*="arXiv"]) .section-header-overlay,
 .section-header-container:has(.section-banner[src*="arxiv"]) .section-header-overlay {
-    background: linear-gradient(to right, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.8) 50%, rgba(0, 0, 0, 0.6) 100%);
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.25) 60%, transparent 100%);
 }
 
-/* Hacker News overlay 特殊处理 - 完全遮盖背景文字 */
+/* Hacker News overlay - 轻微遮罩 */
 .section-header-container:has(.section-banner[src*="hackernews"]) .section-header-overlay,
 .section-header-container:has(.section-banner[src*="HackerNews"]) .section-header-overlay {
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.98) 0%, rgba(0, 0, 0, 0.9) 40%, rgba(0, 0, 0, 0.75) 100%);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.35) 40%, rgba(0, 0, 0, 0.15) 100%);
 }
 
 .section-header-container h2 {
