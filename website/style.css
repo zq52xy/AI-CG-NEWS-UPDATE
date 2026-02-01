@@ -13,6 +13,39 @@
     --shadow-lg: 0 8px 24px rgba(30, 58, 95, 0.12);
     --transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+    /* P1: 可访问性 - 焦点环变量 */
+    --focus-ring-color: #3b82f6;
+    --focus-ring-width: 2px;
+    --focus-ring-offset: 2px;
+}
+
+/* ================================================
+   P1: 可访问性 - 全局焦点环样式
+   ================================================ */
+
+/* 移除默认 outline，用自定义焦点环替代 */
+*:focus {
+    outline: none;
+}
+
+/* 仅键盘导航时显示焦点环 */
+*:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+    border-radius: inherit;
+}
+
+/* 按钮和交互元素的焦点环 */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
 }
 
 html,
@@ -334,6 +367,76 @@ body {
 
     .welcome-toast.show {
         transform: translateY(0);
+    }
+
+    /* ================================================
+       P1: 移动端触控热区 - 最小 44×44px
+       ================================================ */
+
+    /* 菜单按钮 */
+    .menu-btn {
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* 刷新按钮 */
+    .refresh-btn {
+        min-height: 44px;
+        padding: 10px 16px;
+    }
+
+    /* 历史记录项 */
+    .history-item {
+        min-height: 44px;
+        padding: 12px 20px;
+    }
+
+    /* 收藏项 */
+    .favorite-item {
+        min-height: 44px;
+        padding: 12px 16px;
+    }
+
+    /* 标签项 */
+    .tag-item {
+        min-height: 36px;
+        padding: 8px 14px;
+    }
+
+    /* 搜索清除按钮 */
+    .search-clear {
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* 标签清除按钮 */
+    .tag-clear-btn {
+        min-height: 36px;
+        padding: 8px 14px;
+    }
+
+    /* 版块导航项 */
+    .section-nav-item {
+        min-height: 40px;
+        padding: 10px 16px;
+    }
+
+    /* 预览面板按钮 */
+    .preview-btn {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    /* 返回今日按钮 */
+    .back-to-today {
+        min-height: 36px;
+        padding: 8px 14px;
     }
 }
 
