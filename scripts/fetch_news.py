@@ -1358,8 +1358,10 @@ def _generate_html_card(item: NewsItem, summary: str, meta_left: str, meta_right
         card_class += " has-image"
         image_div = f'<div class="news-card-image" style="background-image: url(\'{item.image_url}\');"></div>'
 
-    html = f"""
-<div class="{card_class}">
+    # Fix: 确保 HTML 结构正确，image_div 和 </div> 分开
+    image_html = f"\n    {image_div}" if image_div else ""
+    
+    html = f"""<div class="{card_class}">
     <div class="news-tags-data" style="display:none">{tags_json}</div>
     <div class="news-card-content">
         <div class="news-card-header">
@@ -1374,8 +1376,8 @@ def _generate_html_card(item: NewsItem, summary: str, meta_left: str, meta_right
             <span class="meta-left">{meta_left}</span>
             <span class="meta-right">{meta_right}</span>
         </div>
-    </div>
-    {image_div}</div>
+    </div>{image_html}
+</div>
 """
     return html
 
