@@ -259,6 +259,55 @@ body {
     transform: translateX(-50%) translateY(0);
 }
 
+/* ================================================
+   Phase 2: 返回今日快捷入口 (Back to Today)
+   ================================================ */
+
+.back-to-today {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: linear-gradient(135deg, var(--accent), #f59e0b);
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.25);
+    transition: var(--transition-base);
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.9);
+}
+
+/* 仅当浏览历史日期时显示 */
+.back-to-today.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+}
+
+.back-to-today:hover {
+    background: linear-gradient(135deg, #dc2626, #ea580c);
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.35);
+    transform: scale(1.02);
+}
+
+.back-to-today:active {
+    transform: scale(0.98);
+}
+
+.back-to-today-icon {
+    font-size: 0.95rem;
+}
+
+.back-to-today-text {
+    font-weight: 600;
+}
+
 /* 移动端适配 */
 @media (max-width: 768px) {
     .streak-display {

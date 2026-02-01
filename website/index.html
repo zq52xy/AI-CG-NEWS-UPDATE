@@ -10,7 +10,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;600;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=23">
+    <link rel="stylesheet" href="style.css?v=24">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
 </head>
@@ -81,6 +81,11 @@
                         </div>
                         <!-- Phase 1: 行为设计 - 今日状态标签 -->
                         <span class="today-badge" id="todayBadge"></span>
+                        <!-- Phase 2: 行为设计 - 返回今日快捷入口 -->
+                        <button class="back-to-today" id="backToToday" title="返回今日">
+                            <span class="back-to-today-icon">📅</span>
+                            <span class="back-to-today-text">返回今日</span>
+                        </button>
                         <span class="beijing-time" id="beijingTime"></span>
                         <span class="date" id="currentDate"></span>
                         <span class="status" id="status">● 在线</span>
@@ -295,7 +300,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=26"></script>
+    <script src="app.js?v=27"></script>
 </body>
 
 </html>

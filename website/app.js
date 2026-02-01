@@ -1076,6 +1076,15 @@ async function showNews(dateStr) {
         }
     }
 
+    // =========================================
+    // Phase 2: 行为设计 - 返回今日快捷入口
+    // =========================================
+    const backToTodayBtn = document.getElementById('backToToday');
+    if (backToTodayBtn) {
+        // 浏览历史日期时显示，浏览今日时隐藏
+        backToTodayBtn.classList.toggle('visible', !isToday);
+    }
+
     // 更新 URL hash
     window.location.hash = dateStr;
 }
@@ -1409,6 +1418,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Phase 1: 行为设计 - 新一天首次打开的轻量庆祝提示
     if (streakResult.isNewDay && streakResult.message) {
         showWelcomeToast(streakResult.message);
+    }
+
+    // =========================================
+    // Phase 2: 行为设计 - 返回今日按钮点击
+    // =========================================
+    const backToTodayBtn = document.getElementById('backToToday');
+    if (backToTodayBtn) {
+        backToTodayBtn.addEventListener('click', () => {
+            showNews(getTodayStr());
+        });
     }
 
     // 移动端菜单切换
