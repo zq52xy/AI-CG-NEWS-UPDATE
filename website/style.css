@@ -697,6 +697,14 @@ body {
     min-width: 0;
 }
 
+/* 防护栏：确保标题和版块头始终跨越整个grid宽度 */
+.news-grid h2,
+.news-grid .section-header-container,
+.news-grid>h2,
+.news-grid>.section-header-container {
+    grid-column: 1 / -1;
+}
+
 .news-card {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
@@ -2450,6 +2458,8 @@ a:hover {
     height: 120px;
     background: var(--bg-card);
     z-index: 1;
+    /* 确保banner横跨整个Grid宽度（防止嵌套问题导致的单列布局） */
+    grid-column: 1 / -1;
 }
 
 /* Fix: Override .content img styles with high specificity */
