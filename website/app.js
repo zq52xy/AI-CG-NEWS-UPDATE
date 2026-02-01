@@ -479,6 +479,14 @@ function renderMarkdown(markdown) {
     const html = marked.parse(markdown);
     elements.content.innerHTML = html;
 
+    // Wrap tables for responsive scrolling
+    elements.content.querySelectorAll('table').forEach(table => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'table-responsive';
+        table.parentNode.insertBefore(wrapper, table);
+        wrapper.appendChild(table);
+    });
+
     // 注入版块 Banner
     injectBanners();
 
