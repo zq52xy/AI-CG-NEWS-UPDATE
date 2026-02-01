@@ -23,6 +23,83 @@ const CONFIG = {
 };
 
 // ============================================================================
+//                          P3: 深色模式管理 (Theme Manager)
+// ============================================================================
+
+/**
+ * 主题管理器
+ * 功能：浅色/深色模式切换，自动跟随系统，localStorage 持久化
+ * 存储键：aicg_news_theme，值：'light' | 'dark' | 'auto'
+ */
+class ThemeManager {
+    static STORAGE_KEY = 'aicg_news_theme';
+
+    /**
+     * 初始化主题
+     * 优先级：localStorage > 系统偏好 > 默认浅色
+     */
+    static init() {
+        const savedTheme = localStorage.getItem(this.STORAGE_KEY);
+
+        if (savedTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else if (savedTheme === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+        }
+        // 如果是 'auto' 或未设置，CSS 会自动跟随系统偏好
+
+        // 绑定切换按钮
+        const toggleBtn = document.getElementById('themeToggle');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => this.toggle());
+        }
+
+        console.log('[ThemeManager] 初始化完成, 当前主题:', this.getCurrentTheme());
+    }
+
+    /**
+     * 获取当前主题
+     */
+    static getCurrentTheme() {
+        const dataTheme = document.documentElement.getAttribute('data-theme');
+        if (dataTheme) return dataTheme;
+
+        // 检查系统偏好
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            return 'dark';
+        }
+        return 'light';
+    }
+
+    /**
+     * 切换主题
+     */
+    static toggle() {
+        const current = this.getCurrentTheme();
+        const newTheme = current === 'dark' ? 'light' : 'dark';
+
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem(this.STORAGE_KEY, newTheme);
+
+        console.log('[ThemeManager] 切换主题:', current, '->', newTheme);
+    }
+
+    /**
+     * 设置主题
+     * @param {'light' | 'dark' | 'auto'} theme
+     */
+    static set(theme) {
+        if (theme === 'auto') {
+            document.documentElement.removeAttribute('data-theme');
+            localStorage.removeItem(this.STORAGE_KEY);
+        } else {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem(this.STORAGE_KEY, theme);
+        }
+    }
+}
+
+// ============================================================================
 //                          行为设计 - Phase 1: 连续打开天数追踪 (Behavioral Design)
 // ============================================================================
 
@@ -1387,6 +1464,9 @@ class TagFilterManager {
 // ============================================================================
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // P3: 初始化主题管理器（优先执行，避免闪烁）
+    ThemeManager.init();
+
     // 初始化 ModalManager
     ModalManager.init();
 
