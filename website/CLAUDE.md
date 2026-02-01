@@ -13,7 +13,7 @@
   - `getSkeletonHTML()`: 流光骨架屏 Loading 动画生成
   - `showWelcomeToast()`: Phase 1 行为设计 - 轻量庆祝提示 (Pause Moments)
 - `index.html`: 入口文件，定义页面结构和基本元数据，包含主内容区骨架屏和预览面板骨架屏 Loading 结构
-- `style.css`: 样式表，分屏布局使用 CSS 变量 `--content-width` 驱动，包含流光骨架屏动画
+- `style.css`: 样式表，分屏布局使用 CSS 变量 `--content-width` 驱动，包含流光骨架屏动画，Section Banner 样式增强遮罩遮盖背景文字
 
 ## 子目录
 

@@ -685,6 +685,7 @@ body {
 }
 
 /* Section Headers & Banners styles moved to end of file to prevent overrides */
+/* FIXED: Moved to end of file and increased specificity */
 
 /* News Cards */
 .news-grid {
@@ -2380,160 +2381,92 @@ a:hover {
 }
 
 /* ================================================
-   Section Banners (Dynamic Injection)
+   Section Banners (High Specificity Fix)
    ================================================ */
 
 .section-header-container {
-    position: relative;
-    width: 100%;
-    height: 120px;
-    margin: 32px 0 16px;
+    margin-top: 32px;
+    margin-bottom: 24px;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: var(--shadow-sm);
+    position: relative;
+    box-shadow: var(--shadow-md);
+    height: 120px;
     background: var(--bg-card);
-    /* Fallback */
+    z-index: 1;
 }
 
-.section-banner {
-    position: absolute;
-    top: 0;
-    left: 0;
+/* Fix: Override .content img styles with high specificity */
+.section-header-container .section-banner {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    z-index: 1;
-    transition: transform 0.5s ease;
+    display: block;
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
-.section-header-container:hover .section-banner {
-    transform: scale(1.05);
-}
-
-/* Specific fix for arXiv logo */
-.section-banner[src*="arXiv"],
-.section-banner[src*="arxiv"] {
+/* Specific fix for arXiv layout */
+.section-header-container .section-banner[src*="arXiv"],
+.section-header-container .section-banner[src*="arxiv"] {
     object-fit: contain;
-    background: white;
-    padding: 20px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    padding: 15px 20px;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+}
+
+/* Hacker News banner 背景处理 - 遮盖原图文字 */
+.section-header-container .section-banner[src*="hackernews"],
+.section-header-container .section-banner[src*="HackerNews"] {
+    object-fit: cover;
+    object-position: center 30%;
 }
 
 .section-header-overlay {
     position: absolute;
     bottom: 0;
     left: 0;
-    width: 100%;
+    right: 0;
     height: 100%;
-    padding: 20px 24px;
-    display: flex;
-    align-items: flex-end;
-    z-index: 2;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 50%, transparent 100%);
-    pointer-events: none;
-    /* Let clicks pass through if needed */
-}
-
-/* Ensure h2 inside banner is readable */
-.section-header-container h2 {
-    color: white !important;
-    margin: 0;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
-    font-size: 1.6rem;
-    position: relative;
-    z-index: 3;
-    letter-spacing: 0.5px;
-}
-
-/* Dark mode adjustments */
-[data-theme="dark"] .section-header-container {
-    box-shadow: var(--shadow-md);
-    border: 1px solid var(--border-color);
-}
-
-/* ================================================
-   P3: 主题切换按钮 (Theme Toggle)
-   ================================================ */
-
-.theme-toggle {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    border: 1px solid var(--border-color);
-    background: var(--bg-card);
-    box-shadow: var(--shadow-md);
-    cursor: pointer;
+    /* 更强的渐变遮盖背景文字 */
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.7) 40%, rgba(0, 0, 0, 0.3) 100%);
+    padding: 0 24px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    transition: var(--transition-base);
-    z-index: 1000;
+    z-index: 2;
+    pointer-events: none;
 }
 
-.theme-toggle:hover {
-    box-shadow: var(--shadow-lg);
-    transform: scale(1.05);
+/* arXiv overlay 特殊处理 */
+.section-header-container:has(.section-banner[src*="arXiv"]) .section-header-overlay,
+.section-header-container:has(.section-banner[src*="arxiv"]) .section-header-overlay {
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.6) 60%, transparent 100%);
 }
 
-.theme-toggle:active {
-    transform: scale(0.95);
+.section-header-container h2 {
+    margin: 0;
+    color: white !important;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+    font-size: 1.6rem;
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    position: relative;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-.theme-toggle .icon {
-    width: 20px;
-    height: 20px;
-    transition: var(--transition-base);
-}
-
-/* 太阳图标 - 浅色模式时显示（点击切换到深色） */
-.theme-toggle .icon-sun {
-    display: block;
-}
-
-.theme-toggle .icon-moon {
-    display: none;
-}
-
-/* 月亮图标 - 深色模式时显示（点击切换到浅色） */
-[data-theme="dark"] .theme-toggle .icon-sun {
-    display: none;
-}
-
-[data-theme="dark"] .theme-toggle .icon-moon {
-    display: block;
-}
-
-/* 系统深色模式时的图标切换 */
-@media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) .theme-toggle .icon-sun {
-        display: none;
-    }
-
-    :root:not([data-theme="light"]) .theme-toggle .icon-moon {
-        display: block;
-    }
-}
-
-/* 移动端主题按钮位置调整 */
-@media (max-width: 768px) {
-    .theme-toggle {
-        bottom: 16px;
-        right: 16px;
-        width: 44px;
-        height: 44px;
-    }
-
-    /* Layout Reset for Mobile */
-    .main {
-        margin-left: 0;
-        width: 100%;
-    }
-
-    .header,
-    .content {
-        padding-left: 20px;
-        padding-right: 20px;
-    }
+/* 去掉 section header 的 hover 效果 */
+.section-header-container:hover {
+    box-shadow: var(--shadow-md);
+    transform: none;
 }
