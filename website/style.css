@@ -734,6 +734,16 @@ body {
     background-position: center;
     border-radius: 8px;
     flex-shrink: 0;
+    /* 添加背景色以便图片加载时有占位效果 */
+    background-color: var(--bg-body);
+}
+
+/* 当图片URL为空或加载失败时隐藏图片容器 */
+.news-card-image:empty,
+.news-card-image[style*="url('')"],
+.news-card-image[style*="url()"],
+.news-card-image.hidden {
+    display: none;
 }
 
 /* ======================================

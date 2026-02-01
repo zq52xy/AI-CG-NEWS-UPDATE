@@ -583,6 +583,51 @@ function enhanceImages() {
             img.style.minHeight = '';
         };
     });
+
+    // 5. 处理 .news-card-image 背景图片加载
+    enhanceCardBackgroundImages();
+}
+
+/**
+ * 增强 .news-card-image 背景图片处理
+ * 检测背景图片是否能加载，失败时隐藏该元素
+ */
+function enhanceCardBackgroundImages() {
+    const cardImages = elements.content.querySelectorAll('.news-card-image');
+
+    cardImages.forEach(cardImage => {
+        const style = cardImage.getAttribute('style') || '';
+        const urlMatch = style.match(/url\(['"]?([^'")\s]+)['"]?\)/);
+
+        if (!urlMatch || !urlMatch[1]) {
+            // URL 为空，直接隐藏
+            cardImage.classList.add('hidden');
+            cardImage.closest('.news-card')?.classList.remove('has-image');
+            return;
+        }
+
+        const imageUrl = urlMatch[1];
+
+        // 使用 Image 预加载来检测图片是否能加载
+        const testImg = new Image();
+
+        testImg.onload = () => {
+            // 图片加载成功，确保显示
+            cardImage.classList.remove('hidden');
+        };
+
+        testImg.onerror = () => {
+            // 图片加载失败，隐藏元素并移除 has-image 类
+            cardImage.classList.add('hidden');
+            const card = cardImage.closest('.news-card');
+            if (card) {
+                card.classList.remove('has-image');
+            }
+            console.warn('[CardImage] Failed to load:', imageUrl);
+        };
+
+        testImg.src = imageUrl;
+    });
 }
 
 // ============================================================================
