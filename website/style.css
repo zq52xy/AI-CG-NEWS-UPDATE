@@ -48,6 +48,62 @@ textarea:focus-visible,
     outline-offset: var(--focus-ring-offset);
 }
 
+/* ================================================
+   P2: SVG 图标系统样式
+   ================================================ */
+
+.icon {
+    width: 1em;
+    height: 1em;
+    display: inline-block;
+    vertical-align: -0.125em;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    flex-shrink: 0;
+}
+
+/* 图标尺寸变体 */
+.icon-xs {
+    width: 0.75em;
+    height: 0.75em;
+}
+
+.icon-sm {
+    width: 0.875em;
+    height: 0.875em;
+}
+
+.icon-md {
+    width: 1.25em;
+    height: 1.25em;
+}
+
+.icon-lg {
+    width: 1.5em;
+    height: 1.5em;
+}
+
+.icon-xl {
+    width: 2em;
+    height: 2em;
+}
+
+/* 图标颜色变体 */
+.icon-primary {
+    stroke: var(--primary);
+}
+
+.icon-accent {
+    stroke: var(--accent);
+}
+
+.icon-muted {
+    stroke: var(--text-muted);
+}
+
 html,
 body {
     height: 100%;

@@ -10,7 +10,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;600;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=24">
+    <link rel="stylesheet" href="style.css?v=25">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
 </head>
@@ -43,18 +43,29 @@
             <div class="sidebar-footer">
                 <!-- Phase 1: 行为设计 - 连续打开天数 -->
                 <div class="streak-display" id="streakDisplay">
-                    <span class="streak-icon">🔥</span>
+                    <svg class="icon icon-md" viewBox="0 0 24 24" aria-hidden="true">
+                        <path
+                            d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
+                    </svg>
                     <span class="streak-text" id="streakText">加载中...</span>
                 </div>
 
                 <button class="refresh-btn" id="refreshBtn" aria-label="刷新数据">
-                    <span class="refresh-icon" aria-hidden="true">🔄</span>
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                        <path d="M3 3v5h5" />
+                        <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+                        <path d="M16 16h5v5" />
+                    </svg>
                     刷新数据
                 </button>
 
                 <!-- Phase 1: 行为设计 - 固定时间 Cue -->
                 <div class="update-hint" id="updateHint">
-                    <span class="update-hint-icon">⏰</span>
+                    <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12 6 12 12 16 14" />
+                    </svg>
                     <span class="update-hint-text">每日北京时间 08:00 更新</span>
                 </div>
             </div>
@@ -69,21 +80,37 @@
                 <div class="header-content">
                     <!-- 移动端菜单按钮 -->
                     <button class="menu-btn" id="menuBtn" aria-label="打开菜单">
-                        <span class="menu-icon">☰</span>
+                        <svg class="icon icon-lg" viewBox="0 0 24 24" aria-hidden="true">
+                            <line x1="4" y1="6" x2="20" y2="6" />
+                            <line x1="4" y1="12" x2="20" y2="12" />
+                            <line x1="4" y1="18" x2="20" y2="18" />
+                        </svg>
                     </button>
                     <h1 class="page-title" id="pageTitle">AI & CG 每日资讯</h1>
                     <div class="header-meta">
                         <div class="search-box">
-                            <span class="search-icon" aria-hidden="true">🔍</span>
+                            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <circle cx="11" cy="11" r="8" />
+                                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                            </svg>
                             <input type="text" id="searchInput" placeholder="搜索文章 (按 / 聚焦)..." aria-label="搜索文章" />
-                            <button class="search-clear" id="searchClear" aria-label="清除搜索" type="button">✕</button>
+                            <button class="search-clear" id="searchClear" aria-label="清除搜索" type="button"><svg
+                                    class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                                    <line x1="18" y1="6" x2="6" y2="18" />
+                                    <line x1="6" y1="6" x2="18" y2="18" />
+                                </svg></button>
                             <span class="search-count" id="searchCount" aria-live="polite"></span>
                         </div>
                         <!-- Phase 1: 行为设计 - 今日状态标签 -->
                         <span class="today-badge" id="todayBadge"></span>
                         <!-- Phase 2: 行为设计 - 返回今日快捷入口 -->
                         <button class="back-to-today" id="backToToday" aria-label="返回今日新闻">
-                            <span class="back-to-today-icon" aria-hidden="true">📅</span>
+                            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                <line x1="16" y1="2" x2="16" y2="6" />
+                                <line x1="8" y1="2" x2="8" y2="6" />
+                                <line x1="3" y1="10" x2="21" y2="10" />
+                            </svg>
                             <span class="back-to-today-text">返回今日</span>
                         </button>
                         <span class="beijing-time" id="beijingTime"></span>
@@ -96,7 +123,11 @@
             <!-- 标签筛选栏 -->
             <div class="tag-filter-bar" id="tagFilterBar">
                 <div class="tag-filter-header">
-                    <span class="tag-filter-title">🏷️ 标签筛选</span>
+                    <span class="tag-filter-title"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path
+                                d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z" />
+                            <path d="M7 7h.01" />
+                        </svg> 标签筛选</span>
                     <button class="tag-clear-btn" id="tagClearBtn" aria-label="清除标签筛选">清除</button>
                 </div>
                 <div class="tag-cloud" id="tagCloud">
@@ -192,16 +223,28 @@
                         <div class="preview-url" id="previewUrl" title=""></div>
                         <div class="preview-actions">
                             <button class="preview-btn preview-open-btn" id="previewOpenBtn" aria-label="在新标签页打开">
-                                🔗 打开
+                                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M15 3h6v6" />
+                                    <path d="M10 14 21 3" />
+                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                                </svg> 打开
                             </button>
                             <button class="preview-btn preview-close-btn" id="previewCloseBtn" aria-label="关闭预览">
-                                ✕
+                                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                                    <line x1="18" y1="6" x2="6" y2="18" />
+                                    <line x1="6" y1="6" x2="18" y2="18" />
+                                </svg>
                             </button>
                         </div>
                     </div>
                     <div class="preview-content">
                         <div class="preview-placeholder" id="previewPlaceholder">
-                            <div class="preview-placeholder-icon">🌐</div>
+                            <svg class="icon icon-xl" viewBox="0 0 24 24" aria-hidden="true">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="2" y1="12" x2="22" y2="12" />
+                                <path
+                                    d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                            </svg>
                             <p>正在加载页面预览...</p>
                             <span class="preview-placeholder-hint">部分网站可能无法嵌入显示</span>
                         </div>
