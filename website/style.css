@@ -320,6 +320,36 @@ body {
     position: relative;
 }
 
+/* Fix: Images responsive and contained */
+.content img,
+.news-card img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 12px 0;
+    box-shadow: var(--shadow-sm);
+    margin: 12px 0;
+    box-shadow: var(--shadow-sm);
+    display: block;
+}
+
+/* Fix: Tables responsive */
+.content table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+    margin: 16px 0;
+}
+
+.content th,
+.content td {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    min-width: 100px;
+    /* Prevent overly narrow columns */
+}
+
 /* ================================================
    Phase 1: 行为设计样式 (Behavioral Design)
    - 连续打开天数 (Streak Display)
