@@ -1478,6 +1478,7 @@ def generate_report(
             
         lines.append('</div>') # End grid
         lines.append("")
+        lines.append("")  # Extra blank line for Markdown parser
     
     # CG 图形学专属版块
     
@@ -1505,6 +1506,7 @@ def generate_report(
             lines.append(card)
         lines.append('</div>')
         lines.append("")
+        lines.append("")  # Extra blank line for Markdown parser
 
     # Hugging Face 部分
     if hf_items:
@@ -1536,6 +1538,7 @@ def generate_report(
             lines.append(card)
         lines.append('</div>')
         lines.append("")
+        lines.append("")  # Extra blank line for Markdown parser
 
     # Product Hunt 部分
     if ph_items:
@@ -1559,6 +1562,7 @@ def generate_report(
             lines.append(card)
         lines.append('</div>')
         lines.append("")
+        lines.append("")  # Extra blank line for Markdown parser
 
     if cg_items:
         lines.extend([
@@ -1590,6 +1594,7 @@ def generate_report(
             
         lines.append('</div>')
         lines.append("")
+        lines.append("")  # Extra blank line for Markdown parser
     
     # Bluesky 部分
     if twitter_items:
@@ -1612,6 +1617,7 @@ def generate_report(
             lines.append(card)
         lines.append('</div>')
         lines.append("")
+        lines.append("")  # Extra blank line for Markdown parser
     
     # Reddit 部分
     if reddit_items:
@@ -1635,6 +1641,7 @@ def generate_report(
             lines.append(card)
         lines.append('</div>')
         lines.append("")
+        lines.append("")  # Extra blank line for Markdown parser
     
     # Hacker News 部分
     if hn_items:
@@ -1658,6 +1665,7 @@ def generate_report(
             lines.append(card)
         lines.append('</div>')
         lines.append("")
+        lines.append("")  # Extra blank line for Markdown parser
     
     # arXiv 学术前沿
     if arxiv_items:
@@ -1683,6 +1691,7 @@ def generate_report(
             lines.append(card)
         lines.append('</div>')
         lines.append("")
+        lines.append("")  # Extra blank line for Markdown parser
     
     # 页脚
     lines.extend([

@@ -4,6 +4,7 @@
 ## 成员清单
 
 - `app.js`: 核心逻辑，包含新闻加载、搜索、收藏管理、分屏预览系统
+  - `fixNestedNewsGrids()`: 修复 marked.js HTML 块解析导致的 news-grid 嵌套问题
   - `StreakManager`: Phase 1 行为设计 - 连续打开天数追踪（localStorage 持久化）
   - `TodayStatusManager`: Phase 1 行为设计 - 今日状态管理与新闻计数
   - `PreviewManager`: 分屏预览，拖拽栏使用 RAF 节流 + CSS 变量 + PointerEvents 优化
