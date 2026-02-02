@@ -487,12 +487,12 @@ function renderMarkdown(markdown) {
         wrapper.appendChild(table);
     });
 
+    // 修复嵌套的 news-grid（marked.js HTML 块解析问题）
+    // 必须在 injectBanners 之前运行，否则嵌套的 h2 不会被处理
+    fixNestedNewsGrids();
+
     // 注入版块 Banner
     injectBanners();
-
-    // Fix: 修复被错误嵌套的 news-grid（marked.js HTML 块解析问题）
-    // 必须在 injectBanners 之后调用，因为需要 section-header-container
-    fixNestedNewsGrids();
 
     // 注入收藏按钮
     injectFavoriteButtons();
@@ -517,39 +517,6 @@ function renderMarkdown(markdown) {
 
     // 3. 版块快速导航
     initSectionNav();
-}
-
-// ============================================================================
-//                          Fix: 修复嵌套的 news-grid
-// ============================================================================
-
-/**
- * 修复被错误嵌套的 news-grid
- * marked.js 在解析混合 HTML/Markdown 时，可能将后续版块嵌套到前一个 grid 内
- * 此函数检测并修复这种嵌套，将它们移到正确的父级
- */
-function fixNestedNewsGrids() {
-    const content = document.getElementById('content');
-    if (!content) return;
-
-    // 查找所有被嵌套在 news-grid 内的 news-grid
-    const nestedGrids = content.querySelectorAll('.news-grid .news-grid');
-    
-    nestedGrids.forEach(nestedGrid => {
-        // 找到它前面的 section-header-container（版块标题）
-        let prevSibling = nestedGrid.previousElementSibling;
-        while (prevSibling && !prevSibling.classList.contains('section-header-container')) {
-            prevSibling = prevSibling.previousElementSibling;
-        }
-        
-        // 将 section-header-container 和 news-grid 移到 content 下
-        if (prevSibling) {
-            content.appendChild(prevSibling);
-        }
-        content.appendChild(nestedGrid);
-        
-        console.log('[Fix] Moved nested news-grid to content');
-    });
 }
 
 // ============================================================================
@@ -590,6 +557,20 @@ function sanitizeNewsContent() {
         el.removeAttribute('onerror');
         el.removeAttribute('onload');
     });
+
+    // 5. 移除页脚（hr 和自动生成提示）
+    document.querySelectorAll('#content hr').forEach(hr => hr.remove());
+    document.querySelectorAll('#content p').forEach(p => {
+        if (p.textContent?.includes('自动生成') || p.textContent?.includes('News Aggregator')) {
+            p.remove();
+        }
+    });
+    document.querySelectorAll('#content em').forEach(em => {
+        if (em.textContent?.includes('自动生成') || em.textContent?.includes('News Aggregator')) {
+            em.parentElement?.remove();
+        }
+    });
+
 }
 
 // ============================================================================
@@ -1005,6 +986,44 @@ function renderFavoritesSidebar() {
 
         // 移除 li.onclick，防止误触
         elements.favList.appendChild(li);
+    });
+}
+
+/**
+ * 修复被错误嵌套的 news-grid 和相关内容
+ * marked.js 在解析混合 HTML/Markdown 时，可能将后续版块嵌套到前一个 grid 内
+ */
+function fixNestedNewsGrids() {
+    const content = document.getElementById('content');
+    if (!content) return;
+
+    // 查找所有顶级 news-grid
+    const topLevelGrids = Array.from(content.children).filter(c => c.classList?.contains('news-grid'));
+    
+    topLevelGrids.forEach(outerGrid => {
+        // 查找嵌套在此 grid 内的 h2 标题（版块标题）
+        const nestedH2s = outerGrid.querySelectorAll('h2');
+        
+        nestedH2s.forEach(h2 => {
+            // 收集 h2 及其后续元素直到下一个 h2 或 grid 结束
+            const elementsToMove = [h2];
+            let sibling = h2.nextElementSibling;
+            
+            while (sibling) {
+                // 如果遇到下一个 h2，停止
+                if (sibling.tagName === 'H2') break;
+                
+                elementsToMove.push(sibling);
+                sibling = sibling.nextElementSibling;
+            }
+            
+            // 将元素移到 content 下
+            elementsToMove.forEach(el => {
+                content.appendChild(el);
+            });
+            
+            console.log('[Fix] Moved nested section to content:', h2.textContent?.substring(0, 30));
+        });
     });
 }
 

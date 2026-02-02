@@ -1693,11 +1693,8 @@ def generate_report(
         lines.append("")
         lines.append("")  # Extra blank line for Markdown parser
     
-    # 页脚
-    lines.extend([
-        "---",
-        "*本报告由 AI & CG News Aggregator Skill 自动生成*",
-    ])
+    # 页脚（简化：仅分隔线，移除自动生成提示）
+    lines.append("---")
     
     # 写入文件
     content = '\n'.join(lines)
