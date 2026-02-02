@@ -1389,22 +1389,23 @@ def _generate_html_card(item: NewsItem, summary: str, meta_left: str, meta_right
     
     safe_summary = sanitize_html_text(summary or item.summary)
 
+    # CRITICAL: 不能有缩进！Markdown 会把 4 空格缩进当作代码块
     html = f"""<div class="{card_class}">
-    <div class="news-tags-data" style="display:none">{tags_json}</div>
-    <div class="news-card-content">
-        <div class="news-card-header">
-            <span class="news-source-tag">{item.source}</span>
-            <span class="news-date">{item.date}</span>
-        </div>
-        <a href="{item.url}" target="_blank" class="news-title-link">
-            <h3 class="news-title">{item.title}</h3>
-        </a>
-        <div class="news-summary">{safe_summary}</div>{tags_html}
-        <div class="news-meta">
-            <span class="meta-left">{meta_left}</span>
-            <span class="meta-right">{meta_right}</span>
-        </div>
-    </div>{image_html}
+<div class="news-tags-data" style="display:none">{tags_json}</div>
+<div class="news-card-content">
+<div class="news-card-header">
+<span class="news-source-tag">{item.source}</span>
+<span class="news-date">{item.date}</span>
+</div>
+<a href="{item.url}" target="_blank" class="news-title-link">
+<h3 class="news-title">{item.title}</h3>
+</a>
+<div class="news-summary">{safe_summary}</div>{tags_html}
+<div class="news-meta">
+<span class="meta-left">{meta_left}</span>
+<span class="meta-right">{meta_right}</span>
+</div>
+</div>{image_html}
 </div>
 """
     return html
