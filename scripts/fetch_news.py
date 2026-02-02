@@ -48,8 +48,11 @@ class NewsItem:
 def sanitize_html_text(text: str, max_length: Optional[int] = None) -> str:
     """
     清理 HTML 片段，保证输出为纯文本，避免破坏卡片布局
+    
+    CRITICAL: 此函数是防止布局被损坏 HTML 破坏的最后防线
     - 先解码 HTML 实体
-    - 再使用解析器移除残缺标签
+    - 使用 BeautifulSoup 解析并提取纯文本
+    - 移除所有残留的 HTML 标签（包括未闭合的）
     - 合并多余空白
     """
     if not text:
@@ -57,15 +60,24 @@ def sanitize_html_text(text: str, max_length: Optional[int] = None) -> str:
 
     from bs4 import BeautifulSoup
 
-    decoded = html.unescape(text)
+    # Step 1: 解码 HTML 实体
+    decoded = html.unescape(str(text))
+    
+    # Step 2: 使用 BeautifulSoup 提取纯文本
     cleaned = BeautifulSoup(decoded, "html.parser").get_text(" ", strip=True)
+    
+    # Step 3: 移除任何残留的 < 或 > 字符（防止未闭合标签）
+    cleaned = re.sub(r'<[^>]*$', '', cleaned)  # 移除末尾未闭合的标签
+    cleaned = re.sub(r'<[^>]*>', '', cleaned)  # 移除任何残留的完整标签
+    cleaned = cleaned.replace('<', '').replace('>', '')  # 移除孤立的 < >
+    
+    # Step 4: 合并多余空白
     cleaned = re.sub(r'\s+', ' ', cleaned).strip()
 
+    # Step 5: 截断到最大长度
     if max_length and len(cleaned) > max_length:
         return cleaned[:max_length - 3] + '...'
     return cleaned
-    tags: list = field(default_factory=list)  # 自动生成的标签
-    extra: dict = field(default_factory=dict)
 
 
 
@@ -288,7 +300,7 @@ def fetch_github(topics: list[str], language: str = "", since: str = "daily") ->
                 url=repo_url,
                 source='GitHub',
                 category=lang,
-                summary=description[:150],
+                summary=sanitize_html_text(description, max_length=150),
                 score=today_stars + score * 10,
                 extra={'today_stars': today_stars, 'language': lang}
             ))
@@ -621,7 +633,7 @@ def fetch_cg_graphics(
                     category=label,
                     score=score,
                     comments=comments,
-                    summary=selftext,
+                    summary=sanitize_html_text(selftext, max_length=200),
                     extra={
                         'subreddit': sub,
                         'label': label,
@@ -1041,7 +1053,7 @@ def fetch_product_hunt(limit: int = 15) -> list[NewsItem]:
                 source='ProductHunt',
                 category='Product',
                 score=score,
-                summary=summary[:200],
+                summary=sanitize_html_text(summary, max_length=200),
                 image_url=image_url
             ))
             
@@ -1205,7 +1217,7 @@ def fetch_huggingface_papers(limit: int = 10) -> list[NewsItem]:
                 url=link,
                 source='HuggingFace',
                 category='Paper',
-                summary=summary,
+                summary=sanitize_html_text(summary, max_length=200),
                 score=upvotes,
                 date=paper.get('publishedAt', ''),
                 extra={
