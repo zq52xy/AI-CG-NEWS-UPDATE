@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 [INPUT]: 依赖 httpx, feedparser, beautifulsoup4 进行网络请求
@@ -13,6 +13,7 @@
 
 import argparse
 import datetime
+import html
 import json
 import os
 import re
@@ -38,6 +39,31 @@ class NewsItem:
     summary: str = ""
     date: str = ""
     image_url: str = ""  # 新增图片链接字段
+
+
+# ============================================================================
+#                          文本清洗工具
+# ============================================================================
+
+def sanitize_html_text(text: str, max_length: Optional[int] = None) -> str:
+    """
+    清理 HTML 片段，保证输出为纯文本，避免破坏卡片布局
+    - 先解码 HTML 实体
+    - 再使用解析器移除残缺标签
+    - 合并多余空白
+    """
+    if not text:
+        return ""
+
+    from bs4 import BeautifulSoup
+
+    decoded = html.unescape(text)
+    cleaned = BeautifulSoup(decoded, "html.parser").get_text(" ", strip=True)
+    cleaned = re.sub(r'\s+', ' ', cleaned).strip()
+
+    if max_length and len(cleaned) > max_length:
+        return cleaned[:max_length - 3] + '...'
+    return cleaned
     tags: list = field(default_factory=list)  # 自动生成的标签
     extra: dict = field(default_factory=dict)
 
@@ -164,7 +190,7 @@ def fetch_arxiv(categories: list[str], days: int = 1, max_results: int = 30) -> 
                 if isinstance(authors, list):
                     authors = ', '.join([a.get('name', str(a)) for a in authors[:3]])
                 
-                summary = entry.get('summary', '')[:200] + '...'
+                summary = sanitize_html_text(entry.get('summary', ''), max_length=200)
                 
                 link = entry.get('link', '')
                 if isinstance(entry.get('links'), list) and entry.links:
@@ -756,7 +782,7 @@ def fetch_cg_official() -> list[NewsItem]:
             for entry in feed.entries[:5]:  # 每个源取前5条
                 title = entry.get('title', '')
                 link = entry.get('link', '')
-                summary = entry.get('summary', entry.get('description', ''))[:200]
+                summary = sanitize_html_text(entry.get('summary', entry.get('description', '')), max_length=200)
                 published = entry.get('published', entry.get('updated', ''))
                 
                 # 清理 HTML 标签
@@ -1361,6 +1387,8 @@ def _generate_html_card(item: NewsItem, summary: str, meta_left: str, meta_right
     # Fix: 确保 HTML 结构正确，image_div 和 </div> 分开
     image_html = f"\n    {image_div}" if image_div else ""
     
+    safe_summary = sanitize_html_text(summary or item.summary)
+
     html = f"""<div class="{card_class}">
     <div class="news-tags-data" style="display:none">{tags_json}</div>
     <div class="news-card-content">
@@ -1371,7 +1399,7 @@ def _generate_html_card(item: NewsItem, summary: str, meta_left: str, meta_right
         <a href="{item.url}" target="_blank" class="news-title-link">
             <h3 class="news-title">{item.title}</h3>
         </a>
-        <div class="news-summary">{item.summary}</div>{tags_html}
+        <div class="news-summary">{safe_summary}</div>{tags_html}
         <div class="news-meta">
             <span class="meta-left">{meta_left}</span>
             <span class="meta-right">{meta_right}</span>

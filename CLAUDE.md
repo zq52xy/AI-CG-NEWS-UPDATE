@@ -16,4 +16,5 @@ daily_news/ - 每日生成的 Markdown 报告
 <config>
 .gitignore - Git 忽略配置
 README.md - 项目说明
+_design_system.html - 设计系统基准文件（颜色/排版/组件）
 </config>

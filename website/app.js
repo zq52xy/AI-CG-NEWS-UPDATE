@@ -541,7 +541,13 @@ function sanitizeNewsContent() {
         }
     });
 
-    // 3. 移除危险事件属性
+    // 3. 强制 summary 为纯文本，避免残缺 HTML 破坏布局
+    document.querySelectorAll('.news-summary').forEach(summary => {
+        const text = summary.textContent || '';
+        summary.textContent = text.trim();
+    });
+
+    // 4. 移除危险事件属性
     document.querySelectorAll('#content [onclick], #content [onerror], #content [onload]').forEach(el => {
         el.removeAttribute('onclick');
         el.removeAttribute('onerror');
