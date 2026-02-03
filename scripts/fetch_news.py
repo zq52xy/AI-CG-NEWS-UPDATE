@@ -39,6 +39,8 @@ class NewsItem:
     summary: str = ""
     date: str = ""
     image_url: str = ""  # 新增图片链接字段
+    tags: list = field(default_factory=list)  # 标签，可由 generate_tags 填充
+    extra: dict = field(default_factory=dict)  # 源特定元数据（如 hn_id, today_stars）
 
 
 # ============================================================================
