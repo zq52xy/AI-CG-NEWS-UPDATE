@@ -11,6 +11,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI & CG 每日资讯</title>
+    <!-- 首屏前应用主题，避免闪烁 -->
+    <script>
+        (function () {
+            var t = localStorage.getItem('aicg_news_theme');
+            if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+            else if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+        })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link

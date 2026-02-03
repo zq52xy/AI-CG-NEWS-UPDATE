@@ -144,20 +144,12 @@
 
 ---
 
-## 深色模式预留
+## 白天/黑夜模式 (主题切换)
 
-```css
-@media (prefers-color-scheme: dark) {
-    :root {
-        --primary: #3b5998;
-        --text-main: #e8e8ec;
-        --text-muted: #a0a0b0;
-        --bg-body: #121218;
-        --bg-card: #1a1a24;
-        --border-color: #2a2a3a;
-    }
-}
-```
+- **触发**：右下角 `.theme-toggle` 按钮；或系统偏好（未手动设置时）。
+- **持久化**：`localStorage.aicg_news_theme`，值：`'light'` | `'dark'` | 未设置即跟随系统。
+- **实现**：`<html data-theme="light">` / `data-theme="dark"`；无属性时由 `@media (prefers-color-scheme: dark)` 控制。
+- **深色变量**（`[data-theme="dark"]` 或系统深色时）：`--primary: #5d8fcc`，`--text-main: #e8e8f0`，`--bg-body: #0f0f14`，`--bg-card: #1a1a24`，`--border-color: #2a2a3a` 等，见 `style.css` 设计令牌区。
 
 ---
 
