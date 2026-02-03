@@ -332,6 +332,7 @@ body {
     border-radius: 8px;
     cursor: pointer;
     font-weight: 500;
+    color: var(--text-main);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -2447,6 +2448,7 @@ a:hover {
     }
 }
 
+/* 使用主题变量，保证浅色/深色模式下文字均可读 */
 .section-nav-item {
     background: none;
     border: none;
@@ -2455,7 +2457,7 @@ a:hover {
     font-family: 'Noto Sans SC', -apple-system, sans-serif;
     font-size: 0.8rem;
     font-weight: 400;
-    color: rgba(44, 62, 80, 0.45);
+    color: var(--text-muted);
     text-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
     text-align: left;
     transform-origin: left center;
@@ -2481,6 +2483,28 @@ a:hover {
     color: var(--primary);
     text-shadow: 0 4px 16px rgba(30, 58, 95, 0.15);
     transform: scale(1.02);
+}
+
+/* 深色模式：弱化深色阴影，避免文字糊掉 */
+[data-theme="dark"] .section-nav-item {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+[data-theme="dark"] .section-nav-item:hover {
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+[data-theme="dark"] .section-nav-item.active {
+    text-shadow: 0 0 0 1px rgba(93, 143, 204, 0.3);
+}
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .section-nav-item {
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+    :root:not([data-theme="light"]) .section-nav-item:hover {
+        text-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    }
+    :root:not([data-theme="light"]) .section-nav-item.active {
+        text-shadow: 0 0 0 1px rgba(93, 143, 204, 0.3);
+    }
 }
 
 /* Reduced Motion Support */
