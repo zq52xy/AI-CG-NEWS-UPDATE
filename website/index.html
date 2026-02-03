@@ -314,6 +314,14 @@
                                 <button class="btn btn-secondary" id="specialAbsBtn">查看摘要</button>
                             </div>
                         </div>
+                        <!-- 读者模式：iframe 不可用时展示正文 -->
+                        <div class="preview-reader hidden" id="previewReader">
+                            <div class="preview-reader-header">
+                                <h3 class="preview-reader-title" id="previewReaderTitle"></h3>
+                                <button class="btn btn-ghost btn-sm preview-reader-open" id="previewReaderOpenBtn" type="button" aria-label="在新标签页打开">在新标签页打开</button>
+                            </div>
+                            <div class="preview-reader-content" id="previewReaderContent"></div>
+                        </div>
                         <iframe id="previewIframe" class="preview-iframe"
                             sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
                     </div>
@@ -377,7 +385,9 @@
         </svg>
     </button>
 
-    <script src="app.js?v=34"></script>
+    <!-- 读者模式：正文安全渲染 -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.3.0/dist/purify.min.js" crossorigin="anonymous"></script>
+    <script src="app.js?v=35"></script>
 </body>
 
 </html>

@@ -1724,6 +1724,11 @@ class PreviewManager {
     static specialPdfBtn = document.getElementById('specialPdfBtn');
     static specialAbsBtn = document.getElementById('specialAbsBtn');
 
+    static previewReader = document.getElementById('previewReader');
+    static previewReaderTitle = document.getElementById('previewReaderTitle');
+    static previewReaderContent = document.getElementById('previewReaderContent');
+    static previewReaderOpenBtn = document.getElementById('previewReaderOpenBtn');
+
     static currentUrl = null;
     static isDragging = false;
     static splitRatio = 0.5; // 默认 50:50
@@ -1764,6 +1769,9 @@ class PreviewManager {
                     window.open(absUrl, '_blank');
                 }
             });
+        }
+        if (this.previewReaderOpenBtn) {
+            this.previewReaderOpenBtn.addEventListener('click', () => this.openInNewTab());
         }
 
         // iframe 加载事件
@@ -1833,13 +1841,14 @@ class PreviewManager {
             return;
         }
 
-        // 检测是否可在 iframe 中预览 (黑名单)
+        // 黑名单或 iframe 不可用时走读者模式；否则先试 iframe
         if (!this.isEmbeddable(url)) {
-            this.showError();
+            this.tryReaderMode(url, title);
             return;
         }
 
-        // 普通链接：使用 iframe
+        // 普通链接：先试 iframe
+        this.hideReader();
         if (this.previewIframe) {
             this.previewIframe.src = 'about:blank';
         }
@@ -1862,14 +1871,13 @@ class PreviewManager {
 
                 // 5秒超时检测 - 改进逻辑：只有当仍处于加载状态且不是特殊状态时显示错误
                 this.loadTimeoutId = setTimeout(() => {
-                    // 检查是否仍处于加载状态（loading显示，error和special都隐藏）
                     const isLoading = !this.previewLoading.classList.contains('hidden');
                     const isErrorVisible = !this.previewError.classList.contains('hidden');
                     const isSpecialVisible = !this.previewSpecial.classList.contains('hidden');
+                    const isReaderVisible = this.previewReader && !this.previewReader.classList.contains('hidden');
 
-                    // 只有当确实在加载中，且没有显示错误/特殊状态时，才显示错误
-                    if (isLoading && !isErrorVisible && !isSpecialVisible) {
-                        this.showError();
+                    if (isLoading && !isErrorVisible && !isSpecialVisible && !isReaderVisible) {
+                        this.tryReaderMode(this.currentUrl, title);
                     }
                     this.loadTimeoutId = null;
                 }, 3000);
@@ -1909,13 +1917,9 @@ class PreviewManager {
         this.contentWrapper.classList.remove('split-mode', 'resizing');
         this.currentUrl = null;
         if (this.previewIframe) this.previewIframe.src = 'about:blank';
-        // 重置 CSS 变量
+        this.hideReader();
         this.contentWrapper.style.removeProperty('--content-width');
-
-        // 恢复标题栏状态
         document.title = 'AI & CG 每日资讯';
-
-        // 清除超时定时器
         if (this.loadTimeoutId) {
             clearTimeout(this.loadTimeoutId);
             this.loadTimeoutId = null;
@@ -1964,12 +1968,118 @@ class PreviewManager {
     static showError() {
         this.hideLoading();
         this.hidePlaceholder();
+        this.hideReader();
         if (this.previewIframe) this.previewIframe.style.display = 'none';
         if (this.previewError) this.previewError.classList.remove('hidden');
     }
 
     static hideError() {
         if (this.previewError) this.previewError.classList.add('hidden');
+        if (this.previewIframe) this.previewIframe.style.display = 'block';
+    }
+
+    /**
+     * 读者模式：先试 API/代理拉取 HTML，再提取正文并安全渲染
+     */
+    static tryReaderMode(url, title) {
+        this.hidePlaceholder();
+        this.hideError();
+        this.hideSpecial();
+        if (this.previewIframe) this.previewIframe.style.display = 'none';
+        this.showLoading();
+        if (this.previewIframe) this.previewIframe.style.display = 'none';
+        const loadingTextEl = document.querySelector('.preview-loading-text');
+        if (loadingTextEl && loadingTextEl.firstChild) {
+            loadingTextEl.firstChild.textContent = '正在尝试读者模式… ';
+        }
+        this.fetchReaderContent(url).then((result) => {
+            if (loadingTextEl && loadingTextEl.firstChild) {
+                loadingTextEl.firstChild.textContent = '正在加载页面 ';
+            }
+            if (result) {
+                this.showReader(result.title || title, result.content);
+            } else {
+                this.showError();
+            }
+        }).catch(() => {
+            if (loadingTextEl && loadingTextEl.firstChild) {
+                loadingTextEl.firstChild.textContent = '正在加载页面 ';
+            }
+            this.showError();
+        });
+    }
+
+    /**
+     * 拉取 HTML：优先同源 /api/reader，失败则用 CORS 代理
+     */
+    static async fetchReaderContent(url) {
+        const timeoutMs = 15000;
+        const controller = new AbortController();
+        const tid = setTimeout(() => controller.abort(), timeoutMs);
+        const apiUrl = `${window.location.origin}/api/reader?url=${encodeURIComponent(url)}`;
+        try {
+            const res = await fetch(apiUrl, { signal: controller.signal });
+            clearTimeout(tid);
+            if (!res.ok) throw new Error('API error');
+            const data = await res.json();
+            if (data && data.html) return this.extractContentFromHtml(data.html, url);
+        } catch (_) {
+            clearTimeout(tid);
+        }
+        const c2 = new AbortController();
+        const tid2 = setTimeout(() => c2.abort(), timeoutMs);
+        try {
+            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+            const res = await fetch(proxyUrl, { signal: c2.signal });
+            clearTimeout(tid2);
+            if (!res.ok) throw new Error('Proxy error');
+            const html = await res.text();
+            return this.extractContentFromHtml(html, url);
+        } catch (_) {
+            clearTimeout(tid2);
+            return null;
+        }
+    }
+
+    /**
+     * 从 HTML 提取正文并做安全清洗（article/main/body + DOMPurify）
+     */
+    static extractContentFromHtml(html, fallbackTitle) {
+        if (!html || typeof html !== 'string') return null;
+        try {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const title = (doc.querySelector('title') && doc.querySelector('title').textContent) || fallbackTitle || '无标题';
+            let main = doc.querySelector('article') || doc.querySelector('main') || doc.querySelector('[role="main"]') || doc.body;
+            if (!main) return null;
+            const raw = main.innerHTML;
+            if (typeof DOMPurify !== 'undefined') {
+                const clean = DOMPurify.sanitize(raw, {
+                    ALLOWED_TAGS: ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a', 'ul', 'ol', 'li', 'blockquote', 'pre', 'code', 'img', 'strong', 'em', 'b', 'i', 'br', 'div', 'span', 'section', 'header', 'hr', 'table', 'thead', 'tbody', 'tr', 'th', 'td'],
+                    ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'target']
+                });
+                return { title, content: clean || raw };
+            }
+            return { title, content: raw };
+        } catch (_) {
+            return null;
+        }
+    }
+
+    static showReader(title, content) {
+        this.hideLoading();
+        this.hidePlaceholder();
+        this.hideError();
+        this.hideSpecial();
+        if (this.previewIframe) this.previewIframe.style.display = 'none';
+        if (this.previewReader) this.previewReader.classList.remove('hidden');
+        if (this.previewReaderTitle) this.previewReaderTitle.textContent = title || '无标题';
+        if (this.previewReaderContent) this.previewReaderContent.innerHTML = content || '<p>暂无正文</p>';
+    }
+
+    static hideReader() {
+        if (this.previewReader) this.previewReader.classList.add('hidden');
+        if (this.previewReaderContent) this.previewReaderContent.innerHTML = '';
         if (this.previewIframe) this.previewIframe.style.display = 'block';
     }
 
@@ -1998,7 +2108,8 @@ class PreviewManager {
         if (this.previewSpecial) this.previewSpecial.classList.add('hidden');
         if (this.previewIframe) this.previewIframe.style.display = 'block';
     }
-    n    /*
+
+    /*
      * 显示/隐藏占位层
      */
     static showPlaceholder() {

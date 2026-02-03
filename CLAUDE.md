@@ -16,6 +16,7 @@ Python 抓取 + HTML/JS 前端。
 
 - **scripts/** - 核心抓取脚本（fetch_news.py、daily_fetch.bat）
 - **website/** - 前端展示（app.js、index.html、style.css）
+- **api/** - Vercel Serverless（api/reader 供分屏读者模式拉取 HTML）
 - **daily_news/** - 每日生成的 Markdown 日报
 - **docs/** - 计划与设计系统文档
 - **.cursor/rules/** - Cursor 规则（设计流程见 design.mdc）
