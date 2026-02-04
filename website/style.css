@@ -88,6 +88,52 @@
 }
 
 /* ================================================
+   P3: 主题切换按钮 (白天/黑夜)
+   ================================================ */
+.theme-toggle {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 200;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-main);
+    box-shadow: var(--shadow-md);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-base);
+}
+.theme-toggle:hover {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    box-shadow: var(--shadow-lg);
+}
+.theme-toggle:active {
+    transform: scale(0.96);
+}
+.theme-toggle .icon {
+    width: 22px;
+    height: 22px;
+}
+/* 浅色模式：显示太阳，隐藏月亮 */
+.theme-toggle .icon-sun { display: block; }
+.theme-toggle .icon-moon { display: none; }
+/* 深色模式：显示月亮，隐藏太阳 */
+[data-theme="dark"] .theme-toggle .icon-sun { display: none; }
+[data-theme="dark"] .theme-toggle .icon-moon { display: block; }
+/* 自动跟随系统时，用媒体查询控制图标 */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .theme-toggle .icon-sun { display: none; }
+    :root:not([data-theme="light"]) .theme-toggle .icon-moon { display: block; }
+}
+
+/* ================================================
    P1: 可访问性 - 全局焦点环样式
    ================================================ */
 
@@ -184,6 +230,8 @@ body {
     background-color: var(--bg-body);
     color: var(--text-main);
     line-height: 1.6;
+    /* 主题切换时平滑过渡 */
+    transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 .app {
@@ -284,6 +332,7 @@ body {
     border-radius: 8px;
     cursor: pointer;
     font-weight: 500;
+    color: var(--text-main);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -2065,6 +2114,81 @@ a:hover {
     padding: 10px 20px;
 }
 
+/* 读者模式：正文阅读视图（iframe 不可用时） */
+.preview-reader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-card);
+    overflow: hidden;
+}
+.preview-reader.hidden {
+    display: none;
+}
+.preview-reader-header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-body);
+}
+.preview-reader-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-main);
+    font-family: 'Noto Serif SC', serif;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.preview-reader-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--text-main);
+}
+.preview-reader-content h1,
+.preview-reader-content h2,
+.preview-reader-content h3 {
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    color: var(--text-main);
+}
+.preview-reader-content p {
+    margin: 0 0 1em;
+}
+.preview-reader-content a {
+    color: var(--link-color);
+    text-decoration: underline;
+}
+.preview-reader-content img {
+    max-width: 100%;
+    height: auto;
+}
+.preview-reader-content pre,
+.preview-reader-content code {
+    font-family: 'Fira Code', 'Monaco', monospace;
+    background: var(--code-bg);
+    border-radius: 4px;
+}
+.preview-reader-content pre {
+    padding: 12px;
+    overflow-x: auto;
+}
+.preview-reader-content code {
+    padding: 2px 6px;
+}
+
 .btn-secondary {
     background: rgba(30, 58, 95, 0.08);
     color: var(--text-main);
@@ -2399,6 +2523,7 @@ a:hover {
     }
 }
 
+/* 使用主题变量，保证浅色/深色模式下文字均可读 */
 .section-nav-item {
     background: none;
     border: none;
@@ -2407,7 +2532,7 @@ a:hover {
     font-family: 'Noto Sans SC', -apple-system, sans-serif;
     font-size: 0.8rem;
     font-weight: 400;
-    color: rgba(44, 62, 80, 0.45);
+    color: var(--text-muted);
     text-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
     text-align: left;
     transform-origin: left center;
@@ -2433,6 +2558,28 @@ a:hover {
     color: var(--primary);
     text-shadow: 0 4px 16px rgba(30, 58, 95, 0.15);
     transform: scale(1.02);
+}
+
+/* 深色模式：弱化深色阴影，避免文字糊掉 */
+[data-theme="dark"] .section-nav-item {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+[data-theme="dark"] .section-nav-item:hover {
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+[data-theme="dark"] .section-nav-item.active {
+    text-shadow: 0 0 0 1px rgba(93, 143, 204, 0.3);
+}
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .section-nav-item {
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+    :root:not([data-theme="light"]) .section-nav-item:hover {
+        text-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    }
+    :root:not([data-theme="light"]) .section-nav-item.active {
+        text-shadow: 0 0 0 1px rgba(93, 143, 204, 0.3);
+    }
 }
 
 /* Reduced Motion Support */
