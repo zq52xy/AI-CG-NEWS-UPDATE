@@ -2661,7 +2661,8 @@ a:hover {
     position: relative;
     box-shadow: 0px 4px 12px 0px rgba(30, 58, 95, 0.08);
     height: 120px;
-    background-color: rgba(0, 0, 0, 1);
+    background-color: rgba(255, 255, 255, 1);
+    color: rgba(255, 255, 255, 1);
     z-index: 1;
     /* 确保banner横跨整个Grid宽度（防止嵌套问题导致的单列布局） */
     grid-column: 1 / -1;
@@ -2669,7 +2670,7 @@ a:hover {
 
 /* Fix: Override .content img styles with high specificity */
 .section-header-container .section-banner {
-    width: 400px;
+    width: 1000px;
     height: 100%;
     object-fit: cover;
     display: flex;
@@ -2680,7 +2681,7 @@ a:hover {
     border-radius: 0;
     box-shadow: none;
     position: absolute;
-    left: 240px;
+    left: 0px;
     color: rgba(26, 26, 46, 1);
     background-color: unset;
     background: unset;
@@ -2714,6 +2715,11 @@ a:hover {
     object-position: center 30%;
 }
 
+/* CG 图形学 banner 微调定位 */
+.section-header-container .section-banner[src*="CG"] {
+    left: -2px;
+}
+
 .section-header-overlay {
     position: absolute;
     bottom: 0;
@@ -2745,7 +2751,7 @@ a:hover {
 
 .section-header-container h2 {
     margin: 0;
-    color: white !important;
+    color: rgba(255, 255, 255, 1) !important;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
     font-size: 1.6rem;
     font-family: 'Noto Serif SC', serif;
