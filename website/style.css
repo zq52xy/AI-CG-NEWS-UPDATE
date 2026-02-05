@@ -2659,9 +2659,9 @@ a:hover {
     border-radius: 12px;
     overflow: hidden;
     position: relative;
-    box-shadow: var(--shadow-md);
+    box-shadow: 0px 4px 12px 0px rgba(30, 58, 95, 0.08);
     height: 120px;
-    background: var(--bg-card);
+    background-color: rgba(0, 0, 0, 1);
     z-index: 1;
     /* 确保banner横跨整个Grid宽度（防止嵌套问题导致的单列布局） */
     grid-column: 1 / -1;
@@ -2669,23 +2669,38 @@ a:hover {
 
 /* Fix: Override .content img styles with high specificity */
 .section-header-container .section-banner {
-    width: 100%;
+    width: 400px;
     height: 100%;
     object-fit: cover;
-    display: block;
+    display: flex;
     margin: 0;
     padding: 0;
+    padding-top: 0;
+    padding-bottom: 0;
     border-radius: 0;
     box-shadow: none;
     position: absolute;
+    left: 240px;
     color: rgba(26, 26, 46, 1);
+    background-color: unset;
+    background: unset;
+    background-image: none;
+    background-clip: unset;
+    -webkit-background-clip: unset;
+    overflow: hidden;
+    vertical-align: bottom;
+    text-align: left;
+    line-height: 25.6;
+    flex-wrap: wrap;
+    transform: none;
 }
 
 /* Specific fix for arXiv layout */
 .section-header-container .section-banner[src*="arXiv"],
 .section-header-container .section-banner[src*="arxiv"] {
     object-fit: contain;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    background: unset;
+    background-image: none;
     padding: 15px 20px;
     box-sizing: border-box;
     width: 100%;
@@ -2705,7 +2720,8 @@ a:hover {
     left: 0;
     right: 0;
     height: 100%;
-    color: rgba(26, 26, 46, 1);
+    background-color: rgba(0, 0, 0, 0.01);
+    color: rgba(26, 26, 46, 0);
     /* 轻微遮罩 - 让图片透出来，同时保证文字可读 */
     background: linear-gradient(0deg, rgba(0, 0, 0, 0.98) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0) 100%);
     padding: 0 24px;
