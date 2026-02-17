@@ -74,6 +74,17 @@
                     刷新数据
                 </button>
 
+                <!-- Jony Ive Redesign: Moved Meta Info -->
+                <div class="sidebar-meta-info">
+                    <div class="meta-row">
+                        <span class="beijing-time" id="beijingTime"></span>
+                        <span class="status" id="status">● 在线</span>
+                    </div>
+                    <div class="meta-row">
+                         <span class="date" id="currentDate"></span>
+                    </div>
+                </div>
+
                 <!-- Phase 1: 行为设计 - 固定时间 Cue -->
                 <div class="update-hint" id="updateHint">
                     <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true">
@@ -127,21 +138,26 @@
                             </svg>
                             <span class="back-to-today-text">返回今日</span>
                         </button>
-                        <span class="beijing-time" id="beijingTime"></span>
-                        <span class="date" id="currentDate"></span>
-                        <span class="status" id="status">● 在线</span>
                     </div>
                 </div>
             </header>
 
             <!-- 标签筛选栏 -->
-            <div class="tag-filter-bar" id="tagFilterBar">
+            <div class="tag-filter-bar collapsed" id="tagFilterBar">
                 <div class="tag-filter-header">
-                    <span class="tag-filter-title"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <div class="tag-filter-title-group">
+                         <span class="tag-filter-title"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
                             <path
                                 d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z" />
                             <path d="M7 7h.01" />
                         </svg> 标签筛选</span>
+                        <button class="tag-toggle-btn" id="tagToggleBtn" aria-label="展开/收起标签">
+                            <span class="toggle-text">展开</span>
+                            <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                    </div>
                     <button class="tag-clear-btn" id="tagClearBtn" aria-label="清除标签筛选">清除</button>
                 </div>
                 <div class="tag-cloud" id="tagCloud">

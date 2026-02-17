@@ -999,29 +999,29 @@ function fixNestedNewsGrids() {
 
     // 查找所有顶级 news-grid
     const topLevelGrids = Array.from(content.children).filter(c => c.classList?.contains('news-grid'));
-    
+
     topLevelGrids.forEach(outerGrid => {
         // 查找嵌套在此 grid 内的 h2 标题（版块标题）
         const nestedH2s = outerGrid.querySelectorAll('h2');
-        
+
         nestedH2s.forEach(h2 => {
             // 收集 h2 及其后续元素直到下一个 h2 或 grid 结束
             const elementsToMove = [h2];
             let sibling = h2.nextElementSibling;
-            
+
             while (sibling) {
                 // 如果遇到下一个 h2，停止
                 if (sibling.tagName === 'H2') break;
-                
+
                 elementsToMove.push(sibling);
                 sibling = sibling.nextElementSibling;
             }
-            
+
             // 将元素移到 content 下
             elementsToMove.forEach(el => {
                 content.appendChild(el);
             });
-            
+
             console.log('[Fix] Moved nested section to content:', h2.textContent?.substring(0, 30));
         });
     });
@@ -1387,6 +1387,22 @@ class TagFilterManager {
 
         // 绑定清除按钮
         this.clearBtn.addEventListener('click', () => this.clearFilters());
+
+        // Jony Ive Redesign: 绑定展开/收起按钮
+        this.toggleBtn = document.getElementById('tagToggleBtn');
+        this.filterBar = document.getElementById('tagFilterBar');
+
+        if (this.toggleBtn && this.filterBar) {
+            this.toggleBtn.addEventListener('click', () => {
+                const isCollapsed = this.filterBar.classList.contains('collapsed');
+                if (isCollapsed) {
+                    this.filterBar.classList.remove('collapsed');
+                    // Update icon rotation handled by CSS
+                } else {
+                    this.filterBar.classList.add('collapsed');
+                }
+            });
+        }
     }
 
     /**
@@ -1524,6 +1540,13 @@ class TagFilterManager {
         });
 
         this.applyFilter();
+
+        // Jony Ive Redesign: 如果有恢复选中状态，自动展开以便用户看到
+        if (this.tagCloud.querySelectorAll('.tag-item.active').length > 0) {
+            if (this.filterBar) {
+                this.filterBar.classList.remove('collapsed');
+            }
+        }
     }
 
     /**

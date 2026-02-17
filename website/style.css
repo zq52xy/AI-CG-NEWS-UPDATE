@@ -251,6 +251,8 @@ body {
     height: 100vh;
     z-index: 100;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Jony Ive Polish: Subtle contrast instead of hard line */
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.02);
 }
 
 .sidebar-header {
@@ -320,6 +322,40 @@ body {
 .sidebar-footer {
     padding: 20px;
     border-top: 1px solid var(--border-color);
+    /* Ensure footer aligns to bottom */
+    margin-top: auto;
+}
+
+/* Jony Ive Redesign: Sidebar Meta Info */
+.sidebar-meta-info {
+    margin-top: 16px;
+    border-top: 1px solid var(--border-color); /* Separator */
+    padding-top: 16px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.beijing-time {
+    font-family: 'Noto Sans SC', monospace; /* Monospaced for consistent width */
+    font-weight: 500;
+}
+
+.date {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+.status {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--accent);
 }
 
 .refresh-btn {
@@ -327,12 +363,12 @@ body {
     padding: 10px;
     border: 1px solid var(--border-color);
     background: var(--bg-body);
-    background-image: radial-gradient(var(--border-color) 1px, transparent 1px);
-    background-size: 20px 20px;
+    /* Simplify button background - remove noise */
+    background-image: none;
     border-radius: 8px;
     cursor: pointer;
     font-weight: 500;
-    color: var(--text-main);
+    color: var(--text-muted); /* Reduce visual weight */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -345,6 +381,7 @@ body {
     background: var(--bg-body);
     border-color: var(--primary);
     color: var(--primary);
+    box-shadow: var(--shadow-sm); /* Subtle lift */
 }
 
 /* ================================================
@@ -577,7 +614,23 @@ body {
 }
 
 .back-to-today-text {
-    font-weight: 600;
+    font-weight: 500;
+} 
+
+/* Jony Ive Polish: Refined 'Back to Today' */
+.back-to-today {
+    /* More subtle gradient */
+    background: var(--bg-body);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    box-shadow: none;
+}
+
+.back-to-today:hover {
+    background: var(--accent);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 107, 74, 0.2);
 }
 
 /* 移动端适配 */
@@ -721,11 +774,12 @@ body {
 .header-meta {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
     font-size: 0.9rem;
     color: var(--text-muted);
 }
 
+/* Status is moved to sidebar, but kept class for any legacy references or different layouts */
 .status {
     font-weight: 500;
     color: var(--accent);
@@ -907,7 +961,7 @@ body {
 }
 
 /* ================================================
-   Tag Filter Bar & Tag Cloud
+   Tag Filter Bar & Tag Cloud (Collapsible)
    ================================================ */
 
 .tag-filter-bar {
@@ -915,13 +969,59 @@ body {
     border-bottom: 1px solid var(--border-color);
     padding: 12px 32px;
     box-shadow: var(--shadow-sm);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.tag-filter-bar.collapsed {
+    padding-bottom: 0; /* Remove bottom padding when collapsed */
+    max-height: 52px; /* Height of just the header/title row */
+}
+
+/* When collapsed, hide border to seamlessly blend if desired, or keep it */
+.tag-filter-bar.collapsed {
+    border-bottom-color: transparent;
 }
 
 .tag-filter-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+    height: 32px; /* Fixed height for header for consistent collapse calculations */
+}
+
+.tag-filter-title-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+} 
+
+.tag-toggle-btn {
+    background: transparent;
+    border: none;
+    color: var(--primary);
+    font-size: 0.75rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: var(--transition-base);
+}
+
+.tag-toggle-btn:hover {
+    background: rgba(30, 58, 95, 0.05);
+}
+
+.tag-toggle-btn .icon {
+    transition: transform 0.3s ease;
+}
+
+/* Rotate icon when expanded (reverse logic: default is expanded in DOM, valid for collapsed state logic) */
+.tag-filter-bar:not(.collapsed) .tag-toggle-btn .icon {
+    transform: rotate(180deg);
 }
 
 .tag-filter-title {
