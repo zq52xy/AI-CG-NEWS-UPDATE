@@ -1375,31 +1375,39 @@ async function refresh() {
  * 动态从新闻卡片提取标签，渲染标签云，实现 OR 筛选逻辑
  */
 class TagFilterManager {
-    static tagCloud = document.getElementById('tagCloud');
-    static clearBtn = document.getElementById('tagClearBtn');
+    static tagCloud = null;
+    static clearBtn = null;
     static selectedTags = new Set();
 
     /**
      * 初始化标签筛选系统
      */
     static init() {
+        this.tagCloud = document.getElementById('tagCloud');
+        this.clearBtn = document.getElementById('tagClearBtn');
+        this.toggleBtn = document.getElementById('tagToggleBtn');
+        this.filterBar = document.getElementById('tagFilterBar');
+
+        if (!this.tagCloud) console.warn('TagFilterManager: tagCloud not found');
+        if (!this.clearBtn) console.warn('TagFilterManager: clearBtn not found');
+
         if (!this.tagCloud || !this.clearBtn) return;
 
         // 绑定清除按钮
         this.clearBtn.addEventListener('click', () => this.clearFilters());
 
         // Jony Ive Redesign: 绑定展开/收起按钮
-        this.toggleBtn = document.getElementById('tagToggleBtn');
-        this.filterBar = document.getElementById('tagFilterBar');
-
         if (this.toggleBtn && this.filterBar) {
             this.toggleBtn.addEventListener('click', () => {
                 const isCollapsed = this.filterBar.classList.contains('collapsed');
+                const toggleText = this.toggleBtn.querySelector('.toggle-text');
+
                 if (isCollapsed) {
                     this.filterBar.classList.remove('collapsed');
-                    // Update icon rotation handled by CSS
+                    if (toggleText) toggleText.textContent = '收起';
                 } else {
                     this.filterBar.classList.add('collapsed');
+                    if (toggleText) toggleText.textContent = '展开';
                 }
             });
         }
