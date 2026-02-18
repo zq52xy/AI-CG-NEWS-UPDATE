@@ -973,12 +973,16 @@ body {
     overflow: hidden;
 }
 
-.tag-filter-bar.collapsed {
-    padding-bottom: 0; /* Remove bottom padding when collapsed */
-    max-height: 52px; /* Height of just the header/title row */
+.tag-filter-bar.collapsed .tag-cloud,
+.tag-filter-bar.collapsed .tag-clear-btn {
+    display: none; /* 直接隐藏子元素，比 max-height 裁剪更可靠 */
 }
 
-/* When collapsed, hide border to seamlessly blend if desired, or keep it */
+.tag-filter-bar.collapsed .tag-filter-header {
+    margin-bottom: 0; /* 收起时移除底部间距 */
+}
+
+/* 收起时隐藏底部边框 */
 .tag-filter-bar.collapsed {
     border-bottom-color: transparent;
 }
