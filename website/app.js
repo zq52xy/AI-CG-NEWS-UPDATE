@@ -1378,20 +1378,22 @@ class TagFilterManager {
     static tagCloud = null;
     static clearBtn = null;
     static selectedTags = new Set();
+    static _initialized = false;
 
     /**
-     * 初始化标签筛选系统
+     * 初始化标签筛选系统（幂等 — 重复调用安全）
      */
     static init() {
+        if (this._initialized) return;
+
         this.tagCloud = document.getElementById('tagCloud');
         this.clearBtn = document.getElementById('tagClearBtn');
         this.toggleBtn = document.getElementById('tagToggleBtn');
         this.filterBar = document.getElementById('tagFilterBar');
 
-        if (!this.tagCloud) console.warn('TagFilterManager: tagCloud not found');
-        if (!this.clearBtn) console.warn('TagFilterManager: clearBtn not found');
-
         if (!this.tagCloud || !this.clearBtn) return;
+
+        this._initialized = true;
 
         // 绑定清除按钮
         this.clearBtn.addEventListener('click', () => this.clearFilters());
@@ -2476,8 +2478,7 @@ class SearchManager {
     }
 }
 
-// 初始化搜索功能和标签筛选
+// 初始化搜索功能
 document.addEventListener('DOMContentLoaded', () => {
     SearchManager.init();
-    TagFilterManager.init();
 });
